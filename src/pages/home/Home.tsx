@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import type { Variants } from "framer-motion";
+import { CaretDown } from "@phosphor-icons/react";
 
 import popular from "../../assets/popular.png";
 import luxury from "../../assets/luxury.png";
@@ -63,6 +64,35 @@ function Home() {
   ];
 
   const [carroSelecionado, setCarroSelecionado] = useState(carros[0]);
+  const [faqAberta, setFaqAberta] = useState(0);
+
+  const duvidasFrequentes = [
+    {
+      pergunta: "Como funciona a contratação online?",
+      resposta:
+        "Você preenche os dados do veículo, recebe uma cotação personalizada em minutos e finaliza a contratação digitalmente. Sua apólice fica disponível na hora no painel do cliente.",
+    },
+    {
+      pergunta: "Quais coberturas estão inclusas?",
+      resposta:
+        "Oferecemos planos com colisão, roubo, furto, danos a terceiros, assistência 24h, carro reserva e proteção contra eventos da natureza. Você escolhe o que faz sentido pra você.",
+    },
+    {
+      pergunta: "Como é calculada a mensalidade?",
+      resposta:
+        "Levamos em conta o modelo, ano e valor FIPE do veículo, perfil do condutor, região e histórico de uso. Nosso motor de IA encontra o melhor preço para o seu perfil.",
+    },
+    {
+      pergunta: "Em quanto tempo o sinistro é resolvido?",
+      resposta:
+        "Sinistros simples são aprovados em até 24h. Para casos mais complexos, nosso prazo médio é de 5 dias úteis com acompanhamento em tempo real pelo app.",
+    },
+    {
+      pergunta: "Posso cancelar quando quiser?",
+      resposta:
+        "Sim! Não cobramos multa por cancelamento. Você cancela direto pelo painel e recebe a devolução proporcional automaticamente.",
+    },
+  ];
 
   const benefitsGridVariants: Variants = {
     hidden: {},
@@ -358,6 +388,60 @@ function Home() {
               </motion.div>
             ))}
           </motion.div>
+        </div>
+      </section>
+
+      <section
+        id="duvidas"
+        className="faq-section relative isolate overflow-hidden bg-[#02050a] px-10 py-28 max-[760px]:px-5"
+      >
+        <div className="faq-orbit" aria-hidden="true" />
+
+        <div className="mx-auto w-[min(980px,100%)]">
+          <div className="mb-14 text-center">
+            <p className="mb-4 mt-0 text-[0.72rem] font-black tracking-[0.45rem] text-[#22D3EE] max-[520px]:tracking-[0.22rem]">
+              TIRE SUAS DÚVIDAS
+            </p>
+
+            <h2 className="m-0 font-[var(--font-display)] text-[clamp(4rem,8vw,7rem)] font-normal leading-[0.88] tracking-[0.03em] text-[#F0F2F4]">
+              Dúvidas{" "}
+              <span className="animated-gradient-text inline-block">
+                Frequentes
+              </span>
+            </h2>
+          </div>
+
+          <div className="grid gap-4">
+            {duvidasFrequentes.map((duvida, index) => {
+              const estaAberta = faqAberta === index;
+
+              return (
+                <div
+                  key={duvida.pergunta}
+                  className={`faq-item ${estaAberta ? "active" : ""}`}
+                >
+                  <button
+                    type="button"
+                    className="faq-trigger"
+                    onClick={() => setFaqAberta(estaAberta ? -1 : index)}
+                    aria-expanded={estaAberta}
+                  >
+                    <span>{duvida.pergunta}</span>
+                    <CaretDown
+                      size={19}
+                      weight="bold"
+                      className="faq-caret"
+                      aria-hidden="true"
+                    />
+                  </button>
+
+                  <div className="faq-answer" aria-hidden={!estaAberta}>
+                    <p>{duvida.resposta}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </section>
 

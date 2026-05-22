@@ -1,19 +1,21 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { List, ShieldCheck, User } from "@phosphor-icons/react";
+import { Car, Lightning, List, Question, Shield, ShieldCheck, User, Users } from "@phosphor-icons/react";
 
 const sideLinks = [
-  { id: "showcase", label: "01 - SHOWCASE" },
-  { id: "sobre", label: "02 - SOBRE NÓS" },
-  { id: "beneficios", label: "03 - BENEFÍCIOS" },
-  { id: "equipe", label: "04 - EQUIPE" },
+  { id: "showcase", icon: Car, eyebrow: "01", label: "Trust Way" },
+  { id: "sobre", icon: Shield, eyebrow: "02", label: "Sobre nós" },
+  { id: "beneficios", icon: Lightning, eyebrow: "03", label: "Benefícios" },
+  { id: "duvidas", icon: Question, eyebrow: "04", label: "Dúvidas" },
+  { id: "equipe", icon: Users, eyebrow: "05", label: "Equipe" },
 ];
 
 function Navbar() {
   const [activeSection, setActiveSection] = useState(sideLinks[0].id);
+  const [scrollProgress, setScrollProgress] = useState(0);
 
   useEffect(() => {
-    const updateActiveSection = () => {
+    const updateRail = () => {
       const currentSection = sideLinks
         .map((link) => document.getElementById(link.id))
         .filter((section): section is HTMLElement => Boolean(section))
@@ -22,16 +24,22 @@ function Navbar() {
           return sectionTop <= window.innerHeight * 0.38;
         });
 
+      const scrollableHeight =
+        document.documentElement.scrollHeight - window.innerHeight;
+      const progress =
+        scrollableHeight > 0 ? window.scrollY / scrollableHeight : 0;
+
       setActiveSection(currentSection?.id ?? sideLinks[0].id);
+      setScrollProgress(Math.min(Math.max(progress, 0), 1));
     };
 
-    updateActiveSection();
-    window.addEventListener("scroll", updateActiveSection, { passive: true });
-    window.addEventListener("resize", updateActiveSection);
+    updateRail();
+    window.addEventListener("scroll", updateRail, { passive: true });
+    window.addEventListener("resize", updateRail);
 
     return () => {
-      window.removeEventListener("scroll", updateActiveSection);
-      window.removeEventListener("resize", updateActiveSection);
+      window.removeEventListener("scroll", updateRail);
+      window.removeEventListener("resize", updateRail);
     };
   }, []);
 
@@ -47,7 +55,7 @@ function Navbar() {
             <List size={23} weight="bold" />
           </button>
 
-          <p className="hidden text-[11px] tracking-[4px] text-[#F0F2F4]/35 sm:block">
+          <p className="hidden pl-14 text-[11px] tracking-[4px] text-[#F0F2F4]/35 lg:block">
             EST. 2024 / TRUSTWAY
           </p>
         </div>
@@ -67,29 +75,48 @@ function Navbar() {
             </span>
           </button>
 
-          <button className="sliding-button is-filled inline-flex min-h-9 items-center gap-2 border border-[#4F46E5]/70 px-5 text-[0.68rem] font-black tracking-[0.08rem] text-[#F0F2F4]">
+          <Link
+            to="/admcliente"
+            className="sliding-button is-filled inline-flex min-h-9 items-center gap-2 border border-[#4F46E5]/70 px-5 text-[0.68rem] font-black tracking-[0.08rem] text-[#F0F2F4]"
+          >
             <span>
               <ShieldCheck size={15} weight="bold" />
               PAINEL ADMIN
             </span>
-          </button>
+          </Link>
         </div>
       </nav>
 
-      <aside className="side-rail fixed left-6 top-1/2 z-50 flex -translate-y-1/2 flex-col gap-5 max-[1100px]:hidden">
-        {sideLinks.map((link) => (
-          <a
-            key={link.id}
-            href={`#${link.id}`}
-            className={`text-[0.67rem] font-extrabold tracking-[0.18rem] transition duration-200 hover:translate-x-1 hover:text-[#4F46E5] ${
-              activeSection === link.id
-                ? "active translate-x-1 text-[#4F46E5]"
-                : "text-[#F0F2F4]/35"
-            }`}
-          >
-            {link.label}
-          </a>
-        ))}
+      <aside className="neon-sidebar group fixed left-5 top-1/2 z-50 flex h-[min(620px,calc(100vh-7rem))] w-[76px] -translate-y-1/2 flex-col overflow-hidden rounded-[8px] border border-[#F0F2F4]/10 bg-[#080812]/90 p-3 text-[#F0F2F4] shadow-[0_1.8rem_4rem_rgba(0,0,0,0.62)] backdrop-blur-2xl transition-[width,box-shadow,border-color] duration-300 hover:w-[260px] hover:border-[#22D3EE]/45 hover:shadow-[0_0_36px_rgba(34,211,238,0.18),0_1.8rem_4rem_rgba(0,0,0,0.68)] max-[1100px]:hidden">
+        <div className="neon-sidebar-glow" aria-hidden="true" />
+
+        <div className="neon-sidebar-progress" aria-hidden="true">
+          <span style={{ width: `${scrollProgress * 100}%` }} />
+        </div>
+
+        <div className="flex flex-1 flex-col justify-center gap-4">
+          {sideLinks.map((link) => {
+            const isActive = activeSection === link.id;
+            const Icon = link.icon;
+
+            return (
+              <a
+                key={link.id}
+                href={`#${link.id}`}
+                className={`neon-sidebar-link ${isActive ? "active" : ""}`}
+                aria-label={link.label}
+              >
+                <span className="neon-sidebar-icon" aria-hidden="true">
+                  <Icon size={23} weight="bold" />
+                </span>
+                <span className="neon-sidebar-label">
+                  <small>{link.eyebrow}</small>
+                  <strong>{link.label}</strong>
+                </span>
+              </a>
+            );
+          })}
+        </div>
       </aside>
     </>
   );
