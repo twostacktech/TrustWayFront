@@ -65,6 +65,18 @@ function Home() {
 
   const [carroSelecionado, setCarroSelecionado] = useState(carros[0]);
   const [faqAberta, setFaqAberta] = useState(0);
+  const [simulacao, setSimulacao] = useState({
+    marca: "",
+    modelo: "",
+    ano: "",
+  });
+  const [simulacaoEnviada, setSimulacaoEnviada] = useState(false);
+
+  const anoSimulado = Number(simulacao.ano);
+  const mensalidadeSimulada =
+    anoSimulado > 0
+      ? Math.max(189, 520 - Math.min(Math.max(new Date().getFullYear() - anoSimulado, 0), 18) * 13)
+      : 289;
 
   const duvidasFrequentes = [
     {
@@ -389,6 +401,85 @@ function Home() {
             ))}
           </motion.div>
         </div>
+      </section>
+
+      <section
+        id="simulador"
+        className="simulator-section relative isolate grid min-h-screen grid-cols-[minmax(0,680px)_minmax(360px,520px)] items-center justify-center gap-[clamp(2rem,4vw,4rem)] overflow-hidden bg-black px-[clamp(1.25rem,6vw,6rem)] py-28 max-[980px]:grid-cols-1 max-[760px]:py-24"
+      >
+        <div className="simulator-copy">
+          <p className="mb-6 mt-0 text-[0.72rem] font-black tracking-[0.4rem] text-[#22D3EE] max-[520px]:tracking-[0.22rem]">
+            COTAÇÃO INTELIGENTE
+          </p>
+
+          <h2 className="m-0 max-w-[620px] font-[var(--font-impact)] text-[clamp(4rem,8vw,7.5rem)] font-normal leading-[0.9] tracking-[0.01em] text-[#F0F2F4]">
+            Sua proteção começa{" "}
+            <span className="animated-gradient-text inline-block">aqui.</span>
+          </h2>
+
+          <p className="mt-9 max-w-[610px] text-[clamp(1rem,1.5vw,1.35rem)] leading-[1.65] text-[#F0F2F4]/78">
+            Simule seu seguro em poucos minutos e descubra a cobertura ideal para o
+            seu veículo. Na <span className="text-[#22D3EE]">Trust Way</span>, sua
+            segurança vem em primeiro lugar.
+          </p>
+        </div>
+
+        <form
+          className="simulator-card"
+          onSubmit={(event) => {
+            event.preventDefault();
+            setSimulacaoEnviada(true);
+          }}
+        >
+          <h3>Simule seu seguro</h3>
+
+          <label>
+            <span>Marca do veículo</span>
+            <input
+              type="text"
+              placeholder="Ex: Toyota"
+              value={simulacao.marca}
+              onChange={(event) =>
+                setSimulacao((atual) => ({ ...atual, marca: event.target.value }))
+              }
+            />
+          </label>
+
+          <label>
+            <span>Modelo do veículo</span>
+            <input
+              type="text"
+              placeholder="Ex: Corolla"
+              value={simulacao.modelo}
+              onChange={(event) =>
+                setSimulacao((atual) => ({ ...atual, modelo: event.target.value }))
+              }
+            />
+          </label>
+
+          <label>
+            <span>Ano do veículo</span>
+            <input
+              type="number"
+              min="1990"
+              max={new Date().getFullYear() + 1}
+              placeholder="Ex: 2022"
+              value={simulacao.ano}
+              onChange={(event) =>
+                setSimulacao((atual) => ({ ...atual, ano: event.target.value }))
+              }
+            />
+          </label>
+
+          <button type="submit">Simular Agora</button>
+
+          {simulacaoEnviada && (
+            <div className="simulator-result" role="status">
+              <span>Estimativa inicial</span>
+              <strong>R$ {mensalidadeSimulada},00 / mês</strong>
+            </div>
+          )}
+        </form>
       </section>
 
       <section

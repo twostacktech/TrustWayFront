@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Car, Lightning, List, Question, Shield, ShieldCheck, User, Users } from "@phosphor-icons/react";
+import { Calculator, Car, Lightning, List, Question, Shield, ShieldCheck, User, Users } from "@phosphor-icons/react";
 
 const sideLinks = [
   { id: "showcase", icon: Car, eyebrow: "01", label: "Trust Way" },
   { id: "sobre", icon: Shield, eyebrow: "02", label: "Sobre nós" },
   { id: "beneficios", icon: Lightning, eyebrow: "03", label: "Benefícios" },
-  { id: "duvidas", icon: Question, eyebrow: "04", label: "Dúvidas" },
-  { id: "equipe", icon: Users, eyebrow: "05", label: "Equipe" },
+  { id: "simulador", icon: Calculator, eyebrow: "04", label: "Simulador" },
+  { id: "duvidas", icon: Question, eyebrow: "05", label: "Dúvidas" },
+  { id: "equipe", icon: Users, eyebrow: "06", label: "Equipe" },
 ];
 
 function Navbar() {
