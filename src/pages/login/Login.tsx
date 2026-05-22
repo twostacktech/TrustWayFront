@@ -35,7 +35,7 @@ export default function Login() {
 
       localStorage.setItem('token', data.token); 
       
-      navigate('/admcliente'); 
+      navigate('/minhas-apolices'); 
 
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Erro ao fazer login');

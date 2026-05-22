@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { ArrowLeft, User, MagnifyingGlass, Car, ShieldCheck, CurrencyDollar, Calendar, FileText, Warning, Receipt, CopySimple, } from "@phosphor-icons/react";
 
 // Definição dos tipos baseados no padrão do seu backend
@@ -148,9 +149,9 @@ export function MinhasApolices() {
       <header className="border-b border-white/10 bg-[#16151E]/80 backdrop-blur sticky top-0 z-30">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-6">
-            <a href="#" onClick={(e) => e.preventDefault()} className="flex items-center gap-2 text-sm text-[#a1a1aa] hover:text-[#fafafa] transition-colors">
+            <Link to="/home" className="flex items-center gap-2 text-sm text-[#a1a1aa] hover:text-[#fafafa] transition-colors">
               <ArrowLeft className="h-4 w-4" /> Voltar ao início
-            </a>
+            </Link>
             <div className="h-5 w-px bg-white/10" />
             <div>
               <p className="text-2xl font-bold tracking-wider uppercase">Trustway</p>

@@ -60,15 +60,15 @@ function Navbar() {
         </Link>
 
         <div className="hidden gap-3 md:flex">
-          <button className="inline-flex min-h-9 items-center gap-2 border border-[#333] px-5 text-[0.68rem] font-black tracking-[0.08rem] text-white transition duration-200 hover:-translate-y-px hover:border-[#ff1744]">
+          <Link to="/login" className="inline-flex min-h-9 items-center gap-2 border border-[#333] px-5 text-[0.68rem] font-black tracking-[0.08rem] text-white transition duration-200 hover:-translate-y-px hover:border-[#ff1744]">
             <User size={15} weight="bold" />
             LOGIN USUÁRIO
-          </button>
+          </Link>
 
-          <button className="inline-flex min-h-9 items-center gap-2 bg-[#ff1744] px-5 text-[0.68rem] font-black tracking-[0.08rem] text-white transition duration-200 hover:-translate-y-px">
+          <Link to="/admcliente" className="inline-flex min-h-9 items-center gap-2 bg-[#ff1744] px-5 text-[0.68rem] font-black tracking-[0.08rem] text-white transition duration-200 hover:-translate-y-px">
             <ShieldCheck size={15} weight="bold" />
             PAINEL ADMIN
-          </button>
+          </Link>
         </div>
       </nav>
 
