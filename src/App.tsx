@@ -21,7 +21,7 @@ function HomeLayout() {
 
 function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
-    <main className="min-h-screen bg-[#020202] text-white">
+    <main className="min-h-screen bg-[#16151E] text-[#FAFAFA]">
       <NavBarAdm />
       {children}
     </main>

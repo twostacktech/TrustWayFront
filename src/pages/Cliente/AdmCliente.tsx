@@ -242,7 +242,7 @@ function AdmCliente() {
             <button
               type="button"
               onClick={closeToast}
-              className="rounded border border-zinc-600 px-3 py-1 text-sm font-bold text-zinc-200"
+              className="rounded border border-white/10 px-3 py-1 text-sm font-bold text-[#FAFAFA]"
             >
               Cancelar
             </button>
@@ -252,7 +252,7 @@ function AdmCliente() {
                 closeToast()
                 excluirCliente(cliente)
               }}
-              className="rounded bg-rose-600 px-3 py-1 text-sm font-bold text-white"
+              className="rounded bg-[#9D4EDD] px-3 py-1 text-sm font-bold text-white hover:bg-[#7A39C6]"
             >
               Excluir
             </button>
@@ -287,10 +287,10 @@ function AdmCliente() {
       <section className="px-4 py-10 sm:px-8 lg:px-14">
         <div className="mb-8 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <span className="mb-1 block text-xs font-medium uppercase tracking-[0.5em] text-zinc-400">
+            <span className="mb-1 block text-xs font-medium uppercase tracking-[0.5em] text-[#A1A1AA]">
               Gestao
             </span>
-            <h1 className="font-display text-5xl leading-none tracking-tight text-white sm:text-6xl">
+            <h1 className="font-display text-5xl leading-none tracking-tight text-[#FAFAFA] sm:text-6xl">
               CLIENTES
             </h1>
           </div>
@@ -298,7 +298,7 @@ function AdmCliente() {
           <button
             type="button"
             onClick={abrirCadastro}
-            className="inline-flex h-11 w-fit items-center justify-center gap-2 rounded-md bg-rose-600 px-5 text-sm font-bold text-white transition hover:bg-rose-500 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex h-11 w-fit items-center justify-center gap-2 rounded-md bg-[#9D4EDD] px-5 text-sm font-bold text-white transition hover:bg-[#7A39C6] disabled:cursor-not-allowed disabled:opacity-60"
             disabled={carregando || !token}
           >
             <Plus size={18} weight="bold" />
@@ -309,9 +309,9 @@ function AdmCliente() {
         {!token && (
           <form
             onSubmit={salvarToken}
-            className="mb-6 max-w-3xl rounded-md border border-rose-500/40 bg-rose-950/20 p-4"
+            className="mb-6 max-w-3xl rounded-md border border-white/10 bg-white/[0.05] p-4"
           >
-            <label className="mb-3 block text-sm font-medium text-zinc-200">
+            <label className="mb-3 block text-sm font-medium text-[#FAFAFA]">
               Token de acesso
             </label>
             <div className="flex flex-col gap-3 sm:flex-row">
@@ -319,11 +319,11 @@ function AdmCliente() {
                 value={tokenDigitado}
                 onChange={(event) => setTokenDigitado(event.target.value)}
                 placeholder="Cole aqui o token Bearer do Swagger"
-                className="h-10 flex-1 rounded-md border border-white/15 bg-black px-3 text-sm text-white outline-none placeholder:text-zinc-500 focus:border-rose-500"
+                className="h-10 flex-1 rounded-md border border-white/10 bg-white/[0.05] px-3 text-sm text-[#FAFAFA] outline-none placeholder:text-[#A1A1AA] focus:border-[#9D4EDD]"
               />
               <button
                 type="submit"
-                className="h-10 rounded-md bg-rose-600 px-5 text-sm font-bold text-white transition hover:bg-rose-500"
+                className="h-10 rounded-md bg-[#9D4EDD] px-5 text-sm font-bold text-white transition hover:bg-[#7A39C6]"
               >
                 Salvar token
               </button>
@@ -335,31 +335,31 @@ function AdmCliente() {
           onSubmit={buscarClientePorCpf}
           className="mb-6 flex max-w-[560px] flex-col gap-3 sm:flex-row"
         >
-          <label className="flex h-10 flex-1 items-center gap-3 rounded-md border border-white/15 bg-zinc-950 px-3 text-zinc-500 focus-within:border-rose-500">
+          <label className="flex h-10 flex-1 items-center gap-3 rounded-md border border-white/10 bg-white/[0.05] px-3 text-[#A1A1AA] focus-within:border-[#9D4EDD]">
             <MagnifyingGlass size={18} />
             <input
               type="search"
               value={buscaCpf}
               onChange={(event) => setBuscaCpf(event.target.value)}
               placeholder="Buscar cliente por CPF..."
-              className="h-full w-full bg-transparent text-sm text-white outline-none placeholder:text-zinc-400"
+              className="h-full w-full bg-transparent text-sm text-[#FAFAFA] outline-none placeholder:text-[#A1A1AA]"
             />
           </label>
 
           <button
             type="submit"
-            className="h-10 rounded-md border border-white/15 px-5 text-sm font-bold text-white transition hover:border-rose-500 disabled:cursor-not-allowed disabled:opacity-60"
+            className="h-10 rounded-md border border-white/10 bg-white/[0.05] px-5 text-sm font-bold text-[#FAFAFA] transition hover:border-[#9D4EDD] hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
             disabled={carregando || !token}
           >
             Buscar
           </button>
         </form>
 
-        <div className="overflow-hidden rounded-md border border-white/15">
+        <div className="overflow-hidden rounded-md border border-white/10 bg-white/[0.05]">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[820px] border-collapse text-left text-sm">
               <thead>
-                <tr className="border-b border-white/10 text-zinc-400">
+                <tr className="border-b border-white/10 text-[#A1A1AA]">
                   <th className="w-16 px-3 py-3 font-medium">ID</th>
                   <th className="px-3 py-3 font-medium">Nome</th>
                   <th className="px-3 py-3 font-medium">CPF</th>
@@ -372,18 +372,18 @@ function AdmCliente() {
               <tbody>
                 {clientes.length > 0 ? (
                   clientes.map((cliente, index) => (
-                    <tr key={`${cliente.id}-${cliente.cpf}`} className="border-b border-white/10 last:border-b-0">
-                      <td className="px-3 py-4 font-mono text-xs text-zinc-400">#{index + 1}</td>
-                      <td className="px-3 py-4 font-bold text-white">{cliente.nome}</td>
-                      <td className="px-3 py-4 font-mono font-bold text-white">{cliente.cpf}</td>
-                      <td className="px-3 py-4 text-zinc-400">{cliente.email}</td>
-                      <td className="px-3 py-4 text-zinc-400">{cliente.telefone}</td>
+                    <tr key={`${cliente.id}-${cliente.cpf}`} className="border-b border-white/10 transition hover:bg-white/[0.04] last:border-b-0">
+                      <td className="px-3 py-4 font-mono text-xs text-[#A1A1AA]">#{index + 1}</td>
+                      <td className="px-3 py-4 font-bold text-[#FAFAFA]">{cliente.nome}</td>
+                      <td className="px-3 py-4 font-mono font-bold text-[#9D4EDD]">{cliente.cpf}</td>
+                      <td className="px-3 py-4 text-[#A1A1AA]">{cliente.email}</td>
+                      <td className="px-3 py-4 text-[#A1A1AA]">{cliente.telefone}</td>
                       <td className="px-3 py-4">
                         <div className="flex justify-end gap-5">
                           <button
                             type="button"
                             onClick={() => abrirEdicao(cliente)}
-                            className="text-white transition hover:text-rose-400"
+                            className="text-[#FAFAFA] transition hover:text-[#9D4EDD]"
                             aria-label={`Editar ${cliente.nome}`}
                           >
                             <PencilSimple size={18} weight="bold" />
@@ -391,7 +391,7 @@ function AdmCliente() {
                           <button
                             type="button"
                             onClick={() => confirmarExclusao(cliente)}
-                            className="text-rose-500 transition hover:text-rose-300"
+                            className="text-[#A1A1AA] transition hover:text-[#9D4EDD]"
                             aria-label={`Excluir ${cliente.nome}`}
                           >
                             <Trash size={18} weight="bold" />
@@ -402,7 +402,7 @@ function AdmCliente() {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={6} className="px-3 py-8 text-center text-zinc-500">
+                    <td colSpan={6} className="px-3 py-8 text-center text-[#A1A1AA]">
                       {carregando ? 'Carregando clientes...' : 'Nenhum cliente encontrado.'}
                     </td>
                   </tr>
@@ -417,14 +417,14 @@ function AdmCliente() {
         <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/75 px-4 py-6">
           <form
             onSubmit={salvarCliente}
-            className="w-full max-w-xl rounded-md border border-white/15 bg-zinc-950 p-6 shadow-2xl"
+            className="w-full max-w-xl rounded-md border border-white/10 bg-[#16151E] p-6 shadow-2xl"
           >
             <div className="mb-6 flex items-start justify-between gap-4">
               <div>
-                <span className="text-xs font-bold uppercase tracking-[0.35em] text-rose-500">
+                <span className="text-xs font-bold uppercase tracking-[0.35em] text-[#9D4EDD]">
                   Cliente
                 </span>
-                <h2 className="mt-2 text-2xl font-bold">
+                <h2 className="mt-2 text-2xl font-bold text-[#FAFAFA]">
                   {clienteEditandoId ? 'Editar cliente' : 'Cadastrar cliente'}
                 </h2>
               </div>
@@ -432,7 +432,7 @@ function AdmCliente() {
               <button
                 type="button"
                 onClick={fecharFormulario}
-                className="rounded-md p-2 text-zinc-400 transition hover:bg-white/10 hover:text-white"
+                className="rounded-md p-2 text-[#A1A1AA] transition hover:bg-white/[0.05] hover:text-white"
                 aria-label="Fechar formulario"
               >
                 <X size={20} weight="bold" />
@@ -441,31 +441,31 @@ function AdmCliente() {
 
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="space-y-2 sm:col-span-2">
-                <span className="text-sm font-medium text-zinc-300">Nome</span>
+                <span className="text-sm font-medium text-[#A1A1AA]">Nome</span>
                 <input
                   required
                   value={formulario.nome}
                   onChange={(event) =>
                     setFormulario((dados) => ({ ...dados, nome: event.target.value }))
                   }
-                  className="h-11 w-full rounded-md border border-white/15 bg-black px-3 text-sm text-white outline-none focus:border-rose-500"
+                  className="h-11 w-full rounded-md border border-white/10 bg-white/[0.05] px-3 text-sm text-[#FAFAFA] outline-none focus:border-[#9D4EDD]"
                 />
               </label>
 
               <label className="space-y-2">
-                <span className="text-sm font-medium text-zinc-300">CPF</span>
+                <span className="text-sm font-medium text-[#A1A1AA]">CPF</span>
                 <input
                   required
                   value={formulario.cpf}
                   onChange={(event) =>
                     setFormulario((dados) => ({ ...dados, cpf: event.target.value }))
                   }
-                  className="h-11 w-full rounded-md border border-white/15 bg-black px-3 text-sm text-white outline-none focus:border-rose-500"
+                  className="h-11 w-full rounded-md border border-white/10 bg-white/[0.05] px-3 text-sm text-[#FAFAFA] outline-none focus:border-[#9D4EDD]"
                 />
               </label>
 
               <label className="space-y-2">
-                <span className="text-sm font-medium text-zinc-300">Nascimento</span>
+                <span className="text-sm font-medium text-[#A1A1AA]">Nascimento</span>
                 <input
                   required
                   type="date"
@@ -473,24 +473,24 @@ function AdmCliente() {
                   onChange={(event) =>
                     setFormulario((dados) => ({ ...dados, dataNascimento: event.target.value }))
                   }
-                  className="h-11 w-full rounded-md border border-white/15 bg-black px-3 text-sm text-white outline-none focus:border-rose-500"
+                  className="h-11 w-full rounded-md border border-white/10 bg-white/[0.05] px-3 text-sm text-[#FAFAFA] outline-none focus:border-[#9D4EDD]"
                 />
               </label>
 
               <label className="space-y-2">
-                <span className="text-sm font-medium text-zinc-300">Telefone</span>
+                <span className="text-sm font-medium text-[#A1A1AA]">Telefone</span>
                 <input
                   required
                   value={formulario.numeroTelefone}
                   onChange={(event) =>
                     setFormulario((dados) => ({ ...dados, numeroTelefone: event.target.value }))
                   }
-                  className="h-11 w-full rounded-md border border-white/15 bg-black px-3 text-sm text-white outline-none focus:border-rose-500"
+                  className="h-11 w-full rounded-md border border-white/10 bg-white/[0.05] px-3 text-sm text-[#FAFAFA] outline-none focus:border-[#9D4EDD]"
                 />
               </label>
 
               <label className="space-y-2">
-                <span className="text-sm font-medium text-zinc-300">Senha</span>
+                <span className="text-sm font-medium text-[#A1A1AA]">Senha</span>
                 <input
                   required={!clienteEditandoId}
                   type="password"
@@ -498,12 +498,12 @@ function AdmCliente() {
                   onChange={(event) =>
                     setFormulario((dados) => ({ ...dados, senha: event.target.value }))
                   }
-                  className="h-11 w-full rounded-md border border-white/15 bg-black px-3 text-sm text-white outline-none focus:border-rose-500"
+                  className="h-11 w-full rounded-md border border-white/10 bg-white/[0.05] px-3 text-sm text-[#FAFAFA] outline-none focus:border-[#9D4EDD]"
                 />
               </label>
 
               <label className="space-y-2 sm:col-span-2">
-                <span className="text-sm font-medium text-zinc-300">Email</span>
+                <span className="text-sm font-medium text-[#A1A1AA]">Email</span>
                 <input
                   required
                   type="email"
@@ -511,7 +511,7 @@ function AdmCliente() {
                   onChange={(event) =>
                     setFormulario((dados) => ({ ...dados, email: event.target.value }))
                   }
-                  className="h-11 w-full rounded-md border border-white/15 bg-black px-3 text-sm text-white outline-none focus:border-rose-500"
+                  className="h-11 w-full rounded-md border border-white/10 bg-white/[0.05] px-3 text-sm text-[#FAFAFA] outline-none focus:border-[#9D4EDD]"
                 />
               </label>
             </div>
@@ -520,13 +520,13 @@ function AdmCliente() {
               <button
                 type="button"
                 onClick={fecharFormulario}
-                className="h-11 rounded-md border border-white/15 px-5 text-sm font-bold text-zinc-300 transition hover:border-white/30 hover:text-white"
+                className="h-11 rounded-md border border-white/10 px-5 text-sm font-bold text-[#A1A1AA] transition hover:border-white/30 hover:text-white"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
-                className="h-11 rounded-md bg-rose-600 px-5 text-sm font-bold text-white transition hover:bg-rose-500 disabled:cursor-not-allowed disabled:opacity-60"
+                className="h-11 rounded-md bg-[#9D4EDD] px-5 text-sm font-bold text-white transition hover:bg-[#7A39C6] disabled:cursor-not-allowed disabled:opacity-60"
                 disabled={carregando}
               >
                 {clienteEditandoId ? 'Salvar alteracoes' : 'Cadastrar cliente'}

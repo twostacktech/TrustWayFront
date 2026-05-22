@@ -23,30 +23,30 @@ function NavBarAdm() {
   const { pathname } = useLocation()
 
   return (
-    <header className="border-b border-white/10">
+    <header className="border-b border-white/10 bg-[#16151E]">
       <div className="flex min-h-[124px] flex-col justify-between">
         <div className="flex items-center justify-between px-4 py-5 sm:px-8 lg:px-14">
           <div className="flex items-center gap-6">
             <Link
               to="/home"
-              className="flex items-center gap-2 border-r border-white/10 pr-6 text-sm text-zinc-400 transition hover:text-white"
+              className="flex items-center gap-2 border-r border-white/10 pr-6 text-sm text-[#A1A1AA] transition hover:text-[#FAFAFA]"
             >
               <ArrowLeft size={17} weight="bold" />
               Voltar ao site
             </Link>
 
             <div>
-              <strong className="block font-display text-2xl leading-5 tracking-tight text-white">
+              <strong className="block font-display text-2xl leading-5 tracking-tight text-[#FAFAFA]">
                 TRUSTWAY
               </strong>
-              <span className="mt-1 block text-[10px] font-bold uppercase tracking-[0.42em] text-zinc-500">
+              <span className="mt-1 block text-[10px] font-bold uppercase tracking-[0.42em] text-[#A1A1AA]">
                 Painel Administrativo
               </span>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-xs font-bold uppercase">
-            <ShieldCheck size={16} weight="bold" className="text-rose-500" />
+          <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.05] px-4 py-2 text-xs font-bold uppercase text-[#FAFAFA]">
+            <ShieldCheck size={16} weight="bold" className="text-[#22C55E]" />
             Admin
           </div>
         </div>
@@ -59,10 +59,10 @@ function NavBarAdm() {
               <Link
                 key={href}
                 to={href}
-                className={`flex items-center gap-2 border-b-2 pb-4 text-sm font-bold transition hover:text-white ${
+                className={`flex items-center gap-2 border-b-2 pb-4 text-sm font-bold transition hover:text-[#FAFAFA] ${
                   ativo
-                    ? 'border-rose-500 text-white'
-                    : 'border-transparent text-zinc-500'
+                    ? 'border-[#9D4EDD] text-[#FAFAFA]'
+                    : 'border-transparent text-[#A1A1AA]'
                 }`}
               >
                 <Icon size={18} weight="bold" />
