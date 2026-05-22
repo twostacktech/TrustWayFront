@@ -50,12 +50,6 @@ const formularioInicial: ClienteForm = {
 
 const apenasNumeros = (valor: string) => valor.replace(/\D/g, '')
 
-const obterTokenSalvo = () =>
-  localStorage.getItem('token') ??
-  localStorage.getItem('authToken') ??
-  localStorage.getItem('accessToken') ??
-  ''
-
 const normalizarCliente = (usuario: UsuarioApi): Cliente => ({
   id: usuario.id ?? usuario.idUsuario ?? Date.now(),
   nome: usuario.nome,
@@ -68,7 +62,7 @@ const normalizarCliente = (usuario: UsuarioApi): Cliente => ({
 const obterMensagemErro = (error: unknown) => {
   if (error instanceof AxiosError) {
     if (error.response?.status === 401 || error.response?.status === 403) {
-      return 'A API recusou a requisicao. Verifique se o token de login esta salvo.'
+      return 'A API recusou a requisicao. Faca login novamente.'
     }
 
     if (error.response?.status) {
@@ -84,20 +78,12 @@ const obterMensagemErro = (error: unknown) => {
 function AdmCliente() {
   const [clientes, setClientes] = useState<Cliente[]>([])
   const [buscaCpf, setBuscaCpf] = useState('')
-  const [token, setToken] = useState(() => obterTokenSalvo())
-  const [tokenDigitado, setTokenDigitado] = useState('')
   const [formulario, setFormulario] = useState<ClienteForm>(formularioInicial)
   const [modalAberto, setModalAberto] = useState(false)
   const [clienteEditandoId, setClienteEditandoId] = useState<number | null>(null)
   const [carregando, setCarregando] = useState(false)
 
   async function carregarClientes() {
-    if (!obterTokenSalvo()) {
-      toast.warning('Cole e salve o token de acesso para carregar os clientes.')
-      setClientes([])
-      return
-    }
-
     try {
       setCarregando(true)
 
@@ -111,29 +97,8 @@ function AdmCliente() {
   }
 
   useEffect(() => {
-    if (token) {
-      carregarClientes()
-    } else {
-      toast.warning('Cole e salve o token de acesso para carregar os clientes.')
-    }
-  }, [])
-
-  function salvarToken(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-
-    const novoToken = tokenDigitado.trim().replace(/^Bearer\s+/i, '')
-
-    if (!novoToken) {
-      toast.error('Informe um token valido.')
-      return
-    }
-
-    localStorage.setItem('token', novoToken)
-    setToken(novoToken)
-    setTokenDigitado('')
-    toast.success('Token salvo com sucesso.')
     carregarClientes()
-  }
+  }, [])
 
   function abrirCadastro() {
     setFormulario(formularioInicial)
@@ -162,11 +127,6 @@ function AdmCliente() {
 
   async function salvarCliente(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-
-    if (!token) {
-      toast.error('Salve o token de acesso antes de cadastrar cliente.')
-      return
-    }
 
     const payload = {
       cpf: apenasNumeros(formulario.cpf),
@@ -202,11 +162,6 @@ function AdmCliente() {
   async function buscarClientePorCpf(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
-    if (!token) {
-      toast.error('Salve o token de acesso antes de buscar cliente.')
-      return
-    }
-
     const cpf = apenasNumeros(buscaCpf)
 
     if (!cpf) {
@@ -228,11 +183,6 @@ function AdmCliente() {
   }
 
   async function confirmarExclusao(cliente: Cliente) {
-    if (!token) {
-      toast.error('Salve o token de acesso antes de excluir cliente.')
-      return
-    }
-
     toast(
       ({ closeToast }) => (
         <div>
@@ -301,37 +251,12 @@ function AdmCliente() {
             type="button"
             onClick={abrirCadastro}
             className="inline-flex h-11 w-fit items-center justify-center gap-2 rounded-md bg-rose-600 px-5 text-sm font-bold text-white transition hover:bg-rose-500 disabled:cursor-not-allowed disabled:opacity-60"
-            disabled={carregando || !token}
+            disabled={carregando}
           >
             <Plus size={18} weight="bold" />
             Adicionar cliente
           </button>
         </div>
-
-        {!token && (
-          <form
-            onSubmit={salvarToken}
-            className="mb-6 max-w-3xl rounded-md border border-rose-500/40 bg-rose-950/20 p-4"
-          >
-            <label className="mb-3 block text-sm font-medium text-zinc-200">
-              Token de acesso
-            </label>
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <input
-                value={tokenDigitado}
-                onChange={(event) => setTokenDigitado(event.target.value)}
-                placeholder="Cole aqui o token Bearer do Swagger"
-                className="h-10 flex-1 rounded-md border border-white/15 bg-black px-3 text-sm text-white outline-none placeholder:text-zinc-500 focus:border-rose-500"
-              />
-              <button
-                type="submit"
-                className="h-10 rounded-md bg-rose-600 px-5 text-sm font-bold text-white transition hover:bg-rose-500"
-              >
-                Salvar token
-              </button>
-            </div>
-          </form>
-        )}
 
         <form
           onSubmit={buscarClientePorCpf}
@@ -351,7 +276,7 @@ function AdmCliente() {
           <button
             type="submit"
             className="h-10 rounded-md border border-white/15 px-5 text-sm font-bold text-white transition hover:border-rose-500 disabled:cursor-not-allowed disabled:opacity-60"
-            disabled={carregando || !token}
+            disabled={carregando}
           >
             Buscar
           </button>
