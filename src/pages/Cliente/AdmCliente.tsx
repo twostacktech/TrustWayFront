@@ -55,6 +55,16 @@ const obterTokenSalvo = () =>
   localStorage.getItem('accessToken') ??
   ''
 
+const obterHeaderAutenticado = () => {
+  const token = obterTokenSalvo()
+
+  return {
+    headers: {
+      Authorization: token.startsWith('Bearer ') ? token : `Bearer ${token}`,
+    },
+  }
+}
+
 const normalizarCliente = (usuario: UsuarioApi): Cliente => ({
   id: usuario.id ?? usuario.idUsuario ?? Date.now(),
   nome: usuario.nome,
@@ -100,7 +110,7 @@ function AdmCliente() {
     try {
       setCarregando(true)
 
-      const resposta = await api.get<UsuarioApi[]>('/usuario')
+      const resposta = await api.get<UsuarioApi[]>('/usuario', obterHeaderAutenticado())
       setClientes(resposta.data.map(normalizarCliente))
     } catch (error) {
       toast.error(obterMensagemErro(error))
@@ -186,10 +196,10 @@ function AdmCliente() {
       setCarregando(true)
 
       if (clienteEditandoId) {
-        await api.put(`/usuario/${clienteEditandoId}`, payload)
+        await api.put(`/usuario/${clienteEditandoId}`, payload, obterHeaderAutenticado())
         toast.success('Cliente atualizado com sucesso.')
       } else {
-        await api.post('/usuario', payload)
+        await api.post('/usuario', payload, obterHeaderAutenticado())
         toast.success('Cliente cadastrado com sucesso.')
       }
 
@@ -220,7 +230,7 @@ function AdmCliente() {
     try {
       setCarregando(true)
 
-      const resposta = await api.get<UsuarioApi>(`/usuario/${cpf}`)
+      const resposta = await api.get<UsuarioApi>(`/usuario/${cpf}`, obterHeaderAutenticado())
       setClientes([normalizarCliente(resposta.data)])
     } catch (error) {
       setClientes([])
@@ -275,7 +285,7 @@ function AdmCliente() {
     try {
       setCarregando(true)
 
-      await api.delete(`/usuario/${apenasNumeros(cliente.cpf)}`)
+      await api.delete(`/usuario/${apenasNumeros(cliente.cpf)}`, obterHeaderAutenticado())
       toast.success('Cliente excluido com sucesso.')
       await carregarClientes()
     } catch (error) {
