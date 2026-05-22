@@ -112,7 +112,7 @@ function FormApolice({
             type="button"
             onClick={fecharModal}
             disabled={salvando}
-            className="text-zinc-500 hover:text-white transition-colors disabled:opacity-50"
+            className="text-zinc-500 hover:text-[#22D3EE] hover:shadow-[0_0_10px_rgba(34,211,238,0.3)] transition-all duration-300 disabled:opacity-50"
           >
             <X size={20} />
           </button>
@@ -131,7 +131,7 @@ function FormApolice({
               onChange={atualizarCampo}
               required
               disabled={salvando}
-              className="w-full rounded-lg border border-zinc-800 bg-[#121214] px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none focus:border-sky-500 transition-colors disabled:opacity-50"
+              className="w-full rounded-lg border border-zinc-800 bg-[#121214] px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none focus:border-[#22D3EE] focus:shadow-[0_0_15px_rgba(34,211,238,0.3)] transition-all disabled:opacity-50"
             />
           </div>
 
@@ -149,7 +149,7 @@ function FormApolice({
               step="0.01"
               required
               disabled={salvando}
-              className="w-full rounded-lg border border-zinc-800 bg-[#121214] px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none focus:border-sky-500 transition-colors disabled:opacity-50"
+              className="w-full rounded-lg border border-zinc-800 bg-[#121214] px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none focus:border-[#4F46E5] focus:shadow-[0_0_15px_rgba(79,70,229,0.3)] transition-all disabled:opacity-50"
             />
           </div>
 
@@ -168,7 +168,7 @@ function FormApolice({
               step="0.01"
               required
               disabled={salvando}
-              className="w-full rounded-lg border border-zinc-800 bg-[#121214] px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none focus:border-sky-500 transition-colors disabled:opacity-50"
+              className="w-full rounded-lg border border-zinc-800 bg-[#121214] px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none focus:border-[#FF4FD8] focus:shadow-[0_0_15px_rgba(255,79,216,0.3)] transition-all disabled:opacity-50"
             />
           </div>
 
@@ -186,7 +186,7 @@ function FormApolice({
               step="0.01"
               required
               disabled={salvando}
-              className="w-full rounded-lg border border-zinc-800 bg-[#121214] px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none focus:border-sky-500 transition-colors disabled:opacity-50"
+              className="w-full rounded-lg border border-zinc-800 bg-[#121214] px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none focus:border-[#22D3EE] focus:shadow-[0_0_15px_rgba(34,211,238,0.3)] transition-all disabled:opacity-50"
             />
           </div>
 
@@ -199,7 +199,7 @@ function FormApolice({
               value={formData.status}
               onChange={atualizarCampo}
               disabled={salvando}
-              className="w-full rounded-lg border border-zinc-800 bg-[#121214] px-4 py-3 text-sm text-white outline-none focus:border-sky-500 transition-colors disabled:opacity-50 appearance-none"
+              className="w-full rounded-lg border border-zinc-800 bg-[#121214] px-4 py-3 text-sm text-white outline-none focus:border-[#4F46E5] focus:shadow-[0_0_15px_rgba(79,70,229,0.3)] transition-all disabled:opacity-50 appearance-none"
             >
               <option value="Ativa">Ativa</option>
               <option value="Pendente">Pendente</option>
@@ -221,7 +221,7 @@ function FormApolice({
             <button
               type="submit"
               disabled={salvando}
-              className="rounded-lg bg-sky-600 px-6 py-2.5 text-sm font-bold uppercase tracking-wider text-white transition-all hover:bg-sky-700 active:scale-98 disabled:opacity-50"
+              className="rounded-lg bg-[#D946EF] px-6 py-2.5 text-sm font-bold uppercase tracking-wider text-white transition-all duration-300 ease-out hover:bg-[#FF4FD8] hover:shadow-[0_0_20px_rgba(217,70,239,0.6)] hover:scale-105 active:scale-98 disabled:opacity-50"
             >
               {salvando ? "Salvando..." : "Salvar"}
             </button>

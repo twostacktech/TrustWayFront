@@ -121,7 +121,7 @@ function Apolices() {
   }, [])
 
   return (
-    <main className="min-h-screen bg-[#050505] text-white px-6 py-12 md:px-16 font-['Inter'] antialiased">
+    <main className="min-h-screen bg-gradient-to-br from-[#0a0a0a] via-[#0f0a1a] to-[#0a0a0a] text-white px-6 py-12 md:px-16 font-['Inter'] antialiased">
       <div className="max-w-7xl mx-auto w-full">
         
         {/* Header da Seção */}
@@ -137,7 +137,7 @@ function Apolices() {
 
           <button
             onClick={abrirCadastro}
-            className="rounded-lg bg-sky-600 px-6 py-2.5 text-sm font-bold uppercase tracking-wider text-white transition-all hover:bg-sky-700 active:scale-98 cursor-pointer"
+            className="rounded-lg bg-[#D946EF] px-6 py-2.5 text-sm font-bold uppercase tracking-wider text-white transition-all duration-300 ease-out hover:bg-[#FF4FD8] hover:shadow-[0_0_20px_rgba(217,70,239,0.6)] hover:scale-105 active:scale-98 cursor-pointer"
           >
             + Adicionar apólice
           </button>
@@ -146,12 +146,12 @@ function Apolices() {
         {/* Barra de Busca */}
         <div className="mb-6 max-w-md relative group">
           <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-            <MagnifyingGlass size={16} color="#71717a" />
+            <MagnifyingGlass size={16} className="text-zinc-500 group-focus-within:text-[#22D3EE] transition-colors" />
           </span>
           <input
             type="text"
             placeholder="Buscar por nome, CPF ou placa..."
-            className="w-full bg-[#0a0a0a]/40 text-sm text-white placeholder-zinc-600 pl-10 pr-4 py-2 rounded-lg border border-white/10 focus:outline-none focus:border-zinc-500 focus:bg-[#0a0a0a]/80 transition-all font-['Inter']"
+            className="w-full bg-[#0a0a0a]/40 text-sm text-white placeholder-zinc-600 pl-10 pr-4 py-2 rounded-lg border border-white/10 focus:outline-none focus:border-[#22D3EE] focus:bg-[#0a0a0a]/80 focus:shadow-[0_0_15px_rgba(34,211,238,0.3)] transition-all font-['Inter']"
           />
         </div>
 
@@ -193,7 +193,7 @@ function Apolices() {
                     </td>
                     
                     {/* CPF */}
-                    <td className="px-6 py-4 text-zinc-400 font-['JetBrains_Mono'] font-mono text-sm">
+                    <td className="px-6 py-4 text-[#22D3EE] font-['JetBrains_Mono'] font-mono text-sm">
                       {apolice.usuario?.cpf || "—"}
                     </td>
                     
@@ -229,9 +229,9 @@ function Apolices() {
                         <button 
                           type="button"
                           onClick={() => abrirDetalhesVeiculo(apolice)}
-                          className="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-300 hover:text-white transition-colors bg-white/5 hover:bg-white/10 rounded px-2.5 py-1.5 border border-white/10 cursor-pointer"
+                          className="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-300 hover:text-[#22D3EE] transition-all duration-300 bg-white/5 hover:bg-[#22D3EE]/10 hover:shadow-[0_0_15px_rgba(34,211,238,0.4)] rounded px-2.5 py-1.5 border border-white/10 hover:border-[#22D3EE] cursor-pointer"
                         >
-                          <Car size={14} color="#a1a1aa" />
+                          <Car size={14} className="text-zinc-400" />
                           <span>Ver</span>
                         </button>
 
@@ -239,7 +239,7 @@ function Apolices() {
                         <button
                           type="button"
                           onClick={() => abrirEdicao(apolice)}
-                          className="rounded p-1 text-zinc-400 hover:bg-white/5 hover:text-sky-400 transition-all cursor-pointer"
+                          className="rounded p-1 text-zinc-400 hover:bg-white/5 hover:text-[#22D3EE] hover:shadow-[0_0_10px_rgba(34,211,238,0.3)] transition-all duration-300 cursor-pointer"
                           title="Editar apólice"
                         >
                           <PencilSimple size={15} />
@@ -249,7 +249,7 @@ function Apolices() {
                         <button
                           type="button"
                           onClick={() => excluirApolice(apolice.id)}
-                          className="rounded p-1 text-zinc-400 hover:bg-white/5 hover:text-red-500 transition-all cursor-pointer"
+                          className="rounded p-1 text-zinc-400 hover:bg-white/5 hover:text-[#FF4FD8] hover:shadow-[0_0_10px_rgba(255,79,216,0.3)] transition-all duration-300 cursor-pointer"
                           title="Excluir apólice"
                         >
                           <Trash size={15} />
@@ -288,7 +288,7 @@ function Apolices() {
             {/* Botão de fechar (X) */}
             <button 
               onClick={fecharDetalhesVeiculo}
-              className="absolute top-6 right-6 text-zinc-500 hover:text-white transition-colors cursor-pointer"
+              className="absolute top-6 right-6 text-zinc-500 hover:text-[#22D3EE] hover:shadow-[0_0_10px_rgba(34,211,238,0.3)] transition-all duration-300 cursor-pointer"
             >
               <X size={20} />
             </button>

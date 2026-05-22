@@ -286,8 +286,7 @@ function AdmCliente() {
   }
 
   return (
-    <>
-
+    <div className="min-h-screen bg-gradient-to-br from-[#0a0a0a] via-[#0f0a1a] to-[#0a0a0a]">
       <section className="px-4 py-10 sm:px-8 lg:px-14">
         <div className="mb-8 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div>
@@ -551,7 +550,7 @@ function AdmCliente() {
         pauseOnHover
         theme="dark"
       />
-    </>
+    </div>
   )
 }
 
