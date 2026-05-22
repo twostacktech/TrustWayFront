@@ -5,10 +5,12 @@ import AdmCliente from './pages/Cliente/AdmCliente'
 import Home from "./pages/home/Home";
 import Navbar from "./components/navbar/Navbar";
 import Footer from "./components/footer/Footer";
+import CustomCursor from "./components/cursor/CustomCursor";
 
 function HomeLayout() {
   return (
     <>
+      <CustomCursor />
       <Navbar />
       <div className="min-h-[80vh]">
         <Home />

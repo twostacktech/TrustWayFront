@@ -37,37 +37,41 @@ function Navbar() {
 
   return (
     <>
-      <nav className="fixed left-0 top-0 z-50 flex h-16 w-full items-center justify-between border-b border-white/5 bg-black/85 px-8 backdrop-blur-xl">
+      <nav className="fixed left-0 top-0 z-50 flex h-16 w-full items-center justify-between border-b border-[#F0F2F4]/5 bg-black/85 px-8 backdrop-blur-xl">
         <div className="flex items-center gap-8">
           <button
             type="button"
             aria-label="Abrir menu"
-            className="grid size-10 place-items-center border border-white/10 text-white transition-colors hover:border-[#ff1744] hover:text-[#ff1744]"
+            className="grid size-10 place-items-center border border-[#F0F2F4]/10 text-[#F0F2F4] transition-colors hover:border-[#4F46E5] hover:text-[#4F46E5]"
           >
             <List size={23} weight="bold" />
           </button>
 
-          <p className="hidden text-[11px] tracking-[4px] text-[#666] sm:block">
+          <p className="hidden text-[11px] tracking-[4px] text-[#F0F2F4]/35 sm:block">
             EST. 2024 / TRUSTWAY
           </p>
         </div>
 
         <Link
           to="/home"
-          className="absolute left-1/2 -translate-x-1/2 font-[var(--font-display)] text-3xl leading-none tracking-[10px] text-white"
+          className="absolute left-1/2 -translate-x-1/2 font-[var(--font-display)] text-3xl leading-none tracking-[10px] text-[#F0F2F4]"
         >
           TRUSTWAY
         </Link>
 
         <div className="hidden gap-3 md:flex">
-          <button className="inline-flex min-h-9 items-center gap-2 border border-[#333] px-5 text-[0.68rem] font-black tracking-[0.08rem] text-white transition duration-200 hover:-translate-y-px hover:border-[#ff1744]">
-            <User size={15} weight="bold" />
-            LOGIN USUÁRIO
+          <button className="sliding-button inline-flex min-h-9 items-center gap-2 border border-[#F0F2F4]/15 px-5 text-[0.68rem] font-black tracking-[0.08rem] text-[#F0F2F4]">
+            <span>
+              <User size={15} weight="bold" />
+              LOGIN USUÁRIO
+            </span>
           </button>
 
-          <button className="inline-flex min-h-9 items-center gap-2 bg-[#ff1744] px-5 text-[0.68rem] font-black tracking-[0.08rem] text-white transition duration-200 hover:-translate-y-px">
-            <ShieldCheck size={15} weight="bold" />
-            PAINEL ADMIN
+          <button className="sliding-button is-filled inline-flex min-h-9 items-center gap-2 border border-[#4F46E5]/70 px-5 text-[0.68rem] font-black tracking-[0.08rem] text-[#F0F2F4]">
+            <span>
+              <ShieldCheck size={15} weight="bold" />
+              PAINEL ADMIN
+            </span>
           </button>
         </div>
       </nav>
@@ -77,10 +81,10 @@ function Navbar() {
           <a
             key={link.id}
             href={`#${link.id}`}
-            className={`text-[0.67rem] font-extrabold tracking-[0.18rem] transition duration-200 hover:translate-x-1 hover:text-[#ff1744] ${
+            className={`text-[0.67rem] font-extrabold tracking-[0.18rem] transition duration-200 hover:translate-x-1 hover:text-[#4F46E5] ${
               activeSection === link.id
-                ? "active translate-x-1 text-[#ff1744]"
-                : "text-[#666]"
+                ? "active translate-x-1 text-[#4F46E5]"
+                : "text-[#F0F2F4]/35"
             }`}
           >
             {link.label}
