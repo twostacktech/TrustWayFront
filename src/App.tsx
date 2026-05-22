@@ -1,7 +1,8 @@
 
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import AdmCliente from './pages/Cliente/AdmCliente'
-
+import Login from './pages/login/Login';
+import Register from './pages/register/Register';
 import Home from "./pages/home/Home";
 import Navbar from "./components/navbar/Navbar";
 import Footer from "./components/footer/Footer";
@@ -37,6 +38,8 @@ function App() {
         <Route path="/home" element={<HomeLayout />} />
         <Route path="/admcliente" element={<AdminLayout><AdmCliente /></AdminLayout>} />
         <Route path="/apolices" element={<AdminLayout><Apolices /></AdminLayout>} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/cadastro" element={<Register />} />
       </Routes>
     </BrowserRouter>
   );

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { MagnifyingGlass,PencilSimple,Plus,Trash,X } from '@phosphor-icons/react'
 import { AxiosError } from 'axios'
@@ -90,7 +90,7 @@ function AdmCliente() {
   const [clienteEditandoId, setClienteEditandoId] = useState<number | null>(null)
   const [carregando, setCarregando] = useState(false)
 
-  async function carregarClientes() {
+  const carregarClientes = useCallback(async () => {
     if (!obterTokenSalvo()) {
       toast.warning('Cole e salve o token de acesso para carregar os clientes.')
       setClientes([])
@@ -107,15 +107,19 @@ function AdmCliente() {
     } finally {
       setCarregando(false)
     }
-  }
+  }, [])
 
   useEffect(() => {
     if (token) {
-      carregarClientes()
-    } else {
-      toast.warning('Cole e salve o token de acesso para carregar os clientes.')
+      const timer = window.setTimeout(() => {
+        void carregarClientes()
+      }, 0)
+
+      return () => window.clearTimeout(timer)
     }
-  }, [])
+
+    toast.warning('Cole e salve o token de acesso para carregar os clientes.')
+  }, [carregarClientes, token])
 
   function salvarToken(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -233,7 +237,7 @@ function AdmCliente() {
     }
 
     toast(
-      ({ closeToast }) => (
+      ({ closeToast }: { closeToast?: () => void }) => (
         <div>
           <p className="mb-3 font-medium text-white">
             Tem certeza que deseja excluir este cliente?
@@ -241,7 +245,7 @@ function AdmCliente() {
           <div className="flex justify-end gap-2">
             <button
               type="button"
-              onClick={closeToast}
+              onClick={() => closeToast?.()}
               className="rounded border border-white/10 px-3 py-1 text-sm font-bold text-[#FAFAFA]"
             >
               Cancelar
@@ -249,7 +253,7 @@ function AdmCliente() {
             <button
               type="button"
               onClick={() => {
-                closeToast()
+                closeToast?.()
                 excluirCliente(cliente)
               }}
               className="rounded bg-[#FF4FD8] px-3 py-1 text-sm font-bold text-white hover:bg-[#D946EF]"
