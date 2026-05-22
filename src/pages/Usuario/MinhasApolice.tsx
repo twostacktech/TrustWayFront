@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { ArrowLeft, User, MagnifyingGlass, Car, ShieldCheck, CurrencyDollar, Calendar, FileText, Warning, Receipt, CopySimple, } from "@phosphor-icons/react";
+import { Link } from "react-router-dom";
+import { ArrowLeft, User, MagnifyingGlass, Car, ShieldCheck, CurrencyDollar, Calendar, FileText, Warning, Receipt, CopySimple, SignOut, } from "@phosphor-icons/react";
 
 // Definição dos tipos baseados no padrão do seu backend
 type Veiculo = {
@@ -164,6 +165,13 @@ export function MinhasApolices() {
               <User className="h-3.5 w-3.5 text-[#a1a1aa]" />
               <span className="text-xs font-medium max-w-[120px] truncate">{clienteLogado.nome}</span>
             </div>
+            <Link
+              to="/home"
+              className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-medium text-[#a1a1aa] transition-colors hover:border-[#9D4EDD]/50 hover:text-[#fafafa]"
+            >
+              <SignOut className="h-3.5 w-3.5" />
+              Sair
+            </Link>
           </div>
         </div>
       </header>
