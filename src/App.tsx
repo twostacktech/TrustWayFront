@@ -7,6 +7,7 @@ import Navbar from "./components/navbar/Navbar";
 import Footer from "./components/footer/Footer";
 import Apolices from "./pages/apolices/Apolices";
 import NavBarAdm from "./navbaradm/NavBarAdm";
+import Relatorios from "./pages/relatorios/Relatorio";
 
 function HomeLayout() {
   return (
@@ -37,6 +38,7 @@ function App() {
         <Route path="/home" element={<HomeLayout />} />
         <Route path="/admcliente" element={<AdminLayout><AdmCliente /></AdminLayout>} />
         <Route path="/apolices" element={<AdminLayout><Apolices /></AdminLayout>} />
+        <Route path="/relatorios" element={<Relatorios />} />
         <Route path="/login" element={<Login />} />
         <Route path="/cadastro" element={<Register />} />
       </Routes>
