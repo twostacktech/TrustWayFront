@@ -1,35 +1,16 @@
-import axios from "axios";
-import { useState } from "react";
-import { Plus, Trash2 } from "lucide-react";
-import { toast } from "react-toastify";
-import { api, atualizar, cadastrar, deletar } from "../../services/Service";
-import type Apolice from "../../models/Apolice";
-import type Beneficiario from "../../models/Beneficiarios";
-import type Cliente from "../../models/Cliente";
+import { useEffect, useState } from "react"
+import { toast } from "react-toastify"
+import { X } from "lucide-react"
+
+import { atualizar, cadastrar } from "../../services/Service"
+import type Apolice from "../../models/Apolice"
 
 type FormApoliceProps = {
-  fecharModal: () => void;
-  atualizarListagem: () => Promise<void> | void;
-  adicionarApolice: (apolice: Apolice) => void;
-  apoliceEditando?: Apolice | null;
-};
-
-type BeneficiarioForm = {
-  id_beneficiario?: number;
-  nome: string;
-  cpf: string;
-  parentesco: string;
-  percentual: string;
-};
-
-const criarBeneficiarioVazio = (): BeneficiarioForm => ({
-  nome: "",
-  cpf: "",
-  parentesco: "",
-  percentual: "",
-});
-
-const limparCPF = (valor: string) => valor.replace(/\D/g, "");
+  fecharModal: () => void
+  atualizarListagem: () => Promise<void> | void
+  adicionarApolice: (apolice: Apolice) => void
+  apoliceEditando?: Apolice | null
+}
 
 function FormApolice({
   fecharModal,
@@ -37,452 +18,198 @@ function FormApolice({
   adicionarApolice,
   apoliceEditando,
 }: FormApoliceProps) {
-  const [salvando, setSalvando] = useState(false);
-  const [beneficiariosRemovidos, setBeneficiariosRemovidos] = useState<
-    number[]
-  >([]);
+  const [salvando, setSalvando] = useState(false)
+
   const [formData, setFormData] = useState({
-    cpf: apoliceEditando?.cliente?.cpf ?? "",
-    cobertura: apoliceEditando?.cobertura ?? "Vida Individual",
-    valor_segurado: apoliceEditando?.valor_segurado?.toString() ?? "",
-    mensalidade: apoliceEditando?.mensalidade?.toString() ?? "",
-    status: apoliceEditando?.status ?? "Ativa",
-    data_inicio:
-      typeof apoliceEditando?.data_inicio === "string"
-        ? apoliceEditando.data_inicio.split("T")[0]
-        : "",
-  });
-  const [beneficiarios, setBeneficiarios] = useState<BeneficiarioForm[]>(
-    apoliceEditando?.beneficiario?.length
-      ? apoliceEditando.beneficiario.map((beneficiario) => ({
-          id_beneficiario: beneficiario.id_beneficiario,
-          nome: beneficiario.nome,
-          cpf: beneficiario.cpf,
-          parentesco: beneficiario.parentesco,
-          percentual: beneficiario.percentual.toString(),
-        }))
-      : [criarBeneficiarioVazio()],
-  );
-  function formatarCPF(valor: string) {
-    return limparCPF(valor)
-      .replace(/(\d{3})(\d)/, "$1.$2")
-      .replace(/(\d{3})(\d)/, "$1.$2")
-      .replace(/(\d{3})(\d{1,2})$/, "$1-$2")
-      .slice(0, 14);
-  }
+    dataInicio: "",
+    mensalidade: "",
+    status: "Ativa",
+    percentualCobertura: "",
+    valorFranquia: "",
+  })
+
+  useEffect(() => {
+    if (apoliceEditando) {
+      setFormData({
+        dataInicio:
+          typeof apoliceEditando.dataInicio === "string"
+            ? apoliceEditando.dataInicio.split("T")[0]
+            : "",
+        mensalidade: apoliceEditando.mensalidade.toString(),
+        status: apoliceEditando.status,
+        percentualCobertura: apoliceEditando.percentualCobertura.toString(),
+        valorFranquia: apoliceEditando.valorFranquia.toString(),
+      })
+    }
+  }, [apoliceEditando])
 
   const atualizarCampo = (
-    evento: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+    evento: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
-    let valor = evento.target.value;
-
-    if (evento.target.name === "cpf") {
-      valor = formatarCPF(valor);
-    }
-
     setFormData({
       ...formData,
-      [evento.target.name]: valor,
-    });
-  };
-
-  const atualizarBeneficiario = (
-    index: number,
-    campo: keyof BeneficiarioForm,
-    valor: string,
-  ) => {
-    let valorFormatado = valor;
-
-    if (campo === "cpf") {
-      valorFormatado = formatarCPF(valor);
-    }
-
-    setBeneficiarios((beneficiariosAtuais) =>
-      beneficiariosAtuais.map((beneficiario, beneficiarioIndex) =>
-        beneficiarioIndex === index
-          ? { ...beneficiario, [campo]: valorFormatado }
-          : beneficiario,
-      ),
-    );
-  };
-
-  const adicionarBeneficiario = () => {
-    setBeneficiarios((beneficiariosAtuais) => [
-      ...beneficiariosAtuais,
-      criarBeneficiarioVazio(),
-    ]);
-  };
-
-  const removerBeneficiario = (index: number) => {
-    setBeneficiarios((beneficiariosAtuais) => {
-      const beneficiarioRemovido = beneficiariosAtuais[index];
-
-      if (beneficiarioRemovido?.id_beneficiario) {
-        setBeneficiariosRemovidos((idsAtuais) => [
-          ...idsAtuais,
-          beneficiarioRemovido.id_beneficiario as number,
-        ]);
-      }
-
-      return beneficiariosAtuais.filter(
-        (_, beneficiarioIndex) => beneficiarioIndex !== index,
-      );
-    });
-  };
-
-  const obterMensagemErro = (error: unknown) => {
-    if (axios.isAxiosError(error)) {
-      const mensagem = error.response?.data?.message;
-
-      if (Array.isArray(mensagem)) return mensagem.join("\n");
-      if (typeof mensagem === "string") return mensagem;
-      if (typeof error.response?.data === "string") return error.response.data;
-    }
-
-    return "Verifique os dados e tente novamente.";
-  };
+      [evento.target.name]: evento.target.value,
+    })
+  }
 
   async function salvarApolice(evento: React.FormEvent<HTMLFormElement>) {
-    evento.preventDefault();
+    evento.preventDefault()
+    if (salvando) return
 
-    if (salvando) return;
-
-    const percentualTotal = beneficiarios.reduce(
-      (total, beneficiario) => total + Number(beneficiario.percentual),
-      0,
-    );
-
-    if (Math.abs(percentualTotal - 100) > 0.01) {
-      toast.error("A soma dos percentuais dos beneficiários precisa ser 100%.");
-      return;
-    }
-
-    const cpfCliente = limparCPF(formData.cpf);
+    setSalvando(true)
 
     const dadosParaEnviar = {
-      data_inicio: formData.data_inicio,
+      dataInicio: formData.dataInicio,
       mensalidade: Number(formData.mensalidade),
-      valor_segurado: Number(formData.valor_segurado),
       status: formData.status,
-      cobertura: formData.cobertura,
-      cliente: {
-        cpf: cpfCliente,
-      },
-    };
-
-    setSalvando(true);
+      percentualCobertura: Number(formData.percentualCobertura),
+      valorFranquia: Number(formData.valorFranquia),
+    }
 
     try {
-      const apoliceSalva = apoliceEditando
-        ? await atualizar(
-            `/apolices/${apoliceEditando.id_apolice}`,
-            {
-              id_apolice: apoliceEditando.id_apolice,
-              ...dadosParaEnviar,
-              beneficiario: apoliceEditando.beneficiario ?? [],
-            },
-            () => {},
-          )
-        : await cadastrar("/apolices", dadosParaEnviar, () => {});
-      const beneficiariosSalvos: Beneficiario[] = [];
+      let apoliceSalva: Apolice
 
-      try {
-        for (const idBeneficiario of beneficiariosRemovidos) {
-          await deletar(`/beneficiarios/${idBeneficiario}`);
-        }
-
-        for (const beneficiario of beneficiarios) {
-          const dadosBeneficiario = {
-            id_beneficiario: beneficiario.id_beneficiario,
-            nome: beneficiario.nome,
-            cpf: limparCPF(beneficiario.cpf),
-            parentesco: beneficiario.parentesco,
-            percentual: Number(beneficiario.percentual),
-            apolice: {
-              id_apolice: apoliceSalva.id_apolice,
-            },
-          };
-          const beneficiarioSalvo = beneficiario.id_beneficiario
-            ? await atualizar("/beneficiarios", dadosBeneficiario, () => {})
-            : await cadastrar("/beneficiarios", dadosBeneficiario, () => {});
-
-          beneficiariosSalvos.push(beneficiarioSalvo);
-        }
-      } catch (error) {
-        await atualizarListagem();
-        toast.error(
-          `A apólice foi salva, mas houve erro ao salvar beneficiários.\n${obterMensagemErro(
-            error,
-          )}`,
-        );
-        fecharModal();
-        return;
+      if (apoliceEditando) {
+        apoliceSalva = await atualizar(
+          `/apolices/${apoliceEditando.id}`,
+          { id: apoliceEditando.id, ...dadosParaEnviar },
+          () => {}
+        )
+        toast.success("Apólice atualizada com sucesso!")
+      } else {
+        apoliceSalva = await cadastrar("/apolices", dadosParaEnviar, () => {})
+        adicionarApolice(apoliceSalva)
+        toast.success("Apólice cadastrada com sucesso!")
       }
 
-      let clienteApolice =
-        apoliceSalva.cliente ??
-        apoliceEditando?.cliente ??
-        ({ cpf: cpfCliente } as Cliente);
-
-      try {
-        const respostaCliente = await api.get<Cliente>(`/clientes/${cpfCliente}`);
-        clienteApolice = respostaCliente.data;
-      } catch (error) {
-        console.warn("Apólice salva, mas não foi possível buscar o cliente:", error);
-      }
-
-      const apoliceCompleta = {
-        ...dadosParaEnviar,
-        ...apoliceSalva,
-        valor_segurado: Number(formData.valor_segurado),
-        mensalidade: Number(formData.mensalidade),
-        data_inicio: formData.data_inicio,
-        cliente: clienteApolice,
-        beneficiario: beneficiariosSalvos,
-      } as Apolice;
-
-      toast.success("Apólice cadastrada com sucesso!");
-      await atualizarListagem();
-      if (!apoliceEditando) adicionarApolice(apoliceCompleta);
-      fecharModal();
+      await atualizarListagem()
+      fecharModal()
     } catch (error) {
-      console.error(error);
-      toast.error(
-        "Erro ao cadastrar apólice. Verifique os dados e tente novamente.",
-      );
+      console.error(error)
+      toast.error("Erro ao salvar apólice. Verifique os dados.")
     } finally {
-      setSalvando(false);
+      setSalvando(false)
     }
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-6">
-      <div className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-2xl bg-white p-7 shadow-2xl">
-        <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-slate-950">
-            {apoliceEditando ? "Editar apólice" : "Nova apólice"}
-          </h2>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-6">
+      <div className="w-full max-w-md rounded-xl border border-zinc-800 bg-[#0c0c0e] p-6 shadow-2xl text-white">
+        {/* Header do Modal */}
+        <div className="mb-6 flex items-start justify-between">
+          <div>
+            <h2 className="text-2xl font-bold tracking-tight text-white font-mono uppercase">
+              {apoliceEditando ? "Editar apólice" : "Nova apólice"}
+            </h2>
+            <p className="text-xs text-zinc-500 mt-1">Preencha os dados da apólice.</p>
+          </div>
 
           <button
             type="button"
             onClick={fecharModal}
             disabled={salvando}
-            className="text-2xl text-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
+            className="text-zinc-500 hover:text-white transition-colors disabled:opacity-50"
           >
-            ×
+            <X size={20} />
           </button>
         </div>
 
-        <form onSubmit={salvarApolice} className="space-y-4">
+        {/* Formulário */}
+        <form onSubmit={salvarApolice} className="space-y-5">
           <div>
-            <label className="mb-2 block font-semibold">CPF do cliente</label>
-
+            <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-zinc-400 font-mono">
+              Data de início
+            </label>
             <input
-              type="text"
-              name="cpf"
-              value={formData.cpf}
+              type="date"
+              name="dataInicio"
+              value={formData.dataInicio}
               onChange={atualizarCampo}
-              placeholder="Digite o CPF do cliente"
-              maxLength={14}
-              inputMode="numeric"
               required
               disabled={salvando}
-              className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none disabled:bg-slate-100"
+              className="w-full rounded-lg border border-zinc-800 bg-[#121214] px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none focus:border-sky-500 transition-colors disabled:opacity-50"
             />
           </div>
 
           <div>
-            <label className="mb-2 block font-semibold">Cobertura</label>
+            <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-zinc-400 font-mono">
+              Mensalidade
+            </label>
+            <input
+              type="number"
+              name="mensalidade"
+              placeholder="R$ 0,00"
+              value={formData.mensalidade}
+              onChange={atualizarCampo}
+              min="0"
+              step="0.01"
+              required
+              disabled={salvando}
+              className="w-full rounded-lg border border-zinc-800 bg-[#121214] px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none focus:border-sky-500 transition-colors disabled:opacity-50"
+            />
+          </div>
 
+          <div>
+            <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-zinc-400 font-mono">
+              Percentual de cobertura (%)
+            </label>
+            <input
+              type="number"
+              name="percentualCobertura"
+              placeholder="000"
+              value={formData.percentualCobertura}
+              onChange={atualizarCampo}
+              min="0"
+              max="100"
+              step="0.01"
+              required
+              disabled={salvando}
+              className="w-full rounded-lg border border-zinc-800 bg-[#121214] px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none focus:border-sky-500 transition-colors disabled:opacity-50"
+            />
+          </div>
+
+          <div>
+            <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-zinc-400 font-mono">
+              Valor da franquia
+            </label>
+            <input
+              type="number"
+              name="valorFranquia"
+              placeholder="R$ 0,00"
+              value={formData.valorFranquia}
+              onChange={atualizarCampo}
+              min="0"
+              step="0.01"
+              required
+              disabled={salvando}
+              className="w-full rounded-lg border border-zinc-800 bg-[#121214] px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none focus:border-sky-500 transition-colors disabled:opacity-50"
+            />
+          </div>
+
+          <div>
+            <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-zinc-400 font-mono">
+              Status
+            </label>
             <select
-              name="cobertura"
-              value={formData.cobertura}
+              name="status"
+              value={formData.status}
               onChange={atualizarCampo}
               disabled={salvando}
-              className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none disabled:bg-slate-100"
+              className="w-full rounded-lg border border-zinc-800 bg-[#121214] px-4 py-3 text-sm text-white outline-none focus:border-sky-500 transition-colors disabled:opacity-50 appearance-none"
             >
-              <option>Vida Individual</option>
-              <option>Vida em Grupo</option>
-              <option>Acidentes Pessoais</option>
-              <option>Doenças Graves</option>
+              <option value="Ativa">Ativa</option>
+              <option value="Pendente">Pendente</option>
+              <option value="Cancelada">Cancelada</option>
             </select>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="mb-2 block font-semibold">
-                Valor segurado (R$)
-              </label>
-
-              <input
-                type="number"
-                name="valor_segurado"
-                value={formData.valor_segurado}
-                onChange={atualizarCampo}
-                min="0"
-                step="0.01"
-                required
-                disabled={salvando}
-                className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none disabled:bg-slate-100"
-              />
-            </div>
-
-            <div>
-              <label className="mb-2 block font-semibold">Mensalidade</label>
-
-              <input
-                type="number"
-                name="mensalidade"
-                value={formData.mensalidade}
-                onChange={atualizarCampo}
-                min="0"
-                step="0.01"
-                required
-                disabled={salvando}
-                className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none disabled:bg-slate-100"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="mb-2 block font-semibold">Status</label>
-
-              <select
-                name="status"
-                value={formData.status}
-                onChange={atualizarCampo}
-                disabled={salvando}
-                className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none disabled:bg-slate-100"
-              >
-                <option>Ativa</option>
-                <option>Pendente</option>
-                <option>Cancelada</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="mb-2 block font-semibold">Data de início</label>
-
-              <input
-                type="date"
-                name="data_inicio"
-                value={formData.data_inicio}
-                onChange={atualizarCampo}
-                required
-                disabled={salvando}
-                className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none disabled:bg-slate-100"
-              />
-            </div>
-          </div>
-
-          <section className="rounded-2xl border border-slate-200 p-4">
-            <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-lg font-bold text-slate-950">
-                Beneficiários
-              </h3>
-
-              <button
-                type="button"
-                onClick={adicionarBeneficiario}
-                disabled={salvando}
-                className="inline-flex items-center gap-2 rounded-xl bg-slate-100 px-4 py-2 font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <Plus size={18} /> Adicionar
-              </button>
-            </div>
-
-            <div className="space-y-4">
-              {beneficiarios.map((beneficiario, index) => (
-                <div
-                  key={beneficiario.id_beneficiario ?? index}
-                  className="grid grid-cols-1 gap-3 rounded-xl bg-slate-50 p-4 md:grid-cols-2"
-                >
-                  <input
-                    type="text"
-                    value={beneficiario.nome}
-                    onChange={(evento) =>
-                      atualizarBeneficiario(index, "nome", evento.target.value)
-                    }
-                    placeholder="Nome do beneficiário"
-                    required
-                    disabled={salvando}
-                    className="rounded-xl border border-slate-200 px-4 py-3 outline-none disabled:bg-slate-100"
-                  />
-
-                  <input
-                    type="text"
-                    value={beneficiario.cpf}
-                    onChange={(evento) =>
-                      atualizarBeneficiario(index, "cpf", evento.target.value)
-                    }
-                    placeholder="CPF do beneficiário"
-                    maxLength={14}
-                    inputMode="numeric"
-                    required
-                    disabled={salvando}
-                    className="rounded-xl border border-slate-200 px-4 py-3 outline-none disabled:bg-slate-100"
-                  />
-
-                  <input
-                    type="text"
-                    value={beneficiario.parentesco}
-                    onChange={(evento) =>
-                      atualizarBeneficiario(
-                        index,
-                        "parentesco",
-                        evento.target.value,
-                      )
-                    }
-                    placeholder="Parentesco"
-                    required
-                    disabled={salvando}
-                    className="rounded-xl border border-slate-200 px-4 py-3 outline-none disabled:bg-slate-100"
-                  />
-
-                  <div className="flex gap-3">
-                    <input
-                      type="number"
-                      value={beneficiario.percentual}
-                      onChange={(evento) =>
-                        atualizarBeneficiario(
-                          index,
-                          "percentual",
-                          evento.target.value,
-                        )
-                      }
-                      min="0"
-                      max="100"
-                      step="0.01"
-                      placeholder="Percentual (%)"
-                      required
-                      disabled={salvando}
-                      className="min-w-0 flex-1 rounded-xl border border-slate-200 px-4 py-3 outline-none disabled:bg-slate-100"
-                    />
-
-                    {beneficiarios.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => removerBeneficiario(index)}
-                        disabled={salvando}
-                        className="rounded-xl bg-red-50 px-4 text-red-600 disabled:cursor-not-allowed disabled:opacity-50"
-                        aria-label="Remover beneficiário"
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <div className="flex justify-end gap-4 pt-3">
+          {/* Botões de Ação */}
+          <div className="flex justify-end gap-4 pt-4 border-t border-zinc-900">
             <button
               type="button"
               onClick={fecharModal}
               disabled={salvando}
-              className="font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-50"
+              className="text-sm font-bold uppercase tracking-wider text-zinc-400 hover:text-white transition-colors disabled:opacity-50"
             >
               Cancelar
             </button>
@@ -490,7 +217,7 @@ function FormApolice({
             <button
               type="submit"
               disabled={salvando}
-              className="rounded-xl bg-red-600 px-6 py-3 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-70"
+              className="rounded-lg bg-sky-600 px-6 py-2.5 text-sm font-bold uppercase tracking-wider text-white transition-all hover:bg-sky-700 active:scale-98 disabled:opacity-50"
             >
               {salvando ? "Salvando..." : "Salvar"}
             </button>
@@ -498,7 +225,280 @@ function FormApolice({
         </form>
       </div>
     </div>
-  );
+  )
 }
 
-export default FormApolice;
+export default FormApolice
+
+// import { useEffect, useState } from "react"
+// import { toast } from "react-toastify"
+
+// import {
+//   atualizar,
+//   cadastrar,
+// } from "../../services/Service"
+
+// import type Apolice from "../../models/Apolice"
+
+// type FormApoliceProps = {
+//   fecharModal: () => void
+//   atualizarListagem: () => Promise<void> | void
+//   adicionarApolice: (apolice: Apolice) => void
+//   apoliceEditando?: Apolice | null
+// }
+
+// function FormApolice({
+//   fecharModal,
+//   atualizarListagem,
+//   adicionarApolice,
+//   apoliceEditando,
+// }: FormApoliceProps) {
+//   const [salvando, setSalvando] = useState(false)
+
+//   const [formData, setFormData] = useState({
+//     dataInicio: "",
+//     mensalidade: "",
+//     status: "Ativa",
+//     percentualCobertura: "",
+//     valorFranquia: "",
+//   })
+
+//   useEffect(() => {
+//     if (apoliceEditando) {
+//       setFormData({
+//         dataInicio:
+//           typeof apoliceEditando.dataInicio === "string"
+//             ? apoliceEditando.dataInicio.split("T")[0]
+//             : "",
+
+//         mensalidade:
+//           apoliceEditando.mensalidade.toString(),
+
+//         status: apoliceEditando.status,
+
+//         percentualCobertura:
+//           apoliceEditando.percentualCobertura.toString(),
+
+//         valorFranquia:
+//           apoliceEditando.valorFranquia.toString(),
+//       })
+//     }
+//   }, [apoliceEditando])
+
+//   const atualizarCampo = (
+//     evento: React.ChangeEvent<
+//       HTMLInputElement | HTMLSelectElement
+//     >
+//   ) => {
+//     setFormData({
+//       ...formData,
+//       [evento.target.name]: evento.target.value,
+//     })
+//   }
+
+//   async function salvarApolice(
+//     evento: React.FormEvent<HTMLFormElement>
+//   ) {
+//     evento.preventDefault()
+
+//     if (salvando) return
+
+//     setSalvando(true)
+
+//     const dadosParaEnviar = {
+//       dataInicio: formData.dataInicio,
+//       mensalidade: Number(formData.mensalidade),
+//       status: formData.status,
+//       percentualCobertura: Number(
+//         formData.percentualCobertura
+//       ),
+//       valorFranquia: Number(
+//         formData.valorFranquia
+//       ),
+//     }
+
+//     try {
+//       let apoliceSalva: Apolice
+
+//       if (apoliceEditando) {
+//         apoliceSalva = await atualizar(
+//           `/apolices/${apoliceEditando.id}`,
+//           {
+//             id: apoliceEditando.id,
+//             ...dadosParaEnviar,
+//           },
+//           () => {}
+//         )
+
+//         toast.success(
+//           "Apólice atualizada com sucesso!"
+//         )
+//       } else {
+//         apoliceSalva = await cadastrar(
+//           "/apolices",
+//           dadosParaEnviar,
+//           () => {}
+//         )
+
+//         adicionarApolice(apoliceSalva)
+
+//         toast.success(
+//           "Apólice cadastrada com sucesso!"
+//         )
+//       }
+
+//       await atualizarListagem()
+
+//       fecharModal()
+//     } catch (error) {
+//       console.error(error)
+
+//       toast.error(
+//         "Erro ao salvar apólice. Verifique os dados."
+//       )
+//     } finally {
+//       setSalvando(false)
+//     }
+//   }
+
+//   return (
+//     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-6">
+//       <div className="w-full max-w-2xl rounded-2xl bg-white p-7 shadow-2xl">
+//         <div className="mb-6 flex items-center justify-between">
+//           <h2 className="text-2xl font-bold text-slate-950">
+//             {apoliceEditando
+//               ? "Editar apólice"
+//               : "Nova apólice"}
+//           </h2>
+
+//           <button
+//             type="button"
+//             onClick={fecharModal}
+//             disabled={salvando}
+//             className="text-2xl text-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
+//           >
+//             ×
+//           </button>
+//         </div>
+
+//         <form
+//           onSubmit={salvarApolice}
+//           className="space-y-4"
+//         >
+//           <div>
+//             <label className="mb-2 block font-semibold">
+//               Data de início
+//             </label>
+
+//             <input
+//               type="date"
+//               name="dataInicio"
+//               value={formData.dataInicio}
+//               onChange={atualizarCampo}
+//               required
+//               disabled={salvando}
+//               className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none disabled:bg-slate-100"
+//             />
+//           </div>
+
+//           <div>
+//             <label className="mb-2 block font-semibold">
+//               Mensalidade
+//             </label>
+
+//             <input
+//               type="number"
+//               name="mensalidade"
+//               value={formData.mensalidade}
+//               onChange={atualizarCampo}
+//               min="0"
+//               step="0.01"
+//               required
+//               disabled={salvando}
+//               className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none disabled:bg-slate-100"
+//             />
+//           </div>
+
+//           <div>
+//             <label className="mb-2 block font-semibold">
+//               Percentual de cobertura (%)
+//             </label>
+
+//             <input
+//               type="number"
+//               name="percentualCobertura"
+//               value={formData.percentualCobertura}
+//               onChange={atualizarCampo}
+//               min="0"
+//               max="100"
+//               step="0.01"
+//               required
+//               disabled={salvando}
+//               className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none disabled:bg-slate-100"
+//             />
+//           </div>
+
+//           <div>
+//             <label className="mb-2 block font-semibold">
+//               Valor da franquia
+//             </label>
+
+//             <input
+//               type="number"
+//               name="valorFranquia"
+//               value={formData.valorFranquia}
+//               onChange={atualizarCampo}
+//               min="0"
+//               step="0.01"
+//               required
+//               disabled={salvando}
+//               className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none disabled:bg-slate-100"
+//             />
+//           </div>
+
+//           <div>
+//             <label className="mb-2 block font-semibold">
+//               Status
+//             </label>
+
+//             <select
+//               name="status"
+//               value={formData.status}
+//               onChange={atualizarCampo}
+//               disabled={salvando}
+//               className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none disabled:bg-slate-100"
+//             >
+//               <option>Ativa</option>
+//               <option>Pendente</option>
+//               <option>Cancelada</option>
+//             </select>
+//           </div>
+
+//           <div className="flex justify-end gap-4 pt-3">
+//             <button
+//               type="button"
+//               onClick={fecharModal}
+//               disabled={salvando}
+//               className="font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-50"
+//             >
+//               Cancelar
+//             </button>
+
+//             <button
+//               type="submit"
+//               disabled={salvando}
+//               className="rounded-xl bg-red-600 px-6 py-3 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-70"
+//             >
+//               {salvando
+//                 ? "Salvando..."
+//                 : "Salvar"}
+//             </button>
+//           </div>
+//         </form>
+//       </div>
+//     </div>
+//   )
+// }
+
+// export default FormApolice
+
