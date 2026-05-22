@@ -7,7 +7,6 @@ import Home from "./pages/home/Home";
 import Navbar from "./components/navbar/Navbar";
 import Footer from "./components/footer/Footer";
 import Apolices from "./pages/apolices/Apolices";
-import { MinhasApolices } from "./pages/Usuario/MinhasApolice";
 import NavBarAdm from "./navbaradm/NavBarAdm";
 
 function HomeLayout() {
@@ -39,7 +38,6 @@ function App() {
         <Route path="/home" element={<HomeLayout />} />
         <Route path="/admcliente" element={<AdminLayout><AdmCliente /></AdminLayout>} />
         <Route path="/apolices" element={<AdminLayout><Apolices /></AdminLayout>} />
-        <Route path="/minhas-apolices" element={<MinhasApolices />} />
         <Route path="/login" element={<Login />} />
         <Route path="/cadastro" element={<Register />} />
       </Routes>
