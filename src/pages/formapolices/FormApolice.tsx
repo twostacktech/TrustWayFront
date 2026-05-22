@@ -1,9 +1,62 @@
 import { useEffect, useState } from "react"
+import axios from "axios"
 import { toast } from "react-toastify"
 import { X } from "@phosphor-icons/react"
 
-import { atualizar, cadastrar } from "../../services/Service"
+import { api, atualizar, cadastrar } from "../../services/Service"
 import type Apolice from "../../models/Apolice"
+
+const obterTokenSalvo = () =>
+  localStorage.getItem("token") ??
+  localStorage.getItem("authToken") ??
+  localStorage.getItem("accessToken") ??
+  ""
+
+const obterHeaderAutenticado = () => {
+  const token = obterTokenSalvo()
+
+  return {
+    headers: {
+      Authorization: token.startsWith("Bearer ") ? token : `Bearer ${token}`,
+    },
+  }
+}
+
+const obterMensagemErro = (error: unknown) => {
+  if (axios.isAxiosError(error)) {
+    const mensagem = error.response?.data?.message
+
+    if (Array.isArray(mensagem)) {
+      return mensagem.join(" ")
+    }
+
+    if (typeof mensagem === "string") {
+      return mensagem
+    }
+
+    if (error.response?.status) {
+      return `Erro ${error.response.status} ao salvar apólice.`
+    }
+  }
+
+  return "Erro ao salvar apólice. Verifique os dados."
+}
+
+const obterDetalheErro = (error: unknown) => {
+  if (!axios.isAxiosError(error)) return ""
+
+  const mensagem = error.response?.data?.message
+
+  if (Array.isArray(mensagem)) return mensagem.join(" ")
+  if (typeof mensagem === "string") return mensagem
+  if (error.response?.data?.error) return String(error.response.data.error)
+  if (error.response?.status) return `Erro ${error.response.status}`
+
+  return ""
+}
+
+const erroNaoEncontrado = (error: unknown) =>
+  axios.isAxiosError(error) && error.response?.status === 404
 
 type FormApoliceProps = {
   fecharModal: () => void
@@ -26,6 +79,12 @@ function FormApolice({
     status: "Ativa",
     percentualCobertura: "",
     valorFranquia: "",
+    usuarioCpf: "",
+    veiculoPlaca: "",
+    veiculoMarca: "",
+    veiculoModelo: "",
+    veiculoAno: "",
+    veiculoPrecoFip: "",
   })
 
   useEffect(() => {
@@ -41,6 +100,12 @@ function FormApolice({
         status: apoliceEditando.status,
         percentualCobertura: apoliceEditando.percentualCobertura.toString(),
         valorFranquia: apoliceEditando.valorFranquia.toString(),
+        usuarioCpf: apoliceEditando.usuario?.cpf ?? "",
+        veiculoPlaca: apoliceEditando.veiculo?.placa ?? "",
+        veiculoMarca: apoliceEditando.veiculo?.marca ?? "",
+        veiculoModelo: apoliceEditando.veiculo?.modelo ?? "",
+        veiculoAno: apoliceEditando.veiculo?.ano?.toString() ?? "",
+        veiculoPrecoFip: apoliceEditando.veiculo?.precoFip?.toString() ?? "",
       })
     }, 0)
 
@@ -62,12 +127,26 @@ function FormApolice({
 
     setSalvando(true)
 
+    const veiculoParaEnviar = {
+      placa: formData.veiculoPlaca.toUpperCase(),
+      marca: formData.veiculoMarca,
+      modelo: formData.veiculoModelo,
+      ano: Number(formData.veiculoAno),
+      precoFip: Number(formData.veiculoPrecoFip).toFixed(3),
+    }
+
     const dadosParaEnviar = {
       dataInicio: formData.dataInicio,
       mensalidade: Number(formData.mensalidade),
       status: formData.status,
       percentualCobertura: Number(formData.percentualCobertura),
       valorFranquia: Number(formData.valorFranquia),
+      usuario: {
+        cpf: formData.usuarioCpf.replace(/\D/g, ""),
+      },
+      veiculo: {
+        placa: veiculoParaEnviar.placa,
+      },
     }
 
     try {
@@ -77,11 +156,39 @@ function FormApolice({
         apoliceSalva = await atualizar(
           `/apolices/${apoliceEditando.id}`,
           { id: apoliceEditando.id, ...dadosParaEnviar },
-          () => {}
+          () => {},
+          obterHeaderAutenticado()
         )
         toast.success("Apólice atualizada com sucesso!")
       } else {
-        apoliceSalva = await cadastrar("/apolices", dadosParaEnviar, () => {})
+        try {
+          await api.get(`/veiculos/${veiculoParaEnviar.placa}`, obterHeaderAutenticado())
+        } catch (error) {
+          if (!erroNaoEncontrado(error)) throw error
+
+          try {
+            await cadastrar("/veiculos", veiculoParaEnviar, () => {}, obterHeaderAutenticado())
+          } catch (erroCadastroVeiculo) {
+            const detalhe = obterDetalheErro(erroCadastroVeiculo)
+            throw new Error(
+              detalhe
+                ? `Erro ao cadastrar veículo: ${detalhe}`
+                : "Erro ao cadastrar veículo antes da apólice."
+            )
+          }
+        }
+
+        try {
+          apoliceSalva = await cadastrar("/apolices", dadosParaEnviar, () => {}, obterHeaderAutenticado())
+        } catch (erroCadastroApolice) {
+          const detalhe = obterDetalheErro(erroCadastroApolice)
+          throw new Error(
+            detalhe
+              ? `Erro ao cadastrar apólice: ${detalhe}`
+              : "Erro ao cadastrar apólice."
+          )
+        }
+
         adicionarApolice(apoliceSalva)
         toast.success("Apólice cadastrada com sucesso!")
       }
@@ -90,7 +197,7 @@ function FormApolice({
       fecharModal()
     } catch (error) {
       console.error(error)
-      toast.error("Erro ao salvar apólice. Verifique os dados.")
+      toast.error(error instanceof Error ? error.message : obterMensagemErro(error))
     } finally {
       setSalvando(false)
     }
@@ -98,7 +205,7 @@ function FormApolice({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-6">
-      <div className="w-full max-w-md rounded-xl border border-zinc-800 bg-[#0c0c0e] p-6 shadow-2xl text-white">
+      <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl border border-zinc-800 bg-[#0c0c0e] p-6 shadow-2xl text-white">
         {/* Header do Modal */}
         <div className="mb-6 flex items-start justify-between">
           <div>
@@ -181,6 +288,108 @@ function FormApolice({
               name="valorFranquia"
               placeholder="R$ 0,00"
               value={formData.valorFranquia}
+              onChange={atualizarCampo}
+              min="0"
+              step="0.01"
+              required
+              disabled={salvando}
+              className="w-full rounded-lg border border-zinc-800 bg-[#121214] px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none focus:border-[#22D3EE] focus:shadow-[0_0_15px_rgba(34,211,238,0.3)] transition-all disabled:opacity-50"
+            />
+          </div>
+
+          <div>
+            <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-zinc-400 font-mono">
+              CPF do cliente
+            </label>
+            <input
+              type="text"
+              name="usuarioCpf"
+              placeholder="00000000000"
+              value={formData.usuarioCpf}
+              onChange={atualizarCampo}
+              required
+              disabled={salvando}
+              className="w-full rounded-lg border border-zinc-800 bg-[#121214] px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none focus:border-[#22D3EE] focus:shadow-[0_0_15px_rgba(34,211,238,0.3)] transition-all disabled:opacity-50"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
+              <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-zinc-400 font-mono">
+                Placa
+              </label>
+              <input
+                type="text"
+                name="veiculoPlaca"
+                placeholder="ABC1D23"
+                value={formData.veiculoPlaca}
+                onChange={atualizarCampo}
+                required
+                disabled={salvando}
+                className="w-full rounded-lg border border-zinc-800 bg-[#121214] px-4 py-3 text-sm uppercase text-white placeholder-zinc-600 outline-none focus:border-[#4F46E5] focus:shadow-[0_0_15px_rgba(79,70,229,0.3)] transition-all disabled:opacity-50"
+              />
+            </div>
+
+            <div>
+              <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-zinc-400 font-mono">
+                Ano
+              </label>
+              <input
+                type="number"
+                name="veiculoAno"
+                placeholder="2024"
+                value={formData.veiculoAno}
+                onChange={atualizarCampo}
+                required
+                disabled={salvando}
+                className="w-full rounded-lg border border-zinc-800 bg-[#121214] px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none focus:border-[#4F46E5] focus:shadow-[0_0_15px_rgba(79,70,229,0.3)] transition-all disabled:opacity-50"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
+              <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-zinc-400 font-mono">
+                Marca
+              </label>
+              <input
+                type="text"
+                name="veiculoMarca"
+                placeholder="Honda"
+                value={formData.veiculoMarca}
+                onChange={atualizarCampo}
+                required
+                disabled={salvando}
+                className="w-full rounded-lg border border-zinc-800 bg-[#121214] px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none focus:border-[#FF4FD8] focus:shadow-[0_0_15px_rgba(255,79,216,0.3)] transition-all disabled:opacity-50"
+              />
+            </div>
+
+            <div>
+              <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-zinc-400 font-mono">
+                Modelo
+              </label>
+              <input
+                type="text"
+                name="veiculoModelo"
+                placeholder="Civic"
+                value={formData.veiculoModelo}
+                onChange={atualizarCampo}
+                required
+                disabled={salvando}
+                className="w-full rounded-lg border border-zinc-800 bg-[#121214] px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none focus:border-[#FF4FD8] focus:shadow-[0_0_15px_rgba(255,79,216,0.3)] transition-all disabled:opacity-50"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-zinc-400 font-mono">
+              Preço FIPE
+            </label>
+            <input
+              type="number"
+              name="veiculoPrecoFip"
+              placeholder="R$ 0,00"
+              value={formData.veiculoPrecoFip}
               onChange={atualizarCampo}
               min="0"
               step="0.01"

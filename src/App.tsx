@@ -1,4 +1,3 @@
-
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import AdmCliente from './pages/Cliente/AdmCliente'
 import Login from './pages/login/Login';
@@ -8,7 +7,7 @@ import Navbar from "./components/navbar/Navbar";
 import Footer from "./components/footer/Footer";
 import Apolices from "./pages/apolices/Apolices";
 import NavBarAdm from "./navbaradm/NavBarAdm";
-import { MinhasApolices } from "./pages/Usuario/MinhasApolice";
+import Relatorios from "./pages/relatorios/Relatorio";
 
 function HomeLayout() {
   return (
@@ -39,8 +38,8 @@ function App() {
         <Route path="/home" element={<HomeLayout />} />
         <Route path="/admcliente" element={<AdminLayout><AdmCliente /></AdminLayout>} />
         <Route path="/apolices" element={<AdminLayout><Apolices /></AdminLayout>} />
-        <Route path="/minhas-apolices" element={<MinhasApolices />} />
-        <Route path="/minhasapolices" element={<MinhasApolices />} />
+        <Route path="/relatorios" element={<Relatorios />} />
+        <Route path="/minhasapolices" element={<AdminLayout><Apolices /></AdminLayout>} />
         <Route path="/login" element={<Login />} />
         <Route path="/cadastro" element={<Register />} />
       </Routes>
