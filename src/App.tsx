@@ -10,6 +10,7 @@ import NavBarAdm from "./navbaradm/NavBarAdm";
 import Relatorios from "./pages/relatorios/Relatorio";
 import CustomCursor from "./components/cursor/CustomCursor";
 import type { ReactNode } from "react";
+import { MinhasApolices } from "./pages/Usuario/MinhasApolice";
 
 function HomeLayout() {
   return (
@@ -42,7 +43,8 @@ function App() {
         <Route path="/admcliente" element={<AdminLayout><AdmCliente /></AdminLayout>} />
         <Route path="/apolices" element={<AdminLayout><Apolices /></AdminLayout>} />
         <Route path="/relatorios" element={<Relatorios />} />
-        <Route path="/minhasapolices" element={<AdminLayout><Apolices /></AdminLayout>} />
+        <Route path="/minhas-apolices" element={<MinhasApolices />} />
+        <Route path="/minhasapolices" element={<MinhasApolices />} />
         <Route path="/login" element={<Login />} />
         <Route path="/cadastro" element={<Register />} />
       </Routes>
