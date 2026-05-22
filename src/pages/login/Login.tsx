@@ -1,6 +1,13 @@
 import { ArrowRight, Loader2 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import { login } from '../../services/Service';
+
+type LoginResponse = {
+  token?: string;
+  accessToken?: string;
+  authToken?: string;
+};
 
 export default function Login() {
   const navigate = useNavigate();
@@ -16,24 +23,22 @@ export default function Login() {
     setError('');
 
     try {
-      const response = await fetch('https://trustway.onrender.com/usuario/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      const data: LoginResponse = await login(
+        '/usuarios/logar',
+        {
           usuario: email,
           senha: password
-        }),
-      });
+        },
+        () => {}
+      );
 
-      const data = await response.json();
+      const token = data.token ?? data.accessToken ?? data.authToken;
 
-      if (!response.ok) {
-        throw new Error(data.message || 'Erro ao fazer login');
+      if (!token) {
+        throw new Error('Token nao retornado pela API');
       }
 
-      localStorage.setItem('token', data.token); 
+      localStorage.setItem('token', token); 
       
       navigate('/admcliente'); 
 
