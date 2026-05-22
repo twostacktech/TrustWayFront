@@ -2,6 +2,14 @@
 
 @theme {
   --font-display: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+@import "tailwindcss";
+
+:root {
+  --font-display: "Bebas Neue", "Arial Narrow", sans-serif;
+  --font-body: "Inter", Arial, sans-serif;
+  --color-red: #ff1744;
+  --color-red-soft: rgba(255, 23, 68, 0.35);
+  --color-ink: #050505;
 }
 
 * {
@@ -20,4 +28,199 @@ body {
 button,
 input {
   font: inherit;
+}
+html {
+  scroll-behavior: smooth;
+  background: #000;
+}
+
+body {
+  margin: 0;
+  overflow-x: hidden;
+  background: #000;
+  color: #fff;
+  font-family: var(--font-body);
+}
+
+button,
+a {
+  font: inherit;
+}
+
+a {
+  text-decoration: none;
+}
+
+::selection {
+  background: var(--color-red);
+  color: #fff;
+}
+
+.trustway-page {
+  background:
+    radial-gradient(circle at 50% 12%, rgba(255, 23, 68, 0.13), transparent 28rem),
+    linear-gradient(180deg, #000 0%, #050506 46%, #000 100%);
+}
+
+.hero-section::before {
+  position: absolute;
+  inset: 0;
+  z-index: -20;
+  content: "";
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: radial-gradient(circle at 50% 44%, #000 0%, transparent 70%);
+}
+
+.hero-noise {
+  background:
+    repeating-linear-gradient(0deg, transparent 0 7px, rgba(255, 255, 255, 0.04) 8px),
+    linear-gradient(90deg, transparent, rgba(255, 23, 68, 0.08), transparent);
+}
+
+.hero-ghost {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 1;
+  margin: 0;
+  color: transparent;
+  font-family: var(--font-display);
+  font-size: clamp(12rem, 32vw, 38rem);
+  font-weight: 400;
+  letter-spacing: 0.035em;
+  line-height: 0.8;
+  white-space: nowrap;
+  transform: translate(-50%, -50%);
+  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.14);
+  text-stroke: 1px rgba(255, 255, 255, 0.14);
+  animation: ghostIn 620ms cubic-bezier(0.19, 1, 0.22, 1) both;
+  pointer-events: none;
+}
+
+.car-frame {
+  animation: frameIn 680ms cubic-bezier(0.19, 1, 0.22, 1) both;
+}
+
+.car-frame::before,
+.car-frame::after {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  z-index: 0;
+  height: 1px;
+  content: "";
+  background: linear-gradient(90deg, transparent, var(--color-red-soft), transparent);
+}
+
+.car-frame::before {
+  top: 17%;
+}
+
+.car-frame::after {
+  bottom: 16%;
+}
+
+.hero-car {
+  filter: drop-shadow(0 2.5rem 2.2rem rgba(0, 0, 0, 0.8));
+  animation: carFloat 4.8s ease-in-out infinite, carReveal 720ms ease both;
+}
+
+.price-block {
+  animation: priceIn 720ms ease both;
+}
+
+.hero-caption {
+  animation: captionIn 580ms ease both;
+}
+
+@keyframes frameIn {
+  from {
+    opacity: 0;
+    transform: scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes ghostIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -46%) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes carReveal {
+  from {
+    opacity: 0;
+    transform: translateX(1.5rem) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes carFloat {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+
+  50% {
+    translate: 0 -0.7rem;
+  }
+}
+
+@keyframes priceIn {
+  from {
+    opacity: 0;
+    transform: translateY(0.9rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes captionIn {
+  from {
+    opacity: 0;
+    transform: translateY(0.7rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 760px) {
+  .hero-ghost {
+    font-size: clamp(7.5rem, 38vw, 13rem);
+    letter-spacing: 0.02em;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
 }
