@@ -7,7 +7,7 @@ function NavBarAdm() {
         <div className="flex items-center justify-between px-4 py-5 sm:px-8 lg:px-14">
           <div className="flex items-center gap-6">
             <a
-              href="#"//colocar link para o home do site
+              href="/home"//colocar link para o home do site
               className="flex items-center gap-2 border-r border-white/10 pr-6 text-sm text-zinc-400 transition hover:text-white"
             >
               <ArrowLeft size={17} weight="bold" />
@@ -32,21 +32,21 @@ function NavBarAdm() {
 
         <nav className="flex gap-8 overflow-x-auto px-4 sm:px-8 lg:px-14">
           <a
-            href="#"//colocar link para clientes
+            href="/clientes"//colocar link para clientes
             className="flex items-center gap-2 border-b-2 border-rose-500 pb-4 text-sm font-bold text-white"
           >
             <Users size={18} weight="bold" />
             Clientes
           </a>
           <a
-            href="#"//colocar link para apolices
+            href="/apolices"//colocar link para apolices
             className="flex items-center gap-2 pb-4 text-sm font-bold text-zinc-500 transition hover:text-white"
           >
             <FileText size={18} weight="bold" />
             Apolices
           </a>
           <a
-            href="#"//colocar link para relatorios
+            href="/relatorios"//colocar link para relatorios
             className="flex items-center gap-2 pb-4 text-sm font-bold text-zinc-500 transition hover:text-white"
           >
             <ChartBar size={18} weight="bold" />
@@ -59,3 +59,6 @@ function NavBarAdm() {
 }
 
 export default NavBarAdm
+
+
+
