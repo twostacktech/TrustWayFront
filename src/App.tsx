@@ -1,4 +1,6 @@
+
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import AdmCliente from './pages/Cliente/AdmCliente'
 
 import Home from "./pages/home/Home";
 import Navbar from "./components/navbar/Navbar";
@@ -13,6 +15,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/home" element={<Home />} />
+          <Route path="/admcliente" element={AdmCliente />} />
         </Routes>
       </div>
 
@@ -22,3 +25,4 @@ function App() {
 }
 
 export default App;
+
