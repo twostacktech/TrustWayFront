@@ -1,4 +1,3 @@
-
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import AdmCliente from './pages/Cliente/AdmCliente'
 import Login from './pages/login/Login';
