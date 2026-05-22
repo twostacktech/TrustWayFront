@@ -1,6 +1,16 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Calculator, Car, Lightning, List, Question, Shield, ShieldCheck, User, Users } from "@phosphor-icons/react";
+import {
+  Calculator,
+  Car,
+  Lightning,
+  List,
+  Question,
+  Shield,
+  ShieldCheck,
+  User,
+  Users,
+} from "@phosphor-icons/react";
 
 const sideLinks = [
   { id: "showcase", icon: Car, eyebrow: "01", label: "Trust Way" },
@@ -69,22 +79,15 @@ function Navbar() {
         </Link>
 
         <div className="hidden gap-3 md:flex">
-<<<<<<< HEAD
-          <Link to="/login" className="inline-flex min-h-9 items-center gap-2 border border-[#333] px-5 text-[0.68rem] font-black tracking-[0.08rem] text-white transition duration-200 hover:-translate-y-px hover:border-[#ff1744]">
-            <User size={15} weight="bold" />
-            LOGIN USUÁRIO
-          </Link>
-
-          <Link to="/admcliente" className="inline-flex min-h-9 items-center gap-2 bg-[#ff1744] px-5 text-[0.68rem] font-black tracking-[0.08rem] text-white transition duration-200 hover:-translate-y-px">
-            <ShieldCheck size={15} weight="bold" />
-            PAINEL ADMIN
-=======
-          <button className="sliding-button inline-flex min-h-9 items-center gap-2 border border-[#F0F2F4]/15 px-5 text-[0.68rem] font-black tracking-[0.08rem] text-[#F0F2F4]">
+          <Link
+            to="/login"
+            className="sliding-button inline-flex min-h-9 items-center gap-2 border border-[#F0F2F4]/15 px-5 text-[0.68rem] font-black tracking-[0.08rem] text-[#F0F2F4]"
+          >
             <span>
               <User size={15} weight="bold" />
               LOGIN USUÁRIO
             </span>
-          </button>
+          </Link>
 
           <Link
             to="/admcliente"
@@ -94,7 +97,6 @@ function Navbar() {
               <ShieldCheck size={15} weight="bold" />
               PAINEL ADMIN
             </span>
->>>>>>> home
           </Link>
         </div>
       </nav>

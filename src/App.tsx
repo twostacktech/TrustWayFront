@@ -5,13 +5,11 @@ import Register from './pages/register/Register';
 import Home from "./pages/home/Home";
 import Navbar from "./components/navbar/Navbar";
 import Footer from "./components/footer/Footer";
-<<<<<<< HEAD
 import Apolices from "./pages/apolices/Apolices";
 import NavBarAdm from "./navbaradm/NavBarAdm";
 import Relatorios from "./pages/relatorios/Relatorio";
-=======
 import CustomCursor from "./components/cursor/CustomCursor";
->>>>>>> home
+import type { ReactNode } from "react";
 
 function HomeLayout() {
   return (
@@ -26,7 +24,7 @@ function HomeLayout() {
   )
 }
 
-function AdminLayout({ children }: { children: React.ReactNode }) {
+function AdminLayout({ children }: { children: ReactNode }) {
   return (
     <main className="min-h-screen bg-[#16151E] text-[#FAFAFA]">
       <NavBarAdm />
