@@ -252,7 +252,7 @@ function AdmCliente() {
                 closeToast()
                 excluirCliente(cliente)
               }}
-              className="rounded bg-[#9D4EDD] px-3 py-1 text-sm font-bold text-white hover:bg-[#7A39C6]"
+              className="rounded bg-[#FF4FD8] px-3 py-1 text-sm font-bold text-white hover:bg-[#D946EF]"
             >
               Excluir
             </button>
@@ -298,7 +298,7 @@ function AdmCliente() {
           <button
             type="button"
             onClick={abrirCadastro}
-            className="inline-flex h-11 w-fit items-center justify-center gap-2 rounded-md bg-[#9D4EDD] px-5 text-sm font-bold text-white transition hover:bg-[#7A39C6] disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex h-11 w-fit items-center justify-center gap-2 rounded-md bg-[#D946EF] px-5 text-sm font-bold text-white transition duration-300 ease-out hover:bg-[#FF4FD8] hover:shadow-[0_0_20px_rgba(217,70,239,0.6)] hover:scale-105 disabled:cursor-not-allowed disabled:opacity-60"
             disabled={carregando || !token}
           >
             <Plus size={18} weight="bold" />
@@ -319,11 +319,11 @@ function AdmCliente() {
                 value={tokenDigitado}
                 onChange={(event) => setTokenDigitado(event.target.value)}
                 placeholder="Cole aqui o token Bearer do Swagger"
-                className="h-10 flex-1 rounded-md border border-white/10 bg-white/[0.05] px-3 text-sm text-[#FAFAFA] outline-none placeholder:text-[#A1A1AA] focus:border-[#9D4EDD]"
+                className="h-10 flex-1 rounded-md border border-white/10 bg-white/[0.05] px-3 text-sm text-[#FAFAFA] outline-none placeholder:text-[#A1A1AA] focus:border-[#22D3EE]"
               />
               <button
                 type="submit"
-                className="h-10 rounded-md bg-[#9D4EDD] px-5 text-sm font-bold text-white transition hover:bg-[#7A39C6]"
+                className="h-10 rounded-md bg-[#D946EF] px-5 text-sm font-bold text-white transition hover:bg-[#FF4FD8]"
               >
                 Salvar token
               </button>
@@ -335,7 +335,7 @@ function AdmCliente() {
           onSubmit={buscarClientePorCpf}
           className="mb-6 flex max-w-[560px] flex-col gap-3 sm:flex-row"
         >
-          <label className="flex h-10 flex-1 items-center gap-3 rounded-md border border-white/10 bg-white/[0.05] px-3 text-[#A1A1AA] focus-within:border-[#9D4EDD]">
+          <label className="flex h-10 flex-1 items-center gap-3 rounded-md border border-white/10 bg-white/[0.05] px-3 text-[#A1A1AA] focus-within:border-[#22D3EE]">
             <MagnifyingGlass size={18} />
             <input
               type="search"
@@ -348,7 +348,7 @@ function AdmCliente() {
 
           <button
             type="submit"
-            className="h-10 rounded-md border border-white/10 bg-white/[0.05] px-5 text-sm font-bold text-[#FAFAFA] transition hover:border-[#9D4EDD] hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+            className="h-10 rounded-md border border-white/10 bg-white/[0.05] px-5 text-sm font-bold text-[#FAFAFA] transition duration-300 ease-out hover:border-[#22D3EE] hover:bg-[#22D3EE]/10 hover:text-[#22D3EE] hover:shadow-[0_0_20px_rgba(34,211,238,0.5)] hover:scale-105 disabled:cursor-not-allowed disabled:opacity-60"
             disabled={carregando || !token}
           >
             Buscar
@@ -375,7 +375,7 @@ function AdmCliente() {
                     <tr key={`${cliente.id}-${cliente.cpf}`} className="border-b border-white/10 transition hover:bg-white/[0.04] last:border-b-0">
                       <td className="px-3 py-4 font-mono text-xs text-[#A1A1AA]">#{index + 1}</td>
                       <td className="px-3 py-4 font-bold text-[#FAFAFA]">{cliente.nome}</td>
-                      <td className="px-3 py-4 font-mono font-bold text-[#9D4EDD]">{cliente.cpf}</td>
+                      <td className="px-3 py-4 font-mono font-bold text-[#22D3EE]">{cliente.cpf}</td>
                       <td className="px-3 py-4 text-[#A1A1AA]">{cliente.email}</td>
                       <td className="px-3 py-4 text-[#A1A1AA]">{cliente.telefone}</td>
                       <td className="px-3 py-4">
@@ -383,7 +383,7 @@ function AdmCliente() {
                           <button
                             type="button"
                             onClick={() => abrirEdicao(cliente)}
-                            className="text-[#FAFAFA] transition hover:text-[#9D4EDD]"
+                            className="text-[#FAFAFA] transition hover:text-[#22D3EE]"
                             aria-label={`Editar ${cliente.nome}`}
                           >
                             <PencilSimple size={18} weight="bold" />
@@ -391,7 +391,7 @@ function AdmCliente() {
                           <button
                             type="button"
                             onClick={() => confirmarExclusao(cliente)}
-                            className="text-[#A1A1AA] transition hover:text-[#9D4EDD]"
+                            className="text-[#A1A1AA] transition hover:text-[#FF4FD8]"
                             aria-label={`Excluir ${cliente.nome}`}
                           >
                             <Trash size={18} weight="bold" />
@@ -421,7 +421,7 @@ function AdmCliente() {
           >
             <div className="mb-6 flex items-start justify-between gap-4">
               <div>
-                <span className="text-xs font-bold uppercase tracking-[0.35em] text-[#9D4EDD]">
+                <span className="text-xs font-bold uppercase tracking-[0.35em] text-[#22D3EE]">
                   Cliente
                 </span>
                 <h2 className="mt-2 text-2xl font-bold text-[#FAFAFA]">
@@ -460,7 +460,7 @@ function AdmCliente() {
                   onChange={(event) =>
                     setFormulario((dados) => ({ ...dados, cpf: event.target.value }))
                   }
-                  className="h-11 w-full rounded-md border border-white/10 bg-white/[0.05] px-3 text-sm text-[#FAFAFA] outline-none focus:border-[#9D4EDD]"
+                  className="h-11 w-full rounded-md border border-white/10 bg-white/[0.05] px-3 text-sm text-[#FAFAFA] outline-none focus:border-[#22D3EE]"
                 />
               </label>
 
@@ -473,7 +473,7 @@ function AdmCliente() {
                   onChange={(event) =>
                     setFormulario((dados) => ({ ...dados, dataNascimento: event.target.value }))
                   }
-                  className="h-11 w-full rounded-md border border-white/10 bg-white/[0.05] px-3 text-sm text-[#FAFAFA] outline-none focus:border-[#9D4EDD]"
+                  className="h-11 w-full rounded-md border border-white/10 bg-white/[0.05] px-3 text-sm text-[#FAFAFA] outline-none focus:border-[#4F46E5]"
                 />
               </label>
 
@@ -485,7 +485,7 @@ function AdmCliente() {
                   onChange={(event) =>
                     setFormulario((dados) => ({ ...dados, numeroTelefone: event.target.value }))
                   }
-                  className="h-11 w-full rounded-md border border-white/10 bg-white/[0.05] px-3 text-sm text-[#FAFAFA] outline-none focus:border-[#9D4EDD]"
+                  className="h-11 w-full rounded-md border border-white/10 bg-white/[0.05] px-3 text-sm text-[#FAFAFA] outline-none focus:border-[#4F46E5]"
                 />
               </label>
 
@@ -498,7 +498,7 @@ function AdmCliente() {
                   onChange={(event) =>
                     setFormulario((dados) => ({ ...dados, senha: event.target.value }))
                   }
-                  className="h-11 w-full rounded-md border border-white/10 bg-white/[0.05] px-3 text-sm text-[#FAFAFA] outline-none focus:border-[#9D4EDD]"
+                  className="h-11 w-full rounded-md border border-white/10 bg-white/[0.05] px-3 text-sm text-[#FAFAFA] outline-none focus:border-[#FF4FD8]"
                 />
               </label>
 
@@ -511,7 +511,7 @@ function AdmCliente() {
                   onChange={(event) =>
                     setFormulario((dados) => ({ ...dados, email: event.target.value }))
                   }
-                  className="h-11 w-full rounded-md border border-white/10 bg-white/[0.05] px-3 text-sm text-[#FAFAFA] outline-none focus:border-[#9D4EDD]"
+                  className="h-11 w-full rounded-md border border-white/10 bg-white/[0.05] px-3 text-sm text-[#FAFAFA] outline-none focus:border-[#22D3EE]"
                 />
               </label>
             </div>
@@ -526,7 +526,7 @@ function AdmCliente() {
               </button>
               <button
                 type="submit"
-                className="h-11 rounded-md bg-[#9D4EDD] px-5 text-sm font-bold text-white transition hover:bg-[#7A39C6] disabled:cursor-not-allowed disabled:opacity-60"
+                className="h-11 rounded-md bg-[#D946EF] px-5 text-sm font-bold text-white transition duration-300 ease-out hover:bg-[#FF4FD8] hover:shadow-[0_0_20px_rgba(217,70,239,0.6)] hover:scale-105 disabled:cursor-not-allowed disabled:opacity-60"
                 disabled={carregando}
               >
                 {clienteEditandoId ? 'Salvar alteracoes' : 'Cadastrar cliente'}
