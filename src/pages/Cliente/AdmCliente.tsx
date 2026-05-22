@@ -98,6 +98,7 @@ function AdmCliente() {
   const [formulario, setFormulario] = useState<ClienteForm>(formularioInicial)
   const [modalAberto, setModalAberto] = useState(false)
   const [clienteEditandoId, setClienteEditandoId] = useState<number | null>(null)
+  const [clienteEditandoCpf, setClienteEditandoCpf] = useState<string | null>(null)
   const [carregando, setCarregando] = useState(false)
 
   const carregarClientes = useCallback(async () => {
@@ -164,6 +165,7 @@ function AdmCliente() {
       dataNascimento: cliente.dataNascimento,
     })
     setClienteEditandoId(cliente.id)
+    setClienteEditandoCpf(apenasNumeros(cliente.cpf))
     setModalAberto(true)
   }
 
@@ -171,6 +173,7 @@ function AdmCliente() {
     setModalAberto(false)
     setFormulario(formularioInicial)
     setClienteEditandoId(null)
+    setClienteEditandoCpf(null)
   }
 
   async function salvarCliente(event: FormEvent<HTMLFormElement>) {
@@ -181,25 +184,36 @@ function AdmCliente() {
       return
     }
 
-    const payload = {
+    const payloadBase = {
       cpf: apenasNumeros(formulario.cpf),
       nome: formulario.nome,
       tipo: 'CLIENTE',
       dataNascimento: formulario.dataNascimento,
       email: formulario.email,
-      senha: formulario.senha,
       numeroTelefone: apenasNumeros(formulario.numeroTelefone),
-      apolice: [],
     }
 
     try {
       setCarregando(true)
 
       if (clienteEditandoId) {
-        await api.put(`/usuario/${clienteEditandoId}`, payload, obterHeaderAutenticado())
+        const payloadEdicao = {
+          ...payloadBase,
+          ...(formulario.senha ? { senha: formulario.senha } : {}),
+        }
+
+        await api.put(
+          `/usuario/${clienteEditandoCpf ?? apenasNumeros(formulario.cpf)}`,
+          payloadEdicao,
+          obterHeaderAutenticado()
+        )
         toast.success('Cliente atualizado com sucesso.')
       } else {
-        await api.post('/usuario', payload, obterHeaderAutenticado())
+        await api.post(
+          '/usuario',
+          { ...payloadBase, senha: formulario.senha, apolice: [] },
+          obterHeaderAutenticado()
+        )
         toast.success('Cliente cadastrado com sucesso.')
       }
 
@@ -296,14 +310,14 @@ function AdmCliente() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0a0a0a] via-[#0f0a1a] to-[#0a0a0a]">
-      <section className="px-4 py-10 sm:px-8 lg:px-14">
-        <div className="mb-8 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+    <div className="min-h-screen bg-gradient-to-br from-[#0a0a0a] via-[#0f0a1a] to-[#0a0a0a] px-6 py-12 text-[#FAFAFA] antialiased md:px-16 font-['Inter']">
+      <section className="mx-auto w-full max-w-7xl">
+        <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <span className="mb-1 block text-xs font-medium uppercase tracking-[0.5em] text-[#A1A1AA]">
-              Gestao
+            <span className="font-['JetBrains_Mono'] font-mono text-xs uppercase tracking-widest text-[#A1A1AA]">
+              Gestão
             </span>
-            <h1 className="font-display text-5xl leading-none tracking-tight text-[#FAFAFA] sm:text-6xl">
+            <h1 className="mt-1 font-['Anton'] text-5xl uppercase tracking-wide text-[#FAFAFA]">
               CLIENTES
             </h1>
           </div>
@@ -311,7 +325,7 @@ function AdmCliente() {
           <button
             type="button"
             onClick={abrirCadastro}
-            className="inline-flex h-11 w-fit items-center justify-center gap-2 rounded-md bg-[#D946EF] px-5 text-sm font-bold text-white transition duration-300 ease-out hover:bg-[#FF4FD8] hover:shadow-[0_0_20px_rgba(217,70,239,0.6)] hover:scale-105 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex w-fit items-center justify-center gap-2 rounded-lg bg-[#D946EF] px-6 py-2.5 text-sm font-bold tracking-wider text-white transition-all duration-300 ease-out hover:scale-105 hover:bg-[#FF4FD8] hover:shadow-[0_0_20px_rgba(217,70,239,0.6)] disabled:cursor-not-allowed disabled:opacity-60"
             disabled={carregando || !token}
           >
             <Plus size={18} weight="bold" />
@@ -368,17 +382,17 @@ function AdmCliente() {
           </button>
         </form>
 
-        <div className="overflow-hidden rounded-md border border-white/10 bg-white/[0.05]">
+        <div className="overflow-hidden rounded-lg border border-white/10 bg-white/[0.05]">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[820px] border-collapse text-left text-sm">
               <thead>
-                <tr className="border-b border-white/10 text-[#A1A1AA]">
-                  <th className="w-16 px-3 py-3 font-medium">ID</th>
-                  <th className="px-3 py-3 font-medium">Nome</th>
-                  <th className="px-3 py-3 font-medium">CPF</th>
-                  <th className="px-3 py-3 font-medium">Email</th>
-                  <th className="px-3 py-3 font-medium">Telefone</th>
-                  <th className="w-28 px-3 py-3 text-right font-medium">Acoes</th>
+                <tr className="border-b border-white/10 bg-[#0a0a0a]/40 text-xs uppercase text-[#A1A1AA]">
+                  <th className="w-16 px-6 py-4 font-medium">ID</th>
+                  <th className="px-6 py-4 font-medium">Nome</th>
+                  <th className="px-6 py-4 font-medium">CPF</th>
+                  <th className="px-6 py-4 font-medium">Email</th>
+                  <th className="px-6 py-4 font-medium">Telefone</th>
+                  <th className="w-28 px-6 py-4 text-right font-medium">Acoes</th>
                 </tr>
               </thead>
 
@@ -386,12 +400,12 @@ function AdmCliente() {
                 {clientes.length > 0 ? (
                   clientes.map((cliente, index) => (
                     <tr key={`${cliente.id}-${cliente.cpf}`} className="border-b border-white/10 transition hover:bg-white/[0.04] last:border-b-0">
-                      <td className="px-3 py-4 font-mono text-xs text-[#A1A1AA]">#{index + 1}</td>
-                      <td className="px-3 py-4 font-bold text-[#FAFAFA]">{cliente.nome}</td>
-                      <td className="px-3 py-4 font-mono font-bold text-[#22D3EE]">{cliente.cpf}</td>
-                      <td className="px-3 py-4 text-[#A1A1AA]">{cliente.email}</td>
-                      <td className="px-3 py-4 text-[#A1A1AA]">{cliente.telefone}</td>
-                      <td className="px-3 py-4">
+                      <td className="px-6 py-4 font-['JetBrains_Mono'] font-mono text-xs text-[#A1A1AA]">#{index + 1}</td>
+                      <td className="px-6 py-4 font-medium text-[#FAFAFA]">{cliente.nome}</td>
+                      <td className="px-6 py-4 font-['JetBrains_Mono'] font-mono text-sm font-bold text-[#22D3EE]">{cliente.cpf}</td>
+                      <td className="px-6 py-4 text-[#A1A1AA]">{cliente.email}</td>
+                      <td className="px-6 py-4 text-[#A1A1AA]">{cliente.telefone}</td>
+                      <td className="px-6 py-4">
                         <div className="flex justify-end gap-5">
                           <button
                             type="button"
@@ -542,7 +556,7 @@ function AdmCliente() {
                 className="h-11 rounded-md bg-[#D946EF] px-5 text-sm font-bold text-white transition duration-300 ease-out hover:bg-[#FF4FD8] hover:shadow-[0_0_20px_rgba(217,70,239,0.6)] hover:scale-105 disabled:cursor-not-allowed disabled:opacity-60"
                 disabled={carregando}
               >
-                {clienteEditandoId ? 'Salvar alteracoes' : 'Cadastrar cliente'}
+                {clienteEditandoId ? 'Salvar alterações' : 'Cadastrar cliente'}
               </button>
             </div>
           </form>

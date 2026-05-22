@@ -9,12 +9,12 @@ const links = [
   },
   {
     href: '/apolices',
-    label: 'Apolices',
+    label: 'Apólices',
     icon: FileText,
   },
   {
     href: '/relatorios',
-    label: 'Relatorios',
+    label: 'Relatórios',
     icon: ChartBar,
   },
 ]

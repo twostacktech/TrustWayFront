@@ -1,17 +1,10 @@
+import type Veiculo from "./Veiculo";
+
 export interface Usuario {
     id: number;
     nome: string;
     cpf: string;
     // adicione outros campos do usuário se houver (ex: email)
-}
-
-export interface Veiculo {
-    id: number;
-    placa: string;
-    marca?: string;       // Adicione esta linha
-    modelo?: string;      // Adicione esta linha
-    ano?: number | string;// Adicione esta linha
-    precoFipe?: number;   // Adicione esta linha
 }
 
 export default interface Apolice {
