@@ -5,13 +5,18 @@ import Register from './pages/register/Register';
 import Home from "./pages/home/Home";
 import Navbar from "./components/navbar/Navbar";
 import Footer from "./components/footer/Footer";
+<<<<<<< HEAD
 import Apolices from "./pages/apolices/Apolices";
 import NavBarAdm from "./navbaradm/NavBarAdm";
 import Relatorios from "./pages/relatorios/Relatorio";
+=======
+import CustomCursor from "./components/cursor/CustomCursor";
+>>>>>>> home
 
 function HomeLayout() {
   return (
     <>
+      <CustomCursor />
       <Navbar />
       <div className="min-h-[80vh]">
         <Home />
