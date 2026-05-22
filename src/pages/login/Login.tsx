@@ -7,7 +7,26 @@ type LoginResponse = {
   token?: string;
   accessToken?: string;
   authToken?: string;
+  usuario?: Record<string, unknown>;
+  cliente?: Record<string, unknown>;
+  user?: Record<string, unknown>;
+  nome?: string;
+  name?: string;
+  email?: string;
+  cpf?: string;
+  id?: number | string;
+  idUsuario?: number | string;
 };
+
+function obterUsuarioDaResposta(data: LoginResponse, email: string) {
+  const { token, accessToken, authToken, ...dadosSemToken } = data;
+  const usuario = data.usuario ?? data.cliente ?? data.user ?? dadosSemToken;
+
+  return {
+    ...usuario,
+    email: String(usuario.email ?? data.email ?? email),
+  };
+}
 
 export default function Login() {
   const navigate = useNavigate();
@@ -38,7 +57,11 @@ export default function Login() {
         throw new Error('Token nao retornado pela API');
       }
 
-      localStorage.setItem('token', token); 
+      localStorage.setItem('token', token);
+      localStorage.setItem(
+        'usuarioLogado',
+        JSON.stringify(obterUsuarioDaResposta(data, email))
+      );
       
       navigate('/minhas-apolices'); 
 

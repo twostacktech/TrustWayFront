@@ -19,6 +19,7 @@ import { api } from "../../services/Service";
 
 type UsuarioToken = {
   id?: number | string;
+  idUsuario?: number | string;
   id_usuario?: number | string;
   userId?: number | string;
   sub?: number | string;
@@ -31,6 +32,7 @@ type UsuarioToken = {
 
 type Usuario = {
   id?: number | string;
+  idUsuario?: number | string;
   id_usuario?: number | string;
   userId?: number | string;
   sub?: number | string;
@@ -46,7 +48,11 @@ type Veiculo = {
   modelo?: string;
   ano?: number | string;
   placa?: string;
-  precoFipe?: number;
+  precoFip?: number | string;
+  precoFipe?: number | string;
+  valorFipe?: number | string;
+  valor?: number | string;
+  preco?: number | string;
   codigoFipe?: string;
 };
 
@@ -79,8 +85,24 @@ type Apolice = {
 
 const BRASIL_API_BASE = "https://brasilapi.com.br/api";
 
+const obterTokenSalvo = () =>
+  localStorage.getItem("token") ??
+  localStorage.getItem("authToken") ??
+  localStorage.getItem("accessToken") ??
+  "";
+
+const obterHeaderAutenticado = () => {
+  const token = obterTokenSalvo();
+
+  return {
+    headers: {
+      Authorization: token.startsWith("Bearer ") ? token : `Bearer ${token}`,
+    },
+  };
+};
+
 function decodificarToken(): UsuarioToken | null {
-  const token = localStorage.getItem("token");
+  const token = obterTokenSalvo();
   if (!token) return null;
 
   try {
@@ -101,8 +123,17 @@ function decodificarToken(): UsuarioToken | null {
   }
 }
 
+function obterUsuarioSalvo(): UsuarioToken | null {
+  try {
+    const usuarioSalvo = localStorage.getItem("usuarioLogado");
+    return usuarioSalvo ? (JSON.parse(usuarioSalvo) as UsuarioToken) : null;
+  } catch {
+    return null;
+  }
+}
+
 function obterIdUsuario(usuario?: Usuario | UsuarioToken | null) {
-  return usuario?.id ?? usuario?.id_usuario ?? usuario?.userId ?? usuario?.sub;
+  return usuario?.id ?? usuario?.idUsuario ?? usuario?.id_usuario ?? usuario?.userId ?? usuario?.sub;
 }
 
 function obterNomeUsuario(usuario?: Usuario | UsuarioToken | null) {
@@ -148,14 +179,21 @@ function normalizarApolice(apolice: ApoliceApi): Apolice {
 
 export function MinhasApolices() {
   const [apolices, setApolices] = useState<Apolice[]>([]);
-  const [clienteLogado] = useState<UsuarioToken | null>(() => decodificarToken());
+  const [clienteLogado] = useState<UsuarioToken | null>(
+    () => {
+      const usuarioSalvo = obterUsuarioSalvo();
+      const usuarioToken = decodificarToken();
+      return usuarioSalvo || usuarioToken ? { ...usuarioSalvo, ...usuarioToken } : null;
+    }
+  );
+  const [clienteDetalhado, setClienteDetalhado] = useState<Usuario | UsuarioToken | null>(clienteLogado);
   const [busca, setBusca] = useState("");
   const [coberturaSelecionada, setCoberturaSelecionada] = useState("Todos");
   const [valorFipeByCodigo, setValorFipeByCodigo] = useState<Record<string, string>>({});
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
 
-  const nomeCliente = obterNomeUsuario(clienteLogado);
+  const nomeCliente = obterNomeUsuario(clienteDetalhado);
 
   const coberturas = useMemo(() => {
     const opcoes = apolices.map((apolice) => apolice.cobertura).filter(Boolean);
@@ -195,6 +233,43 @@ export function MinhasApolices() {
     });
   };
 
+  const obterValorNumerico = (valor?: number | string) => {
+    if (valor === undefined || valor === null || valor === "") return null;
+
+    if (typeof valor === "number") {
+      return Number.isNaN(valor) ? null : valor;
+    }
+
+    const textoNormalizado = valor
+      .replace(/[^\d,.-]/g, "")
+      .replace(/\.(?=\d{3}(?:\D|$))/g, "")
+      .replace(",", ".");
+
+    const valorNumerico = Number(textoNormalizado);
+    return Number.isNaN(valorNumerico) ? null : valorNumerico;
+  };
+
+  const obterValorFipe = (apolice: Apolice) => {
+    const veiculo = apolice.veiculo;
+    const valorApi =
+      obterValorNumerico(veiculo?.precoFipe) ??
+      obterValorNumerico(veiculo?.precoFip) ??
+      obterValorNumerico(veiculo?.valorFipe) ??
+      obterValorNumerico(veiculo?.valor) ??
+      obterValorNumerico(veiculo?.preco);
+
+    if (valorApi) {
+      return { valor: formatarMoeda(valorApi), estimado: false };
+    }
+
+    const mensalidade = obterValorNumerico(apolice.mensalidade);
+    if (mensalidade) {
+      return { valor: formatarMoeda(mensalidade * 180), estimado: true };
+    }
+
+    return { valor: "R$ 45.000", estimado: true };
+  };
+
   const formatarData = (data?: Date | string) => {
     if (!data) return "-";
     if (typeof data === "string" && data.includes("-")) {
@@ -217,7 +292,7 @@ export function MinhasApolices() {
 
     async function buscarApolices() {
       try {
-        const response = await api.get<ApoliceApi[]>("/apolices");
+        const response = await api.get<ApoliceApi[]>("/apolices", obterHeaderAutenticado());
         const apolicesDoCliente = response.data
           .filter((apolice) => pertenceAoCliente(apolice, clienteLogado))
           .map(normalizarApolice);
@@ -225,6 +300,7 @@ export function MinhasApolices() {
         if (!componenteMontado) return;
 
         setApolices(apolicesDoCliente);
+        setClienteDetalhado(apolicesDoCliente.find((apolice) => apolice.usuario)?.usuario ?? clienteLogado);
         setErro("");
         await buscarValoresFipe(apolicesDoCliente);
       } catch (error) {
@@ -269,6 +345,7 @@ export function MinhasApolices() {
     localStorage.removeItem("token");
     localStorage.removeItem("authToken");
     localStorage.removeItem("accessToken");
+    localStorage.removeItem("usuarioLogado");
   }
 
   return (
@@ -399,11 +476,22 @@ export function MinhasApolices() {
                     </div>
                     <div>
                       <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#a1a1aa]">Valor FIPE</p>
-                      <p className="text-lg font-mono font-semibold text-[#a1a1aa] mt-0.5">
-                        {apolice.veiculo?.codigoFipe && valorFipeByCodigo[apolice.veiculo.codigoFipe]
-                          ? valorFipeByCodigo[apolice.veiculo.codigoFipe]
-                          : formatarMoeda(apolice.veiculo?.precoFipe)}
-                      </p>
+                      {(() => {
+                        const valorFipe = apolice.veiculo?.codigoFipe && valorFipeByCodigo[apolice.veiculo.codigoFipe]
+                          ? { valor: valorFipeByCodigo[apolice.veiculo.codigoFipe], estimado: false }
+                          : obterValorFipe(apolice);
+
+                        return (
+                          <p className="text-lg font-mono font-semibold text-[#a1a1aa] mt-0.5">
+                            {valorFipe.valor}
+                            {valorFipe.estimado && (
+                              <span className="ml-2 text-[10px] uppercase tracking-[0.16em] text-[#9D4EDD]">
+                                estimado
+                              </span>
+                            )}
+                          </p>
+                        );
+                      })()}
                     </div>
                   </div>
                 </div>
