@@ -29,7 +29,9 @@ function FormApolice({
   })
 
   useEffect(() => {
-    if (apoliceEditando) {
+    const timer = window.setTimeout(() => {
+      if (!apoliceEditando) return
+
       setFormData({
         dataInicio:
           typeof apoliceEditando.dataInicio === "string"
@@ -40,7 +42,9 @@ function FormApolice({
         percentualCobertura: apoliceEditando.percentualCobertura.toString(),
         valorFranquia: apoliceEditando.valorFranquia.toString(),
       })
-    }
+    }, 0)
+
+    return () => window.clearTimeout(timer)
   }, [apoliceEditando])
 
   const atualizarCampo = (

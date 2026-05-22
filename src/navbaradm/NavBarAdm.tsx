@@ -46,7 +46,7 @@ function NavBarAdm() {
           </div>
 
           <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.05] px-4 py-2 text-xs font-bold uppercase text-[#FAFAFA]">
-            <ShieldCheck size={16} weight="bold" className="text-[#22C55E]" />
+            <ShieldCheck size={16} weight="bold" color="#22C55E" />
             Admin
           </div>
         </div>

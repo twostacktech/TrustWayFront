@@ -6,6 +6,14 @@ import { buscar, deletar } from "../../services/Service"
 import type Apolice from "../../models/Apolice"
 import FormApolice from "../formapolices/FormApolice"
 
+type VeiculoDetalhado = {
+  marca?: string
+  modelo?: string
+  ano?: string | number
+  placa?: string
+  precoFipe?: number
+}
+
 function Apolices() {
   const [apolices, setApolices] = useState<Apolice[]>([
     {
@@ -138,7 +146,7 @@ function Apolices() {
         {/* Barra de Busca */}
         <div className="mb-6 max-w-md relative group">
           <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-            <MagnifyingGlass size={16} className="text-zinc-500 group-focus-within:text-zinc-300 transition-colors" />
+            <MagnifyingGlass size={16} color="#71717a" />
           </span>
           <input
             type="text"
@@ -223,7 +231,7 @@ function Apolices() {
                           onClick={() => abrirDetalhesVeiculo(apolice)}
                           className="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-300 hover:text-white transition-colors bg-white/5 hover:bg-white/10 rounded px-2.5 py-1.5 border border-white/10 cursor-pointer"
                         >
-                          <Car size={14} className="text-zinc-400" />
+                          <Car size={14} color="#a1a1aa" />
                           <span>Ver</span>
                         </button>
 
@@ -297,7 +305,7 @@ function Apolices() {
 
             {/* Escopo isolado com conversão segura (any) para prevenir erros do TypeScript (image_400170.png) */}
             {(() => {
-              const veiculoRaw = veiculoSelecionado.veiculo as any;
+              const veiculoRaw = veiculoSelecionado.veiculo as VeiculoDetalhado | undefined;
               return (
                 <>
                   {/* Grid de Informações */}
