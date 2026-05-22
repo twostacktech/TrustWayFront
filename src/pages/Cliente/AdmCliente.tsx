@@ -4,7 +4,6 @@ import { MagnifyingGlass,PencilSimple,Plus,Trash,X } from '@phosphor-icons/react
 import { AxiosError } from 'axios'
 import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
-import NavBarAdm from '../../navbaradm/NavBarAdm'
 import { api } from '../../services/Service'
 
 type UsuarioApi = {
@@ -283,8 +282,7 @@ function AdmCliente() {
   }
 
   return (
-    <main className="min-h-screen bg-[#020202] text-white">
-      <NavBarAdm />
+    <>
 
       <section className="px-4 py-10 sm:px-8 lg:px-14">
         <div className="mb-8 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
@@ -549,7 +547,7 @@ function AdmCliente() {
         pauseOnHover
         theme="dark"
       />
-    </main>
+    </>
   )
 }
 

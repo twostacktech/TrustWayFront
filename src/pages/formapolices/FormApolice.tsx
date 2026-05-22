@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { toast } from "react-toastify"
-import { X } from "lucide-react"
+import { X } from "@phosphor-icons/react"
 
 import { atualizar, cadastrar } from "../../services/Service"
 import type Apolice from "../../models/Apolice"

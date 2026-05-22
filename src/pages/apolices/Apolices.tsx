@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Pencil, Trash2, CarFront, Search, X } from "lucide-react"
+import { Car, MagnifyingGlass, PencilSimple, Trash, X } from "@phosphor-icons/react"
 import { toast } from "react-toastify"
 
 import { buscar, deletar } from "../../services/Service"
@@ -138,7 +138,7 @@ function Apolices() {
         {/* Barra de Busca */}
         <div className="mb-6 max-w-md relative group">
           <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-            <Search size={16} className="text-zinc-500 group-focus-within:text-zinc-300 transition-colors" />
+            <MagnifyingGlass size={16} className="text-zinc-500 group-focus-within:text-zinc-300 transition-colors" />
           </span>
           <input
             type="text"
@@ -223,7 +223,7 @@ function Apolices() {
                           onClick={() => abrirDetalhesVeiculo(apolice)}
                           className="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-300 hover:text-white transition-colors bg-white/5 hover:bg-white/10 rounded px-2.5 py-1.5 border border-white/10 cursor-pointer"
                         >
-                          <CarFront size={14} className="text-zinc-400" />
+                          <Car size={14} className="text-zinc-400" />
                           <span>Ver</span>
                         </button>
 
@@ -234,7 +234,7 @@ function Apolices() {
                           className="rounded p-1 text-zinc-400 hover:bg-white/5 hover:text-sky-400 transition-all cursor-pointer"
                           title="Editar apólice"
                         >
-                          <Pencil size={15} />
+                          <PencilSimple size={15} />
                         </button>
 
                         {/* Botão Excluir */}
@@ -244,7 +244,7 @@ function Apolices() {
                           className="rounded p-1 text-zinc-400 hover:bg-white/5 hover:text-red-500 transition-all cursor-pointer"
                           title="Excluir apólice"
                         >
-                          <Trash2 size={15} />
+                          <Trash size={15} />
                         </button>
                       </div>
                     </td>
