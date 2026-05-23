@@ -187,10 +187,7 @@ a {
   inset: 0;
   z-index: -2;
   content: "";
-  background:
-    radial-gradient(circle at 15% 8%, rgba(34, 211, 238, 0.22), transparent 9rem),
-    radial-gradient(circle at 88% 18%, rgba(217, 70, 239, 0.2), transparent 8rem),
-    linear-gradient(180deg, rgba(79, 70, 229, 0.18), rgba(8, 8, 18, 0.92) 36%, rgba(255, 79, 216, 0.08));
+  background: transparent;
 }
 
 .neon-sidebar::after {
@@ -198,10 +195,8 @@ a {
   inset: 0;
   z-index: -1;
   content: "";
-  opacity: 0.42;
-  background-image:
-    linear-gradient(rgba(240, 242, 244, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(240, 242, 244, 0.04) 1px, transparent 1px);
+  opacity: 0;
+  background-image: none;
   background-size: 18px 18px;
   mask-image: linear-gradient(180deg, #000 0%, transparent 88%);
 }
@@ -214,18 +209,22 @@ a {
   width: 5rem;
   height: 15rem;
   border-radius: 999px;
-  opacity: 0.62;
+  opacity: 0;
   background: linear-gradient(180deg, #22D3EE, #4F46E5, #D946EF, #FF4FD8);
   filter: blur(34px);
   transition: opacity 280ms ease, transform 280ms ease;
 }
 
 .neon-sidebar:hover .neon-sidebar-glow {
-  opacity: 0.9;
+  opacity: 0;
   transform: translateX(1rem);
 }
 
 .neon-sidebar-link {
+  width: 54px;
+}
+
+.neon-sidebar:hover .neon-sidebar-link {
   width: 236px;
 }
 
@@ -246,43 +245,46 @@ a {
 }
 
 .neon-sidebar-progress {
-  position: relative;
-  width: 48px;
-  height: 3px;
+  position: absolute;
+  left: 0.05rem;
+  top: 50%;
+  width: 3px;
+  height: min(23rem, calc(100% - 5rem));
   overflow: hidden;
   border-radius: 999px;
   background: rgba(240, 242, 244, 0.1);
-  transition: width 260ms ease;
+  transform: translateY(-50%);
 }
 
 .neon-sidebar:hover .neon-sidebar-progress {
-  width: 236px;
+  height: min(23rem, calc(100% - 5rem));
 }
 
 .neon-sidebar-progress span {
   position: absolute;
   left: 0;
-  bottom: 0;
-  height: 100%;
+  top: 0;
+  width: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, #22D3EE, #4F46E5, #D946EF, #FF4FD8);
+  background: linear-gradient(180deg, #22D3EE, #4F46E5, #D946EF, #FF4FD8);
   box-shadow: 0 0 14px rgba(34, 211, 238, 0.74);
-  transition: width 120ms linear;
+  transition: height 120ms linear;
 }
 
 .neon-sidebar-link {
   position: relative;
   display: grid;
   min-height: 56px;
-  grid-template-columns: 48px 1fr;
+  grid-template-columns: 54px 1fr;
   align-items: center;
   gap: 0.8rem;
   overflow: hidden;
   border-radius: 8px;
-  border: 1px solid rgba(240, 242, 244, 0.12);
+  border: 1px solid rgba(240, 242, 244, 0.16);
   color: rgba(240, 242, 244, 0.52);
-  background: rgba(240, 242, 244, 0.02);
-  transition: border-color 220ms ease, color 220ms ease, background 220ms ease, transform 220ms ease;
+  background: rgba(8, 8, 18, 0.42);
+  backdrop-filter: blur(12px);
+  transition: width 260ms ease, border-color 220ms ease, color 220ms ease, background 220ms ease, transform 220ms ease;
 }
 
 .neon-sidebar-link::before {
@@ -291,10 +293,7 @@ a {
   z-index: -1;
   content: "";
   opacity: 0;
-  background:
-    linear-gradient(90deg, rgba(34, 211, 238, 0.16), rgba(79, 70, 229, 0.12), rgba(217, 70, 239, 0.1)),
-    linear-gradient(90deg, #22D3EE, #4F46E5 46%, #D946EF 76%, #FF4FD8);
-  mask-image: linear-gradient(90deg, #000 0 3px, transparent 3px);
+  background: linear-gradient(90deg, rgba(34, 211, 238, 0.18), rgba(79, 70, 229, 0.15), rgba(217, 70, 239, 0.12));
   transition: opacity 220ms ease;
 }
 
@@ -302,22 +301,33 @@ a {
 .neon-sidebar-link.active {
   color: #F0F2F4;
   border-color: rgba(34, 211, 238, 0.42);
-  background: rgba(240, 242, 244, 0.055);
+  background: linear-gradient(90deg, rgba(34, 211, 238, 0.88), rgba(79, 70, 229, 0.78), rgba(217, 70, 239, 0.68));
+  box-shadow:
+    0 0 0 1px rgba(34, 211, 238, 0.18),
+    0 0 24px rgba(34, 211, 238, 0.14);
   transform: translateX(0.12rem);
+}
+
+.neon-sidebar-link:hover .neon-sidebar-icon,
+.neon-sidebar-link.active .neon-sidebar-icon {
+  border-color: rgba(34, 211, 238, 0.55);
+  background: rgba(34, 211, 238, 0.08);
 }
 
 .neon-sidebar-link:hover::before,
 .neon-sidebar-link.active::before {
-  opacity: 1;
+  opacity: 0;
 }
 
 .neon-sidebar-icon {
   display: grid;
-  width: 48px;
+  width: 54px;
   height: 54px;
   place-items: center;
+  border-radius: 6px;
+  border: 1px solid rgba(240, 242, 244, 0.08);
   color: rgba(240, 242, 244, 0.88);
-  transition: color 220ms ease, filter 220ms ease, transform 220ms ease;
+  transition: border-color 220ms ease, background 220ms ease, color 220ms ease, filter 220ms ease, transform 220ms ease;
 }
 
 .neon-sidebar-link:hover .neon-sidebar-icon,

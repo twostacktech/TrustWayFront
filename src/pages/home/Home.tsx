@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import type { Variants } from "framer-motion";
 import { CaretDown } from "@phosphor-icons/react";
+import { Link } from "react-router-dom";
 
 import popular from "../../assets/popular.png";
 import luxury from "../../assets/luxury.png";
@@ -231,6 +232,10 @@ function Home() {
   const fatorCobertura = percentualCobertura / 100;
   const valorFranquia = valorFipeNumerico * 0.05 * fatorCobertura;
   const mensalidadeSimulada = Math.max(49.9, valorFipeNumerico * 0.0042 * fatorCobertura);
+  const veiculoComDescontoAntiguidade = precoFipe
+    ? new Date().getFullYear() - precoFipe.AnoModelo > 10
+    : false;
+  const mensalidadeComDesconto = mensalidadeSimulada * 0.8;
   const opcoesMarca = marcasFipe.map((marca) => ({
     value: marca.codigo,
     label: normalizarNomeMarca(marca.nome),
@@ -798,7 +803,24 @@ function Home() {
           {simulacaoEnviada && precoFipe && (
             <div className="simulator-result" role="status">
               <span>Estimativa baseada na tabela FIPE</span>
-              <strong>{formatarMoeda(mensalidadeSimulada)} / mês</strong>
+              {veiculoComDescontoAntiguidade ? (
+                <div className="mt-2">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <strong className="!mt-0 text-[#F0F2F4]/45 line-through decoration-[#F0F2F4]/55 decoration-2">
+                      {formatarMoeda(mensalidadeSimulada)} / mês
+                    </strong>
+                    <span className="!block rounded-md border border-[#22D3EE]/35 bg-[#22D3EE]/10 px-3 py-1 text-[0.72rem] font-black tracking-[0.12rem] text-[#22D3EE]">
+                      -20%
+                    </span>
+	                  </div>
+	                  <strong>{formatarMoeda(mensalidadeComDesconto)} / mês</strong>
+	                  <small className="mt-2 block text-[0.74rem] font-bold leading-[1.5] text-[#F0F2F4]/58">
+	                    *Desconto aplicado para veículos com mais de 10 anos.
+	                  </small>
+	                </div>
+	              ) : (
+                <strong>{formatarMoeda(mensalidadeSimulada)} / mês</strong>
+              )}
 
               <div className="simulator-result-grid">
                 <p>
@@ -828,6 +850,13 @@ function Home() {
                   aria-label="Percentual de cobertura"
                 />
               </div>
+
+	              <Link
+	                to="/cadastro"
+	                className="mt-4 flex min-h-[3.6rem] items-center justify-center rounded-lg border border-[#22D3EE]/25 bg-[#F0F2F4]/[0.035] px-5 text-center text-[0.95rem] font-black shadow-[0_0_20px_rgba(34,211,238,0.08)] transition duration-200 hover:-translate-y-0.5 hover:border-[#22D3EE]/45 hover:bg-[#F0F2F4]/[0.055]"
+	              >
+	                <span className="animated-gradient-text">Contrate agora</span>
+	              </Link>
             </div>
           )}
         </form>
