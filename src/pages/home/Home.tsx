@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import type { Variants } from "framer-motion";
 import { CaretDown } from "@phosphor-icons/react";
@@ -9,10 +9,131 @@ import sport from "../../assets/sport.png";
 import garagem from "../../assets/garagem.png";
 import Beatriz from "../../assets/equipe/Beatriz.jpg";
 import Daniel from "../../assets/equipe/Daniel.png";
-import Juliana from "../../assets/equipe/Juliana.jpg";
+import Juliana from "../../assets/equipe/Juliana.jpeg";
 import Lorena from "../../assets/equipe/Lorena.png";
 import Luanna from "../../assets/equipe/Luanna.png";
-import Lucas from "../../assets/equipe/Lucas.png";
+import Lucas from "../../assets/equipe/Lucas.jpeg";
+
+const FIPE_API_BASE = "https://parallelum.com.br/fipe/api/v1/carros";
+const PERCENTUAL_COBERTURA_PADRAO = 80;
+
+type MarcaFipe = {
+  codigo: string;
+  nome: string;
+};
+
+type ModeloFipe = {
+  codigo: number;
+  nome: string;
+};
+
+type ModelosFipeResponse = {
+  modelos: ModeloFipe[];
+};
+
+type AnoFipe = {
+  codigo: string;
+  nome: string;
+};
+
+type PrecoFipe = {
+  Valor: string;
+  Marca: string;
+  Modelo: string;
+  AnoModelo: number;
+  CodigoFipe: string;
+  MesReferencia: string;
+};
+
+type ComboboxOption = {
+  value: string;
+  label: string;
+};
+
+const formatarMoeda = (valor: number) =>
+  new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  }).format(valor);
+
+const obterValorNumericoFipe = (valor: string) =>
+  Number(valor.replace(/\./g, "").replace(/[^\d,]/g, "").replace(",", "."));
+
+const normalizarNomeMarca = (nome: string) =>
+  nome === "GM - Chevrolet" ? "Chevrolet" : nome;
+
+const normalizarBusca = (valor: string) =>
+  valor
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+
+function Combobox({
+  value,
+  inputValue,
+  options,
+  placeholder,
+  disabled = false,
+  onInputChange,
+  onSelect,
+}: {
+  value: string;
+  inputValue: string;
+  options: ComboboxOption[];
+  placeholder: string;
+  disabled?: boolean;
+  onInputChange: (value: string) => void;
+  onSelect: (option: ComboboxOption) => void;
+}) {
+  const [aberto, setAberto] = useState(false);
+  const buscaNormalizada = normalizarBusca(inputValue);
+  const opcoesFiltradas = options
+    .filter((option) => normalizarBusca(option.label).includes(buscaNormalizada))
+    .slice(0, 12);
+
+  return (
+    <div className="simulator-combobox">
+      <input
+        type="text"
+        value={inputValue}
+        placeholder={placeholder}
+        disabled={disabled}
+        autoComplete="off"
+        onFocus={() => setAberto(true)}
+        onChange={(event) => {
+          onInputChange(event.target.value);
+          setAberto(true);
+        }}
+        onBlur={() => {
+          window.setTimeout(() => setAberto(false), 120);
+        }}
+      />
+
+      {aberto && !disabled && inputValue && (
+        <div className="simulator-options">
+          {opcoesFiltradas.length > 0 ? (
+            opcoesFiltradas.map((option) => (
+              <button
+                type="button"
+                key={option.value}
+                className={value === option.value ? "active" : ""}
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={() => {
+                  onSelect(option);
+                  setAberto(false);
+                }}
+              >
+                {option.label}
+              </button>
+            ))
+          ) : (
+            <span>Nenhuma opção encontrada</span>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
 
 function Home() {
   const imageSrc = (image: string | { src: string }) =>
@@ -70,13 +191,136 @@ function Home() {
     modelo: "",
     ano: "",
   });
+  const [percentualCobertura, setPercentualCobertura] = useState(PERCENTUAL_COBERTURA_PADRAO);
+  const [buscaSimulacao, setBuscaSimulacao] = useState({
+    marca: "",
+    modelo: "",
+    ano: "",
+  });
   const [simulacaoEnviada, setSimulacaoEnviada] = useState(false);
+  const [marcasFipe, setMarcasFipe] = useState<MarcaFipe[]>([]);
+  const [modelosFipe, setModelosFipe] = useState<ModeloFipe[]>([]);
+  const [anosFipe, setAnosFipe] = useState<AnoFipe[]>([]);
+  const [precoFipe, setPrecoFipe] = useState<PrecoFipe | null>(null);
+  const [carregandoFipe, setCarregandoFipe] = useState(false);
+  const [erroFipe, setErroFipe] = useState("");
 
-  const anoSimulado = Number(simulacao.ano);
-  const mensalidadeSimulada =
-    anoSimulado > 0
-      ? Math.max(189, 520 - Math.min(Math.max(new Date().getFullYear() - anoSimulado, 0), 18) * 13)
-      : 289;
+  const valorFipeNumerico = precoFipe ? obterValorNumericoFipe(precoFipe.Valor) : 0;
+  const fatorCobertura = percentualCobertura / 100;
+  const valorFranquia = valorFipeNumerico * 0.05 * fatorCobertura;
+  const mensalidadeSimulada = Math.max(49.9, valorFipeNumerico * 0.0042 * fatorCobertura);
+  const opcoesMarca = marcasFipe.map((marca) => ({
+    value: marca.codigo,
+    label: normalizarNomeMarca(marca.nome),
+  }));
+  const opcoesModelo = modelosFipe.map((modelo) => ({
+    value: String(modelo.codigo),
+    label: modelo.nome,
+  }));
+  const opcoesAno = anosFipe.map((ano) => ({
+    value: ano.codigo,
+    label: ano.nome,
+  }));
+
+  useEffect(() => {
+    async function buscarMarcas() {
+      try {
+        setErroFipe("");
+        const resposta = await fetch(`${FIPE_API_BASE}/marcas`);
+        if (!resposta.ok) throw new Error("Erro ao buscar marcas");
+        const marcas = (await resposta.json()) as MarcaFipe[];
+        setMarcasFipe(marcas);
+      } catch (error) {
+        console.error("Erro ao buscar marcas FIPE:", error);
+        setErroFipe("Não foi possível carregar as marcas agora.");
+      }
+    }
+
+    buscarMarcas();
+  }, []);
+
+  useEffect(() => {
+    async function buscarModelos() {
+      if (!simulacao.marca) {
+        setModelosFipe([]);
+        return;
+      }
+
+      try {
+        setCarregandoFipe(true);
+        setErroFipe("");
+        const resposta = await fetch(`${FIPE_API_BASE}/marcas/${simulacao.marca}/modelos`);
+        if (!resposta.ok) throw new Error("Erro ao buscar modelos");
+        const dados = (await resposta.json()) as ModelosFipeResponse;
+        setModelosFipe(dados.modelos);
+      } catch (error) {
+        console.error("Erro ao buscar modelos FIPE:", error);
+        setErroFipe("Não foi possível carregar os modelos desta marca.");
+      } finally {
+        setCarregandoFipe(false);
+      }
+    }
+
+    buscarModelos();
+  }, [simulacao.marca]);
+
+  useEffect(() => {
+    async function buscarAnos() {
+      if (!simulacao.modelo) {
+        setAnosFipe([]);
+        return;
+      }
+
+      try {
+        setCarregandoFipe(true);
+        setErroFipe("");
+        const resposta = await fetch(
+          `${FIPE_API_BASE}/marcas/${simulacao.marca}/modelos/${simulacao.modelo}/anos`
+        );
+        if (!resposta.ok) throw new Error("Erro ao buscar anos");
+        const anos = (await resposta.json()) as AnoFipe[];
+        setAnosFipe(anos);
+      } catch (error) {
+        console.error("Erro ao buscar anos FIPE:", error);
+        setErroFipe("Não foi possível carregar os anos deste modelo.");
+      } finally {
+        setCarregandoFipe(false);
+      }
+    }
+
+    buscarAnos();
+  }, [simulacao.marca, simulacao.modelo]);
+
+  useEffect(() => {
+    async function buscarPreco() {
+      if (!simulacao.marca || !simulacao.modelo || !simulacao.ano) {
+        setPrecoFipe(null);
+        setSimulacaoEnviada(false);
+        return;
+      }
+
+      try {
+        setCarregandoFipe(true);
+        setErroFipe("");
+        const resposta = await fetch(
+          `${FIPE_API_BASE}/marcas/${simulacao.marca}/modelos/${simulacao.modelo}/anos/${simulacao.ano}`
+        );
+        if (!resposta.ok) throw new Error("Erro ao buscar preço FIPE");
+        const preco = (await resposta.json()) as PrecoFipe;
+        setPrecoFipe(preco);
+      } catch (error) {
+        console.error("Erro ao buscar preço FIPE:", error);
+        setPrecoFipe(null);
+        setErroFipe("Não foi possível carregar o valor FIPE deste veículo.");
+      } finally {
+        setCarregandoFipe(false);
+      }
+
+      setSimulacaoEnviada(false);
+    }
+
+    buscarPreco();
+  }, [simulacao.marca, simulacao.modelo, simulacao.ano]);
 
   const duvidasFrequentes = [
     {
@@ -435,48 +679,110 @@ function Home() {
 
           <label>
             <span>Marca do veículo</span>
-            <input
-              type="text"
-              placeholder="Ex: Toyota"
+            <Combobox
               value={simulacao.marca}
-              onChange={(event) =>
-                setSimulacao((atual) => ({ ...atual, marca: event.target.value }))
-              }
+              inputValue={buscaSimulacao.marca}
+              options={opcoesMarca}
+              placeholder="Digite a marca"
+              onInputChange={(value) => {
+                setBuscaSimulacao({ marca: value, modelo: "", ano: "" });
+                setSimulacao({ marca: "", modelo: "", ano: "" });
+                setModelosFipe([]);
+                setAnosFipe([]);
+                setPrecoFipe(null);
+              }}
+              onSelect={(option) => {
+                setBuscaSimulacao({ marca: option.label, modelo: "", ano: "" });
+                setSimulacao({ marca: option.value, modelo: "", ano: "" });
+                setModelosFipe([]);
+                setAnosFipe([]);
+                setPrecoFipe(null);
+              }}
             />
           </label>
 
           <label>
             <span>Modelo do veículo</span>
-            <input
-              type="text"
-              placeholder="Ex: Corolla"
+            <Combobox
               value={simulacao.modelo}
-              onChange={(event) =>
-                setSimulacao((atual) => ({ ...atual, modelo: event.target.value }))
-              }
+              inputValue={buscaSimulacao.modelo}
+              options={opcoesModelo}
+              placeholder={simulacao.marca ? "Digite o modelo" : "Escolha uma marca primeiro"}
+              disabled={!simulacao.marca || carregandoFipe}
+              onInputChange={(value) => {
+                setBuscaSimulacao((atual) => ({ ...atual, modelo: value, ano: "" }));
+                setSimulacao((atual) => ({ ...atual, modelo: "", ano: "" }));
+                setAnosFipe([]);
+                setPrecoFipe(null);
+              }}
+              onSelect={(option) => {
+                setBuscaSimulacao((atual) => ({ ...atual, modelo: option.label, ano: "" }));
+                setSimulacao((atual) => ({ ...atual, modelo: option.value, ano: "" }));
+                setAnosFipe([]);
+                setPrecoFipe(null);
+              }}
             />
           </label>
 
           <label>
             <span>Ano do veículo</span>
-            <input
-              type="number"
-              min="1990"
-              max={new Date().getFullYear() + 1}
-              placeholder="Ex: 2022"
+            <Combobox
               value={simulacao.ano}
-              onChange={(event) =>
-                setSimulacao((atual) => ({ ...atual, ano: event.target.value }))
-              }
+              inputValue={buscaSimulacao.ano}
+              options={opcoesAno}
+              placeholder={simulacao.modelo ? "Digite o ano" : "Escolha um modelo primeiro"}
+              disabled={!simulacao.modelo || carregandoFipe}
+              onInputChange={(value) => {
+                setBuscaSimulacao((atual) => ({ ...atual, ano: value }));
+                setSimulacao((atual) => ({ ...atual, ano: "" }));
+                setPrecoFipe(null);
+              }}
+              onSelect={(option) => {
+                setBuscaSimulacao((atual) => ({ ...atual, ano: option.label }));
+                setSimulacao((atual) => ({ ...atual, ano: option.value }));
+              }}
             />
           </label>
 
-          <button type="submit">Simular Agora</button>
+          {erroFipe && <p className="simulator-error">{erroFipe}</p>}
 
-          {simulacaoEnviada && (
+          <button type="submit" disabled={!precoFipe || carregandoFipe}>
+            {carregandoFipe ? "Carregando FIPE..." : "Simular Agora"}
+          </button>
+
+          {simulacaoEnviada && precoFipe && (
             <div className="simulator-result" role="status">
-              <span>Estimativa inicial</span>
-              <strong>R$ {mensalidadeSimulada},00 / mês</strong>
+              <span>Estimativa baseada na tabela FIPE</span>
+              <strong>{formatarMoeda(mensalidadeSimulada)} / mês</strong>
+
+              <div className="simulator-result-grid">
+                <p>
+                  <span>Valor FIPE</span>
+                  <strong>{precoFipe.Valor}</strong>
+                </p>
+
+                <p>
+                  <span>Franquia</span>
+                  <strong>{formatarMoeda(valorFranquia)}</strong>
+                </p>
+              </div>
+
+              <div className="simulator-coverage-control">
+                <div>
+                  <span>Cobertura dos danos</span>
+                  <strong>{percentualCobertura}%</strong>
+                </div>
+
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  step="5"
+                  value={percentualCobertura}
+                  onChange={(event) => setPercentualCobertura(Number(event.target.value))}
+                  aria-label="Percentual de cobertura"
+                />
+              </div>
             </div>
           )}
         </form>
