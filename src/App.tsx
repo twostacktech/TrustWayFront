@@ -41,7 +41,7 @@ function App() {
         <Route path="/home" element={<HomeLayout />} />
         <Route path="/admcliente" element={<AdminLayout><AdmCliente /></AdminLayout>} />
         <Route path="/apolices" element={<AdminLayout><Apolices /></AdminLayout>} />
-        <Route path="/relatorios" element={<Relatorios />} />
+        <Route path="/relatorios" element={<AdminLayout><Relatorios /></AdminLayout>} />
         <Route path="/minhasapolices" element={<AdminLayout><Apolices /></AdminLayout>} />
         <Route path="/login" element={<Login />} />
         <Route path="/cadastro" element={<Register />} />
