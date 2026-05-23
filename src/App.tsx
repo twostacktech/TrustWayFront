@@ -42,14 +42,11 @@ function App() {
         <Route path="/home" element={<HomeLayout />} />
         <Route path="/admcliente" element={<AdminLayout><AdmCliente /></AdminLayout>} />
         <Route path="/apolices" element={<AdminLayout><Apolices /></AdminLayout>} />
-<<<<<<< HEAD
         <Route path="/relatorios" element={<AdminLayout><Relatorios /></AdminLayout>} />
         <Route path="/minhasapolices" element={<AdminLayout><Apolices /></AdminLayout>} />
-=======
         <Route path="/relatorios" element={<Relatorios />} />
         <Route path="/minhas-apolices" element={<MinhasApolices />} />
         <Route path="/minhasapolices" element={<MinhasApolices />} />
->>>>>>> 3e0423eeb9761a1c748fc9bebb7e97a8b4d6f316
         <Route path="/login" element={<Login />} />
         <Route path="/cadastro" element={<Register />} />
       </Routes>
