@@ -90,12 +90,12 @@ function Navbar() {
         </div>
       </nav>
 
-      <aside className="neon-sidebar group fixed left-5 top-1/2 z-50 flex h-[min(620px,calc(100vh-7rem))] w-[76px] -translate-y-1/2 flex-col overflow-hidden rounded-[8px] border border-[#F0F2F4]/10 bg-[#080812]/90 p-3 text-[#F0F2F4] shadow-[0_1.8rem_4rem_rgba(0,0,0,0.62)] backdrop-blur-2xl transition-[width,box-shadow,border-color] duration-300 hover:w-[260px] hover:border-[#22D3EE]/45 hover:shadow-[0_0_36px_rgba(34,211,238,0.18),0_1.8rem_4rem_rgba(0,0,0,0.68)] max-[1100px]:hidden">
+      <aside className="neon-sidebar group fixed left-5 top-1/2 z-50 flex h-[min(620px,calc(100vh-7rem))] w-[78px] -translate-y-1/2 flex-col overflow-visible rounded-[8px] p-3 text-[#F0F2F4] transition-[width] duration-300 hover:w-[260px] max-[1100px]:hidden">
         <div className="neon-sidebar-glow" aria-hidden="true" />
 
-        <div className="neon-sidebar-progress" aria-hidden="true">
-          <span style={{ width: `${scrollProgress * 100}%` }} />
-        </div>
+	        <div className="neon-sidebar-progress" aria-hidden="true">
+	          <span style={{ height: `${scrollProgress * 100}%` }} />
+	        </div>
 
         <div className="flex flex-1 flex-col justify-center gap-4">
           {sideLinks.map((link) => {

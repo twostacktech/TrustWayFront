@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import type { Variants } from "framer-motion";
 import { CaretDown } from "@phosphor-icons/react";
+import { Link } from "react-router-dom";
 
 import popular from "../../assets/popular.png";
 import luxury from "../../assets/luxury.png";
@@ -17,6 +18,11 @@ import Lucas from "../../assets/equipe/Lucas.jpeg";
 
 const FIPE_API_BASE = "https://parallelum.com.br/fipe/api/v1/carros";
 const PERCENTUAL_COBERTURA_PADRAO = 80;
+const HONDA_CITY_HATCH_2024_FIPE = {
+  marca: "25",
+  modelo: "9733",
+  ano: "2024-5",
+};
 
 type MarcaFipe = {
   codigo: string;
@@ -139,16 +145,20 @@ function Combobox({
 function Home() {
   const imageSrc = (image: string | { src: string }) =>
     typeof image === "string" ? image : image.src;
+  const [precoFipePopular, setPrecoFipePopular] = useState<PrecoFipe | null>(null);
+  const mediaSeguroPopular = precoFipePopular
+    ? `${formatarMoeda(Math.max(49.9, obterValorNumericoFipe(precoFipePopular.Valor) * 0.0042))} / mês`
+    : "R$ 512 / mês";
 
   const carros = [
     {
       id: "01",
       tipo: "POPULAR",
-      nome: "HONDA CIVIC 2024",
-      valorFipe: "R$ 142.500",
-      mediaSeguro: "R$ 3.840 / ano",
+      nome: "HONDA CITY HATCH 2024",
+      valorFipe: precoFipePopular?.Valor ?? "R$ 122.000",
+      mediaSeguro: mediaSeguroPopular,
       descricao:
-        "Proteção inteligente para o carro de rotina, com resposta rápida e cobertura sem surpresa.",
+        "Protecao inteligente para o Honda City Hatch 2024, com resposta rapida e cobertura sem surpresa.",
       imagem: popular,
       fundo: "POPULAR",
     },
@@ -157,7 +167,7 @@ function Home() {
       tipo: "LUXURY",
       nome: "MERCEDES S-CLASS",
       valorFipe: "R$ 985.700",
-      mediaSeguro: "R$ 24.600 / ano",
+      mediaSeguro: "R$ 2.050 / mês",
       descricao:
         "Cobertura premium para veículos de alto valor, com atendimento reservado e peças originais.",
       imagem: luxury,
@@ -168,7 +178,7 @@ function Home() {
       tipo: "SPORT",
       nome: "PORSCHE 911 TURBO",
       valorFipe: "R$ 1.482.900",
-      mediaSeguro: "R$ 38.200 / ano",
+      mediaSeguro: "R$ 3.183 / mês",
       descricao:
         "Seguro de performance para quem exige precisão, agilidade e proteção em cada detalhe.",
       imagem: sport,
@@ -179,7 +189,7 @@ function Home() {
       tipo: "MOTO",
       nome: "KAWASAKI NINJA 400",
       valorFipe: "R$ 38.900",
-      mediaSeguro: "R$ 2.150 / ano",
+      mediaSeguro: "R$ 179 / mês",
       descricao:
         "Proteção inteligente para motos esportivas, com cobertura ágil, assistência e cálculo ajustado ao perfil do piloto.",
       imagem: moto,
@@ -216,11 +226,16 @@ function Home() {
   const [precoFipe, setPrecoFipe] = useState<PrecoFipe | null>(null);
   const [carregandoFipe, setCarregandoFipe] = useState(false);
   const [erroFipe, setErroFipe] = useState("");
+  const carroAtual = carros.find((carro) => carro.id === carroSelecionado.id) ?? carros[0];
 
   const valorFipeNumerico = precoFipe ? obterValorNumericoFipe(precoFipe.Valor) : 0;
   const fatorCobertura = percentualCobertura / 100;
   const valorFranquia = valorFipeNumerico * 0.05 * fatorCobertura;
   const mensalidadeSimulada = Math.max(49.9, valorFipeNumerico * 0.0042 * fatorCobertura);
+  const veiculoComDescontoAntiguidade = precoFipe
+    ? new Date().getFullYear() - precoFipe.AnoModelo > 10
+    : false;
+  const mensalidadeComDesconto = mensalidadeSimulada * 0.8;
   const opcoesMarca = marcasFipe.map((marca) => ({
     value: marca.codigo,
     label: normalizarNomeMarca(marca.nome),
@@ -233,6 +248,23 @@ function Home() {
     value: ano.codigo,
     label: ano.nome,
   }));
+
+  useEffect(() => {
+    async function buscarFipePopular() {
+      try {
+        const resposta = await fetch(
+          `${FIPE_API_BASE}/marcas/${HONDA_CITY_HATCH_2024_FIPE.marca}/modelos/${HONDA_CITY_HATCH_2024_FIPE.modelo}/anos/${HONDA_CITY_HATCH_2024_FIPE.ano}`
+        );
+        if (!resposta.ok) throw new Error("Erro ao buscar FIPE do destaque");
+        const preco = (await resposta.json()) as PrecoFipe;
+        setPrecoFipePopular(preco);
+      } catch (error) {
+        console.error("Erro ao buscar FIPE do destaque:", error);
+      }
+    }
+
+    buscarFipePopular();
+  }, []);
 
   useEffect(() => {
     async function buscarMarcas() {
@@ -404,14 +436,14 @@ function Home() {
 
           <svg
             className="hero-ghost"
-            key={`ghost-${carroSelecionado.id}`}
+            key={`ghost-${carroAtual.id}`}
             viewBox="0 0 1600 420"
             preserveAspectRatio="none"
             aria-hidden="true"
           >
             <defs>
               <linearGradient
-                id={`ghost-gradient-${carroSelecionado.id}`}
+                id={`ghost-gradient-${carroAtual.id}`}
                 x1="0%"
                 y1="0%"
                 x2="100%"
@@ -430,18 +462,18 @@ function Home() {
               textAnchor="middle"
               dominantBaseline="middle"
               fill="transparent"
-              stroke={`url(#ghost-gradient-${carroSelecionado.id})`}
+              stroke={`url(#ghost-gradient-${carroAtual.id})`}
               strokeWidth="1.4"
               textLength="1540"
               lengthAdjust="spacingAndGlyphs"
             >
-              {carroSelecionado.fundo}
+              {carroAtual.fundo}
             </text>
           </svg>
 
           <div
             className="car-frame relative z-[2] grid w-[min(68vw,1150px)] min-h-[410px] place-items-center overflow-visible max-[1100px]:w-[78vw] max-[760px]:min-h-[360px] max-[760px]:w-full max-[520px]:min-h-[320px]"
-            key={`frame-${carroSelecionado.id}`}
+            key={`frame-${carroAtual.id}`}
           >
             <div className="price-block absolute left-[-4.2rem] top-10 z-[4] max-[1100px]:left-4 max-[760px]:top-5">
               <p className="m-0 text-[0.58rem] font-black tracking-[0.22rem] text-[#4F46E5] max-[520px]:text-[0.56rem] max-[520px]:tracking-[0.14rem]">
@@ -449,13 +481,13 @@ function Home() {
               </p>
 
               <h3 className="m-0 font-[var(--font-display)] text-[clamp(2rem,3vw,3.2rem)] font-normal leading-[0.95] tracking-[0.01em] max-[760px]:text-[2.2rem] max-[520px]:text-[1.8rem]">
-                {carroSelecionado.valorFipe}
+                {carroAtual.valorFipe}
               </h3>
             </div>
 
             <img
-              src={imageSrc(carroSelecionado.imagem)}
-              alt={carroSelecionado.nome}
+              src={imageSrc(carroAtual.imagem)}
+              alt={carroAtual.nome}
               className="hero-car relative z-[2] h-[min(46vh,460px)] w-full object-contain max-[760px]:h-[310px] max-[520px]:h-[270px]"
             />
 
@@ -465,7 +497,7 @@ function Home() {
               </p>
 
               <h3 className="m-0 mt-2 whitespace-nowrap font-[var(--font-display)] text-[clamp(2rem,3vw,3.2rem)] font-normal leading-[0.95] tracking-[0.01em] text-[#F8FAFC] drop-shadow-[0_0.75rem_1.4rem_rgba(0,0,0,0.65)] max-[760px]:text-[2.2rem] max-[520px]:text-[1.8rem]">
-                {carroSelecionado.mediaSeguro}
+                {carroAtual.mediaSeguro}
               </h3>
 
               <div className="mt-4 h-px w-[min(16rem,68%)] bg-[#4F46E5] shadow-[0_0_18px_rgba(79,70,229,0.45)]" />
@@ -475,13 +507,13 @@ function Home() {
 
         <div
           className="hero-caption relative z-[4] mx-auto mt-0 w-[min(620px,calc(100%-2rem))] text-center"
-          key={`caption-${carroSelecionado.id}`}
+          key={`caption-${carroAtual.id}`}
         >
           <p className="mb-2 mt-0 text-[0.62rem] font-black tracking-[0.45rem] text-[#F0F2F4]/45 max-[760px]:tracking-[0.24rem]">
-            {carroSelecionado.nome}
+            {carroAtual.nome}
           </p>
           <span className="block text-[0.8rem] leading-[1.6] text-[#F0F2F4]/70">
-            {carroSelecionado.descricao}
+            {carroAtual.descricao}
           </span>
         </div>
 
@@ -771,7 +803,24 @@ function Home() {
           {simulacaoEnviada && precoFipe && (
             <div className="simulator-result" role="status">
               <span>Estimativa baseada na tabela FIPE</span>
-              <strong>{formatarMoeda(mensalidadeSimulada)} / mês</strong>
+              {veiculoComDescontoAntiguidade ? (
+                <div className="mt-2">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <strong className="!mt-0 text-[#F0F2F4]/45 line-through decoration-[#F0F2F4]/55 decoration-2">
+                      {formatarMoeda(mensalidadeSimulada)} / mês
+                    </strong>
+                    <span className="!block rounded-md border border-[#22D3EE]/35 bg-[#22D3EE]/10 px-3 py-1 text-[0.72rem] font-black tracking-[0.12rem] text-[#22D3EE]">
+                      -20%
+                    </span>
+	                  </div>
+	                  <strong>{formatarMoeda(mensalidadeComDesconto)} / mês</strong>
+	                  <small className="mt-2 block text-[0.74rem] font-bold leading-[1.5] text-[#F0F2F4]/58">
+	                    *Desconto aplicado para veículos com mais de 10 anos.
+	                  </small>
+	                </div>
+	              ) : (
+                <strong>{formatarMoeda(mensalidadeSimulada)} / mês</strong>
+              )}
 
               <div className="simulator-result-grid">
                 <p>
@@ -801,6 +850,13 @@ function Home() {
                   aria-label="Percentual de cobertura"
                 />
               </div>
+
+	              <Link
+	                to="/cadastro"
+	                className="mt-4 flex min-h-[3.6rem] items-center justify-center rounded-lg border border-[#22D3EE]/25 bg-[#F0F2F4]/[0.035] px-5 text-center text-[0.95rem] font-black shadow-[0_0_20px_rgba(34,211,238,0.08)] transition duration-200 hover:-translate-y-0.5 hover:border-[#22D3EE]/45 hover:bg-[#F0F2F4]/[0.055]"
+	              >
+	                <span className="animated-gradient-text">Contrate agora</span>
+	              </Link>
             </div>
           )}
         </form>
