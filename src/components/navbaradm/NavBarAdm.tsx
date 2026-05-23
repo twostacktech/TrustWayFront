@@ -1,5 +1,6 @@
 import { ArrowLeft, ChartBar, FileText, ShieldCheck, Users } from '@phosphor-icons/react'
 import { Link, useLocation } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom';
 
 const links = [
   {
@@ -20,6 +21,9 @@ const links = [
 ]
 
 function NavBarAdm() {
+
+  const navigate = useNavigate();
+
   const { pathname } = useLocation()
 
   return (
@@ -45,33 +49,36 @@ function NavBarAdm() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.05] px-4 py-2 text-xs font-bold uppercase text-[#FAFAFA]">
-            <ShieldCheck size={16} weight="bold" color="#22C55E" />
-            Admin
+          <button
+            type="button"
+            onClick={() => navigate('/gestao-colaborador')}
+            className="flex items-center gap-2 rounded-full border border-[#22D3EE] bg-[#22D3EE]/5 px-4 py-2 text-sm font-bold uppercase text-[#22D3EE] transition-all duration-300 hover:scale-105"
+          >
+            Gestão do Colaborador
+          </button>
+
           </div>
-        </div>
 
-        <nav className="flex gap-8 overflow-x-auto px-4 sm:px-8 lg:px-14">
-          {links.map(({ href, label, icon: Icon }) => {
-            const ativo = pathname === href
+          <nav className="flex gap-8 overflow-x-auto px-4 sm:px-8 lg:px-14">
+            {links.map(({ href, label, icon: Icon }) => {
+              const ativo = pathname === href
 
-            return (
-              <Link
-                key={href}
-                to={href}
-                className={`flex items-center gap-2 border-b-2 pb-4 text-sm font-bold transition hover:text-[#FAFAFA] ${
-                  ativo
+              return (
+                <Link
+                  key={href}
+                  to={href}
+                  className={`flex items-center gap-2 border-b-2 pb-4 text-sm font-bold transition hover:text-[#FAFAFA] ${ativo
                     ? 'border-[#9D4EDD] text-[#FAFAFA]'
                     : 'border-transparent text-[#A1A1AA]'
-                }`}
-              >
-                <Icon size={18} weight="bold" />
-                {label}
-              </Link>
-            )
-          })}
-        </nav>
-      </div>
+                    }`}
+                >
+                  <Icon size={18} weight="bold" />
+                  {label}
+                </Link>
+              )
+            })}
+          </nav>
+        </div>
     </header>
   )
 }
