@@ -9,7 +9,7 @@ import luxury from "../../assets/luxury.png";
 import sport from "../../assets/sport.png";
 import moto from "../../assets/moto.png";
 import carroAnimado from "../../assets/carro-animado.mp4";
-import Beatriz from "../../assets/equipe/Beatriz.jpg";
+import Beatriz from "../../assets/equipe/Beatriz.png";
 import Daniel from "../../assets/equipe/Daniel.png";
 import Juliana from "../../assets/equipe/Juliana.jpeg";
 import Lorena from "../../assets/equipe/Lorena.png";
