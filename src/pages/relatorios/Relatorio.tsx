@@ -74,10 +74,10 @@ function formatarData(data?: Date | string) {
 
 function valorNumerico(valor: unknown) {
     if (typeof valor === "string") {
-        const normalizado = valor
-            .replace(/[^\d,.-]/g, "")
-            .replace(/\.(?=\d{3}(?:\D|$))/g, "")
-            .replace(",", ".");
+        const limpo = valor.trim().replace(/[^\d,.-]/g, "");
+        const normalizado = limpo.includes(",")
+            ? limpo.replace(/\./g, "").replace(",", ".")
+            : limpo.replace(/\.(?=\d{3}(?:\D|$))/g, "");
 
         const numero = Number(normalizado);
         return Number.isNaN(numero) ? 0 : numero;
@@ -85,6 +85,18 @@ function valorNumerico(valor: unknown) {
 
     const numero = Number(valor);
     return Number.isNaN(numero) ? 0 : numero;
+}
+
+function normalizarValorVeiculo(valor: number) {
+    if (!valor) return 0;
+
+    let valorNormalizado = valor;
+
+    while (valorNormalizado > 5_000_000) {
+        valorNormalizado = valorNormalizado / 1000;
+    }
+
+    return valorNormalizado;
 }
 
 function obterCpfNormalizado(cpf?: string) {
@@ -124,11 +136,13 @@ function obterDescricaoCobertura(apolice: ApoliceRelatorio) {
 }
 
 function calcularValorSegurado(apolice: ApoliceRelatorio) {
-    const valorSegurado = valorNumerico(apolice.valorSegurado ?? apolice.valor_segurado);
+    const valorSegurado = normalizarValorVeiculo(
+        valorNumerico(apolice.valorSegurado ?? apolice.valor_segurado)
+    );
 
     if (valorSegurado) return valorSegurado;
 
-    const precoFip = valorNumerico(apolice.veiculo?.precoFip);
+    const precoFip = normalizarValorVeiculo(valorNumerico(apolice.veiculo?.precoFip));
     const percentual = valorNumerico(apolice.percentualCobertura);
 
     if (!precoFip || !percentual) return 0;

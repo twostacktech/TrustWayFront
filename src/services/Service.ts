@@ -4,6 +4,24 @@ export const api = axios.create({
   baseURL: 'https://trustway.onrender.com',
 })
 
+export const obterTokenSalvo = () =>
+  localStorage.getItem('token') ??
+  localStorage.getItem('authToken') ??
+  localStorage.getItem('accessToken') ??
+  ''
+
+export const obterHeaderAutenticado = () => {
+  const token = obterTokenSalvo().trim()
+
+  if (!token) return undefined
+
+  return {
+    headers: {
+      Authorization: token.startsWith('Bearer ') ? token : `Bearer ${token}`,
+    },
+  }
+}
+
 export const cadastrarUsuario = async (url: string, dados: Object, setDados: Function) => {
   const resposta = await api.post(url, dados)
   setDados(resposta.data)

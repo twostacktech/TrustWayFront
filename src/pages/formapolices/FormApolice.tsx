@@ -3,24 +3,8 @@ import axios from "axios"
 import { toast } from "react-toastify"
 import { X } from "@phosphor-icons/react"
 
-import { api, atualizar, cadastrar } from "../../services/Service"
+import { api, atualizar, cadastrar, obterHeaderAutenticado } from "../../services/Service"
 import type Apolice from "../../models/Apolice"
-
-const obterTokenSalvo = () =>
-  localStorage.getItem("token") ??
-  localStorage.getItem("authToken") ??
-  localStorage.getItem("accessToken") ??
-  ""
-
-const obterHeaderAutenticado = () => {
-  const token = obterTokenSalvo()
-
-  return {
-    headers: {
-      Authorization: token.startsWith("Bearer ") ? token : `Bearer ${token}`,
-    },
-  }
-}
 
 const obterMensagemErro = (error: unknown) => {
   if (axios.isAxiosError(error)) {
@@ -57,6 +41,20 @@ const obterDetalheErro = (error: unknown) => {
 
 const erroNaoEncontrado = (error: unknown) =>
   axios.isAxiosError(error) && error.response?.status === 404
+
+const obterValorMonetario = (valor: string) => {
+  const textoLimpo = valor.trim().replace(/[^\d,.-]/g, "")
+
+  if (!textoLimpo) return 0
+
+  const temVirgula = textoLimpo.includes(",")
+  const textoNormalizado = temVirgula
+    ? textoLimpo.replace(/\./g, "").replace(",", ".")
+    : textoLimpo.replace(/\.(?=\d{3}(?:\D|$))/g, "")
+
+  const valorNumerico = Number(textoNormalizado)
+  return Number.isNaN(valorNumerico) ? 0 : valorNumerico
+}
 
 type FormApoliceProps = {
   fecharModal: () => void
@@ -132,7 +130,7 @@ function FormApolice({
       marca: formData.veiculoMarca,
       modelo: formData.veiculoModelo,
       ano: Number(formData.veiculoAno),
-      precoFip: Number(formData.veiculoPrecoFip).toFixed(3),
+      precoFip: obterValorMonetario(formData.veiculoPrecoFip),
     }
 
     const dadosParaEnviar = {
@@ -386,13 +384,12 @@ function FormApolice({
               Preço FIPE
             </label>
             <input
-              type="number"
+              type="text"
+              inputMode="decimal"
               name="veiculoPrecoFip"
-              placeholder="R$ 0,00"
+              placeholder="Digite o valor FIPE"
               value={formData.veiculoPrecoFip}
               onChange={atualizarCampo}
-              min="0"
-              step="0.01"
               required
               disabled={salvando}
               className="w-full rounded-lg border border-zinc-800 bg-[#121214] px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none focus:border-[#22D3EE] focus:shadow-[0_0_15px_rgba(34,211,238,0.3)] transition-all disabled:opacity-50"

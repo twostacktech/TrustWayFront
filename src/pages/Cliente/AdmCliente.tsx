@@ -4,7 +4,7 @@ import { MagnifyingGlass,PencilSimple,Plus,Trash,X } from '@phosphor-icons/react
 import { AxiosError } from 'axios'
 import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
-import { api } from '../../services/Service'
+import { api, obterHeaderAutenticado } from '../../services/Service'
 
 type UsuarioApi = {
   id?: number
@@ -49,22 +49,6 @@ const formularioInicial: ClienteForm = {
 
 const apenasNumeros = (valor: string) => valor.replace(/\D/g, '')
 
-const obterTokenSalvo = () =>
-  localStorage.getItem('token') ??
-  localStorage.getItem('authToken') ??
-  localStorage.getItem('accessToken') ??
-  ''
-
-const obterHeaderAutenticado = () => {
-  const token = obterTokenSalvo()
-
-  return {
-    headers: {
-      Authorization: token.startsWith('Bearer ') ? token : `Bearer ${token}`,
-    },
-  }
-}
-
 const normalizarCliente = (usuario: UsuarioApi): Cliente => ({
   id: usuario.id ?? usuario.idUsuario ?? Date.now(),
   nome: usuario.nome,
@@ -77,7 +61,7 @@ const normalizarCliente = (usuario: UsuarioApi): Cliente => ({
 const obterMensagemErro = (error: unknown) => {
   if (error instanceof AxiosError) {
     if (error.response?.status === 401 || error.response?.status === 403) {
-      return 'A API recusou a requisicao. Verifique se o token de login esta salvo.'
+      return 'A API recusou a requisicao. Faca login como administrador e tente novamente.'
     }
 
     if (error.response?.status) {
@@ -93,8 +77,6 @@ const obterMensagemErro = (error: unknown) => {
 function AdmCliente() {
   const [clientes, setClientes] = useState<Cliente[]>([])
   const [buscaCpf, setBuscaCpf] = useState('')
-  const [token, setToken] = useState(() => obterTokenSalvo())
-  const [tokenDigitado, setTokenDigitado] = useState('')
   const [formulario, setFormulario] = useState<ClienteForm>(formularioInicial)
   const [modalAberto, setModalAberto] = useState(false)
   const [clienteEditandoId, setClienteEditandoId] = useState<number | null>(null)
@@ -102,12 +84,6 @@ function AdmCliente() {
   const [carregando, setCarregando] = useState(false)
 
   const carregarClientes = useCallback(async () => {
-    if (!obterTokenSalvo()) {
-      toast.warning('Cole e salve o token de acesso para carregar os clientes.')
-      setClientes([])
-      return
-    }
-
     try {
       setCarregando(true)
 
@@ -121,33 +97,12 @@ function AdmCliente() {
   }, [])
 
   useEffect(() => {
-    if (token) {
-      const timer = window.setTimeout(() => {
-        void carregarClientes()
-      }, 0)
+    const timer = window.setTimeout(() => {
+      void carregarClientes()
+    }, 0)
 
-      return () => window.clearTimeout(timer)
-    }
-
-    toast.warning('Cole e salve o token de acesso para carregar os clientes.')
-  }, [carregarClientes, token])
-
-  function salvarToken(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-
-    const novoToken = tokenDigitado.trim().replace(/^Bearer\s+/i, '')
-
-    if (!novoToken) {
-      toast.error('Informe um token valido.')
-      return
-    }
-
-    localStorage.setItem('token', novoToken)
-    setToken(novoToken)
-    setTokenDigitado('')
-    toast.success('Token salvo com sucesso.')
-    carregarClientes()
-  }
+    return () => window.clearTimeout(timer)
+  }, [carregarClientes])
 
   function abrirCadastro() {
     setFormulario(formularioInicial)
@@ -178,11 +133,6 @@ function AdmCliente() {
 
   async function salvarCliente(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-
-    if (!token) {
-      toast.error('Salve o token de acesso antes de cadastrar cliente.')
-      return
-    }
 
     const payloadBase = {
       cpf: apenasNumeros(formulario.cpf),
@@ -229,11 +179,6 @@ function AdmCliente() {
   async function buscarClientePorCpf(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
-    if (!token) {
-      toast.error('Salve o token de acesso antes de buscar cliente.')
-      return
-    }
-
     const cpf = apenasNumeros(buscaCpf)
 
     if (!cpf) {
@@ -255,11 +200,6 @@ function AdmCliente() {
   }
 
   async function confirmarExclusao(cliente: Cliente) {
-    if (!token) {
-      toast.error('Salve o token de acesso antes de excluir cliente.')
-      return
-    }
-
     toast(
       ({ closeToast }: { closeToast?: () => void }) => (
         <div>
@@ -326,37 +266,12 @@ function AdmCliente() {
             type="button"
             onClick={abrirCadastro}
             className="inline-flex w-fit items-center justify-center gap-2 rounded-lg bg-[#D946EF] px-6 py-2.5 text-sm font-bold tracking-wider text-white transition-all duration-300 ease-out hover:scale-105 hover:bg-[#FF4FD8] hover:shadow-[0_0_20px_rgba(217,70,239,0.6)] disabled:cursor-not-allowed disabled:opacity-60"
-            disabled={carregando || !token}
+            disabled={carregando}
           >
             <Plus size={18} weight="bold" />
             Adicionar cliente
           </button>
         </div>
-
-        {!token && (
-          <form
-            onSubmit={salvarToken}
-            className="mb-6 max-w-3xl rounded-md border border-white/10 bg-white/[0.05] p-4"
-          >
-            <label className="mb-3 block text-sm font-medium text-[#FAFAFA]">
-              Token de acesso
-            </label>
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <input
-                value={tokenDigitado}
-                onChange={(event) => setTokenDigitado(event.target.value)}
-                placeholder="Cole aqui o token Bearer do Swagger"
-                className="h-10 flex-1 rounded-md border border-white/10 bg-white/[0.05] px-3 text-sm text-[#FAFAFA] outline-none placeholder:text-[#A1A1AA] focus:border-[#22D3EE]"
-              />
-              <button
-                type="submit"
-                className="h-10 rounded-md bg-[#D946EF] px-5 text-sm font-bold text-white transition hover:bg-[#FF4FD8]"
-              >
-                Salvar token
-              </button>
-            </div>
-          </form>
-        )}
 
         <form
           onSubmit={buscarClientePorCpf}
@@ -376,7 +291,7 @@ function AdmCliente() {
           <button
             type="submit"
             className="h-10 rounded-md border border-white/10 bg-white/[0.05] px-5 text-sm font-bold text-[#FAFAFA] transition duration-300 ease-out hover:border-[#22D3EE] hover:bg-[#22D3EE]/10 hover:text-[#22D3EE] hover:shadow-[0_0_20px_rgba(34,211,238,0.5)] hover:scale-105 disabled:cursor-not-allowed disabled:opacity-60"
-            disabled={carregando || !token}
+            disabled={carregando}
           >
             Buscar
           </button>

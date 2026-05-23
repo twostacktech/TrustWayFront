@@ -3,25 +3,9 @@ import { Car, MagnifyingGlass, PencilSimple, Trash, X } from "@phosphor-icons/re
 import { toast, ToastContainer } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
 
-import { buscar, deletar } from "../../services/Service"
+import { buscar, deletar, obterHeaderAutenticado } from "../../services/Service"
 import type Apolice from "../../models/Apolice"
 import FormApolice from "../formapolices/FormApolice"
-
-const obterTokenSalvo = () =>
-  localStorage.getItem("token") ??
-  localStorage.getItem("authToken") ??
-  localStorage.getItem("accessToken") ??
-  ""
-
-const obterHeaderAutenticado = () => {
-  const token = obterTokenSalvo()
-
-  return {
-    headers: {
-      Authorization: token.startsWith("Bearer ") ? token : `Bearer ${token}`,
-    },
-  }
-}
 
 type VeiculoDetalhado = {
   marca?: string
@@ -40,9 +24,25 @@ function Apolices() {
   const [modalVeiculoAberto, setModalVeiculoAberto] = useState(false)
   const [veiculoSelecionado, setVeiculoSelecionado] = useState<Apolice | null>(null)
 
+  const obterValorMonetario = (valor?: number | string) => {
+    if (valor === undefined || valor === null || valor === "") return null
+    if (typeof valor === "number") return Number.isNaN(valor) ? null : valor
+
+    const textoLimpo = valor.trim().replace(/[^\d,.-]/g, "")
+    if (!textoLimpo) return null
+
+    const temVirgula = textoLimpo.includes(",")
+    const textoNormalizado = temVirgula
+      ? textoLimpo.replace(/\./g, "").replace(",", ".")
+      : textoLimpo.replace(/\.(?=\d{3}(?:\D|$))/g, "")
+
+    const valorNumerico = Number(textoNormalizado)
+    return Number.isNaN(valorNumerico) ? null : valorNumerico
+  }
+
   const formatarMoeda = (valor?: number | string) => {
-    const valorNumerico = Number(valor)
-    if (Number.isNaN(valorNumerico)) return "-"
+    const valorNumerico = obterValorMonetario(valor)
+    if (valorNumerico === null) return "-"
     return valorNumerico.toLocaleString("pt-BR", {
       style: "currency",
       currency: "BRL",
