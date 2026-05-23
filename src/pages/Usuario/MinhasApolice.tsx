@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
-  ArrowLeft,
   User,
   MagnifyingGlass,
   Car,
@@ -177,6 +176,23 @@ function normalizarApolice(apolice: ApoliceApi): Apolice {
   };
 }
 
+function obterClasseStatus(status: string) {
+  const statusNormalizado = status
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+
+  if (statusNormalizado.includes("pendente")) {
+    return "border-yellow-400/40 bg-yellow-400/10 text-yellow-300";
+  }
+
+  if (statusNormalizado.includes("cancel")) {
+    return "border-red-400/40 bg-red-500/10 text-red-300";
+  }
+
+  return "border-[#22D3EE]/30 bg-[#22D3EE]/10 text-[#22D3EE]";
+}
+
 export function MinhasApolices() {
   const [apolices, setApolices] = useState<Apolice[]>([]);
   const [clienteLogado] = useState<UsuarioToken | null>(
@@ -349,42 +365,32 @@ export function MinhasApolices() {
   }
 
   return (
-    <div className="min-h-screen bg-[#16151E] text-[#fafafa] font-sans">
-      <header className="border-b border-white/10 bg-[#16151E]/80 backdrop-blur sticky top-0 z-30">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-6">
-            <Link to="/home" className="flex items-center gap-2 text-sm text-[#a1a1aa] hover:text-[#fafafa] transition-colors">
-              <ArrowLeft className="h-4 w-4" /> Voltar ao início
-            </Link>
-            <div className="h-5 w-px bg-white/10" />
-            <div>
-              <p className="text-2xl font-bold tracking-wider uppercase">Trustway</p>
-              <p className="text-[10px] text-[#a1a1aa] font-mono uppercase tracking-[0.2em]">
-                Área do Cliente
-              </p>
-            </div>
+    <div className="min-h-screen bg-gradient-to-br from-[#0a0a0a] via-[#0f0a1a] to-[#0a0a0a] px-6 py-12 text-[#FAFAFA] antialiased md:px-16 font-['Inter']">
+      <main className="mx-auto w-full max-w-7xl">
+        <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div>
+            <span className="font-['JetBrains_Mono'] font-mono text-xs uppercase tracking-widest text-[#A1A1AA]">
+              Proteção ativa
+            </span>
+            <h1 className="mt-1 font-['Anton'] text-5xl uppercase tracking-wide text-[#FAFAFA]">
+              MINHAS APÓLICES
+            </h1>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5">
-              <User className="h-3.5 w-3.5 text-[#a1a1aa]" />
-              <span className="text-xs font-medium max-w-[120px] truncate">{nomeCliente}</span>
+
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="inline-flex h-10 items-center gap-2 rounded-lg border border-white/10 bg-white/[0.05] px-4 text-sm font-bold text-[#FAFAFA]">
+              <User size={16} className="text-[#A1A1AA]" />
+              <span className="max-w-[140px] truncate">{nomeCliente}</span>
             </div>
             <Link
               to="/home"
               onClick={sair}
-              className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-medium text-[#a1a1aa] transition-colors hover:border-[#9D4EDD]/50 hover:text-[#fafafa]"
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-[#D946EF] px-5 text-sm font-bold tracking-wider text-white transition-all duration-300 ease-out hover:scale-105 hover:bg-[#FF4FD8] hover:shadow-[0_0_20px_rgba(217,70,239,0.6)]"
             >
-              <SignOut className="h-3.5 w-3.5" />
+              <SignOut size={16} weight="bold" />
               Sair
             </Link>
           </div>
-        </div>
-      </header>
-
-      <main className="mx-auto max-w-6xl px-6 py-10">
-        <div className="mb-8">
-          <p className="font-mono text-xs text-[#a1a1aa] uppercase tracking-[0.2em]">Proteção Ativa</p>
-          <h1 className="text-4xl font-extrabold uppercase tracking-wider mt-1">Minhas Apólices</h1>
         </div>
 
         {erro && (
@@ -393,40 +399,40 @@ export function MinhasApolices() {
           </div>
         )}
 
-        <div className="mb-8 grid gap-4 sm:grid-cols-3">
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
-            <p className="text-xs uppercase tracking-[0.2em] text-[#a1a1aa]">Apólices cadastradas</p>
-            <p className="mt-3 text-3xl font-bold">{apolices.length}</p>
+        <div className="mb-6 grid gap-4 sm:grid-cols-3">
+          <div className="rounded-lg border border-white/10 bg-white/[0.05] p-5">
+            <p className="font-['JetBrains_Mono'] font-mono text-xs uppercase tracking-widest text-[#A1A1AA]">Apólices cadastradas</p>
+            <p className="mt-3 font-['Anton'] text-4xl leading-none tracking-wide text-[#FAFAFA]">{apolices.length}</p>
           </div>
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
-            <p className="text-xs uppercase tracking-[0.2em] text-[#a1a1aa]">Filtro de busca</p>
-            <p className="mt-3 text-lg text-[#fafafa]">{busca || "Todas as placas/modelos"}</p>
+          <div className="rounded-lg border border-white/10 bg-white/[0.05] p-5">
+            <p className="font-['JetBrains_Mono'] font-mono text-xs uppercase tracking-widest text-[#A1A1AA]">Filtro de busca</p>
+            <p className="mt-3 truncate text-sm font-bold text-[#FAFAFA]">{busca || "Todas as placas/modelos"}</p>
           </div>
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
-            <p className="text-xs uppercase tracking-[0.2em] text-[#a1a1aa]">Cobertura selecionada</p>
-            <p className="mt-3 text-lg text-[#fafafa]">{coberturaSelecionada}</p>
+          <div className="rounded-lg border border-white/10 bg-white/[0.05] p-5">
+            <p className="font-['JetBrains_Mono'] font-mono text-xs uppercase tracking-widest text-[#A1A1AA]">Cobertura selecionada</p>
+            <p className="mt-3 truncate text-sm font-bold text-[#FAFAFA]">{coberturaSelecionada}</p>
           </div>
         </div>
 
-        <section className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <div className="relative sm:col-span-2">
-            <MagnifyingGlass className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-[#a1a1aa]" />
+        <section className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,560px)_minmax(220px,280px)]">
+          <div className="group relative">
+            <MagnifyingGlass className="absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-[#A1A1AA] transition-colors group-focus-within:text-[#22D3EE]" />
             <input
               type="text"
               placeholder="Buscar por placa, modelo ou marca do veículo..."
               value={busca}
               onChange={(evento) => setBusca(evento.target.value)}
-              className="w-full rounded-xl border border-white/10 bg-white/5 pl-11 pr-5 py-3.5 text-sm outline-none text-[#fafafa] placeholder:text-[#a1a1aa] focus:border-[#9D4EDD] transition-colors"
+              className="h-10 w-full rounded-md border border-white/10 bg-white/[0.05] py-2 pl-10 pr-4 text-sm text-[#FAFAFA] placeholder:text-[#A1A1AA] transition-all focus:border-[#22D3EE] focus:bg-[#22D3EE]/10 focus:shadow-[0_0_15px_rgba(34,211,238,0.3)] focus:outline-none"
             />
           </div>
 
           <select
             value={coberturaSelecionada}
             onChange={(evento) => setCoberturaSelecionada(evento.target.value)}
-            className="cursor-pointer rounded-xl border border-white/10 bg-white/5 px-5 py-3.5 text-sm outline-none text-[#fafafa] focus:border-[#9D4EDD] transition-colors"
+            className="h-10 cursor-pointer rounded-md border border-white/10 bg-white/[0.05] px-3 text-sm font-bold text-[#FAFAFA] outline-none transition-all focus:border-[#22D3EE] focus:bg-[#22D3EE]/10"
           >
             {coberturas.map((cobertura) => (
-              <option key={cobertura} value={cobertura} className="bg-[#16151E] text-[#fafafa]">
+              <option key={cobertura} value={cobertura} className="bg-[#16151E] text-[#FAFAFA]">
                 {cobertura === "Todos" ? "Todas as Coberturas" : cobertura}
               </option>
             ))}
@@ -435,57 +441,57 @@ export function MinhasApolices() {
 
         <div className="space-y-6">
           {carregando ? (
-            <div className="rounded-lg border border-white/10 bg-white/5 p-16 text-center text-[#a1a1aa]">
+            <div className="rounded-lg border border-white/10 bg-white/[0.05] p-16 text-center text-[#A1A1AA]">
               Carregando suas apólices...
             </div>
           ) : apolicesFiltradas.length === 0 ? (
-            <div className="rounded-lg border border-white/10 bg-white/5 p-16 text-center text-[#a1a1aa]">
+            <div className="rounded-lg border border-white/10 bg-white/[0.05] p-16 text-center text-[#A1A1AA]">
               Nenhuma apólice de veículo encontrada.
             </div>
           ) : (
             apolicesFiltradas.map((apolice) => (
-              <div key={apolice.id_apolice} className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="md:col-span-2 rounded-lg border border-white/10 bg-white/5 overflow-hidden flex flex-col justify-between p-6">
+              <div key={apolice.id_apolice} className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                <div className="flex flex-col justify-between overflow-hidden rounded-lg border border-white/10 bg-white/[0.05] p-6 transition hover:bg-white/[0.07] lg:col-span-2">
                   <div>
-                    <div className="flex items-center justify-between gap-3 text-[#a1a1aa] mb-4">
+                    <div className="mb-4 flex items-center justify-between gap-3 text-[#A1A1AA]">
                       <div className="flex items-center gap-2">
                         <Car className="h-5 w-5" />
                         <span className="font-mono text-xs uppercase tracking-wider">Veículo Segurado</span>
                       </div>
-                      <div className="flex items-center gap-2 bg-emerald-500/15 border border-emerald-400/30 shadow-sm font-mono text-white text-[11px] px-3 py-2 rounded-xl uppercase tracking-[0.18em]">
-                        <ShieldCheck className="h-6 w-6 text-emerald-400" color="#22c55e" />
-                        <span className="font-semibold leading-none text-white">{apolice.status}</span>
+                      <div className={`flex items-center gap-2 rounded-md border px-3 py-1.5 font-['JetBrains_Mono'] font-mono text-[11px] uppercase tracking-wider ${obterClasseStatus(apolice.status)}`}>
+                        <ShieldCheck className="h-4 w-4" />
+                        <span className="font-bold leading-none">{apolice.status}</span>
                       </div>
                     </div>
-                    <h2 className="text-3xl font-bold uppercase tracking-wide">
+                    <h2 className="font-['Anton'] text-4xl uppercase tracking-wide text-[#FAFAFA]">
                       {apolice.veiculo?.marca || "Veículo"} {apolice.veiculo?.modelo || ""}
                     </h2>
-                    <p className="text-sm text-[#a1a1aa] mt-1">Ano Modelo: {apolice.veiculo?.ano || "-"}</p>
+                    <p className="mt-1 text-sm text-[#A1A1AA]">Ano Modelo: {apolice.veiculo?.ano || "-"}</p>
                     <div className="mt-2 text-sm">
-                      <p className="uppercase tracking-[0.2em] text-[#9D4EDD] font-semibold">Plano de Cobertura</p>
-                      <p className="text-xl font-bold text-[#9D4EDD]">{apolice.cobertura}</p>
+                      <p className="font-['JetBrains_Mono'] font-mono text-xs font-bold uppercase tracking-widest text-[#D946EF]">Plano de Cobertura</p>
+                      <p className="text-xl font-bold text-[#D946EF]">{apolice.cobertura}</p>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4 mt-8 pt-6 border-t border-white/5">
+                  <div className="mt-8 grid grid-cols-2 gap-4 border-t border-white/10 pt-6">
                     <div>
-                      <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#a1a1aa]">Placa</p>
-                      <p className="text-lg font-mono font-semibold tracking-wide mt-0.5">
+                      <p className="font-['JetBrains_Mono'] font-mono text-[10px] uppercase tracking-widest text-[#A1A1AA]">Placa</p>
+                      <p className="mt-0.5 font-['JetBrains_Mono'] font-mono text-lg font-bold tracking-wide text-[#22D3EE]">
                         {apolice.veiculo?.placa || "-"}
                       </p>
                     </div>
                     <div>
-                      <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#a1a1aa]">Valor FIPE</p>
+                      <p className="font-['JetBrains_Mono'] font-mono text-[10px] uppercase tracking-widest text-[#A1A1AA]">Valor FIPE</p>
                       {(() => {
                         const valorFipe = apolice.veiculo?.codigoFipe && valorFipeByCodigo[apolice.veiculo.codigoFipe]
                           ? { valor: valorFipeByCodigo[apolice.veiculo.codigoFipe], estimado: false }
                           : obterValorFipe(apolice);
 
                         return (
-                          <p className="text-lg font-mono font-semibold text-[#a1a1aa] mt-0.5">
+                          <p className="mt-0.5 font-['JetBrains_Mono'] font-mono text-lg font-semibold text-[#FAFAFA]">
                             {valorFipe.valor}
                             {valorFipe.estimado && (
-                              <span className="ml-2 text-[10px] uppercase tracking-[0.16em] text-[#9D4EDD]">
+                              <span className="ml-2 text-[10px] uppercase tracking-wider text-[#D946EF]">
                                 estimado
                               </span>
                             )}
@@ -496,65 +502,65 @@ export function MinhasApolices() {
                   </div>
                 </div>
 
-                <div className="rounded-lg border border-white/10 bg-white/5 p-6 flex flex-col justify-between">
+                <div className="flex flex-col justify-between rounded-lg border border-white/10 bg-white/[0.05] p-6 transition hover:bg-white/[0.07]">
                   <div>
-                    <div className="flex items-center gap-3 text-[#a1a1aa] mb-6">
+                    <div className="mb-6 flex items-center gap-3 text-[#A1A1AA]">
                       <CurrencyDollar className="h-5 w-5" />
                       <span className="font-mono text-xs uppercase tracking-wider">Valores e Custos</span>
                     </div>
 
                     <div className="space-y-4">
                       <div>
-                        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#a1a1aa]">Mensalidade</p>
-                        <p className="text-3xl font-bold text-[#9D4EDD] tracking-wider mt-1">
+                        <p className="font-['JetBrains_Mono'] font-mono text-[10px] uppercase tracking-widest text-[#A1A1AA]">Mensalidade</p>
+                        <p className="mt-1 font-['Anton'] text-4xl tracking-wide text-[#D946EF]">
                           {formatarMoeda(apolice.mensalidade)}
                         </p>
                       </div>
-                      <div className="h-px bg-white/5" />
+                      <div className="h-px bg-white/10" />
                       <div>
-                        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#a1a1aa]">Franquia Obrigatória</p>
-                        <p className="text-xl font-mono font-medium mt-1">{formatarMoeda(apolice.franquia)}</p>
+                        <p className="font-['JetBrains_Mono'] font-mono text-[10px] uppercase tracking-widest text-[#A1A1AA]">Franquia Obrigatória</p>
+                        <p className="mt-1 font-['JetBrains_Mono'] font-mono text-xl font-medium">{formatarMoeda(apolice.franquia)}</p>
                       </div>
                     </div>
 
                     <div className="mt-4 flex flex-col gap-3">
                       <button
                         type="button"
-                        className="inline-flex items-center gap-2 text-sm text-[#fafafa] text-left font-medium transition-colors hover:text-emerald-300"
+                        className="inline-flex items-center gap-2 text-left text-sm font-medium text-[#FAFAFA] transition-colors hover:text-[#22D3EE]"
                       >
-                        <Receipt className="h-4 w-4 text-[#a1a1aa]" />
+                        <Receipt className="h-4 w-4 text-[#A1A1AA]" />
                         Histórico de Pagamentos
                       </button>
                       <button
                         type="button"
-                        className="inline-flex items-center gap-2 text-sm text-[#fafafa] text-left font-medium transition-colors hover:text-emerald-300"
+                        className="inline-flex items-center gap-2 text-left text-sm font-medium text-[#FAFAFA] transition-colors hover:text-[#22D3EE]"
                       >
-                        <CopySimple className="h-4 w-4 text-[#a1a1aa]" />
+                        <CopySimple className="h-4 w-4 text-[#A1A1AA]" />
                         Pagar
                       </button>
                     </div>
                   </div>
 
-                  <div className="mt-6 pt-4 border-t border-white/5 flex items-center gap-2 text-xs text-[#a1a1aa]">
+                  <div className="mt-6 flex items-center gap-2 border-t border-white/10 pt-4 text-xs text-[#A1A1AA]">
                     <Calendar className="h-4 w-4" />
                     <span>Início da vigência: {formatarData(apolice.data_inicio)}</span>
                   </div>
                 </div>
 
-                <div className="md:col-span-3 rounded-lg border border-white/10 bg-white/5 p-6">
-                  <div className="flex items-center gap-3 text-[#a1a1aa] mb-4">
+                <div className="rounded-lg border border-white/10 bg-white/[0.05] p-6 lg:col-span-3">
+                  <div className="mb-4 flex items-center gap-3 text-[#A1A1AA]">
                     <FileText className="h-5 w-5" />
                     <span className="font-mono text-xs uppercase tracking-wider">Dados do Contrato</span>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div className="space-y-1">
-                      <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#a1a1aa]">Código da Apólice</p>
+                      <p className="font-['JetBrains_Mono'] font-mono text-[10px] uppercase tracking-widest text-[#A1A1AA]">Código da Apólice</p>
                       <p className="font-mono text-sm font-semibold">#000{apolice.id_apolice}</p>
                     </div>
                     <div className="space-y-1">
-                      <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#a1a1aa]">Abrangência</p>
-                      <p className="text-sm text-[#a1a1aa]">Nacional (Território Brasileiro)</p>
+                      <p className="font-['JetBrains_Mono'] font-mono text-[10px] uppercase tracking-widest text-[#A1A1AA]">Abrangência</p>
+                      <p className="text-sm text-[#A1A1AA]">Nacional (Território Brasileiro)</p>
                     </div>
                   </div>
                 </div>
@@ -563,12 +569,12 @@ export function MinhasApolices() {
           )}
         </div>
 
-        <div className="mt-8 rounded-lg border border-[#9D4EDD]/20 bg-[#9D4EDD]/5 p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="mt-8 flex flex-col items-start justify-between gap-4 rounded-lg border border-[#D946EF]/30 bg-[#D946EF]/10 p-6 sm:flex-row sm:items-center">
           <div className="flex gap-3 items-start">
-            <Warning className="h-5 w-5 text-[#9D4EDD] shrink-0 mt-0.5" />
+            <Warning className="mt-0.5 h-5 w-5 shrink-0 text-[#D946EF]" />
             <div>
               <p className="font-medium text-sm">Precisa de assistência ou sofreu um sinistro?</p>
-              <p className="text-xs text-[#a1a1aa] mt-0.5">
+              <p className="mt-0.5 text-xs text-[#A1A1AA]">
                 Nossa central de suporte funciona 24 horas por dia para colisões, guinchos e chaveiro.
               </p>
             </div>
@@ -577,7 +583,7 @@ export function MinhasApolices() {
             href="https://wa.me/5511999999999?text=Ol%C3%A1%20Trustway%2C%20preciso%20de%20assist%C3%AAncia."
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex justify-center bg-[#9D4EDD] hover:bg-[#7A39C6] text-white font-mono text-xs uppercase tracking-wider px-5 py-3 rounded-xl shrink-0 w-full sm:w-auto font-semibold transition-colors"
+            className="inline-flex h-11 w-full shrink-0 items-center justify-center rounded-lg bg-[#D946EF] px-5 text-sm font-bold uppercase tracking-wider text-white transition-all duration-300 ease-out hover:scale-105 hover:bg-[#FF4FD8] hover:shadow-[0_0_20px_rgba(217,70,239,0.6)] sm:w-auto"
           >
             Acionar Seguro
           </a>
