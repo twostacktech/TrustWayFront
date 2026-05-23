@@ -6,11 +6,12 @@ import Home from "./pages/home/Home";
 import Navbar from "./components/navbar/Navbar";
 import Footer from "./components/footer/Footer";
 import Apolices from "./pages/apolices/Apolices";
-import NavBarAdm from "./navbaradm/NavBarAdm";
+import NavBarAdm from "./components/navbaradm/NavBarAdm";
 import Relatorios from "./pages/relatorios/Relatorio";
 import CustomCursor from "./components/cursor/CustomCursor";
 import type { ReactNode } from "react";
 import { MinhasApolices } from "./pages/Usuario/MinhasApolice";
+import Colaborador from "./pages/colaborador/Colaborador"
 
 function HomeLayout() {
   return (
@@ -49,7 +50,7 @@ function App() {
         <Route path="/minhasapolices" element={<MinhasApolices />} />
         <Route path="/login" element={<Login />} />
         <Route path="/cadastro" element={<Register />} />
-      </Routes>
+        <Route path="/gestao-colaborador" element={<AdminLayout><Colaborador /></AdminLayout>} />      </Routes>
     </BrowserRouter>
   );
 }
