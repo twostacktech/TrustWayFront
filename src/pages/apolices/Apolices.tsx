@@ -19,10 +19,11 @@ function Apolices() {
   const [apolices, setApolices] = useState<Apolice[]>([])
   const [modalAberto, setModalAberto] = useState(false)
   const [apoliceEditando, setApoliceEditando] = useState<Apolice | null>(null)
-  
+
   // Estados para controlar o modal de Detalhes do Veículo
   const [modalVeiculoAberto, setModalVeiculoAberto] = useState(false)
   const [veiculoSelecionado, setVeiculoSelecionado] = useState<Apolice | null>(null)
+  const [busca, setBusca] = useState("")
 
   const obterValorMonetario = (valor?: number | string) => {
     if (valor === undefined || valor === null || valor === "") return null
@@ -115,6 +116,22 @@ function Apolices() {
     setVeiculoSelecionado(null)
   }
 
+  const apolicesFiltradas = apolices.filter((apolice) => {
+    const termoBusca = busca.trim().toLowerCase()
+    if (!termoBusca) return true
+
+    const nomeCliente = apolice.usuario?.nome?.toLowerCase() || ""
+    const cpfCliente = apolice.usuario?.cpf?.toLowerCase() || ""
+    const placaVeiculo = apolice.veiculo?.placa?.toLowerCase() || ""
+
+    return (
+      nomeCliente.includes(termoBusca) ||
+      cpfCliente.includes(termoBusca) ||
+      placaVeiculo.includes(termoBusca)
+    )
+  })
+
+
   useEffect(() => {
     buscarApolices()
   }, [])
@@ -122,7 +139,7 @@ function Apolices() {
   return (
     <main className="min-h-screen bg-gradient-to-br from-[#0a0a0a] via-[#0f0a1a] to-[#0a0a0a] px-6 py-12 text-[#FAFAFA] antialiased md:px-16 font-['Inter']">
       <div className="max-w-7xl mx-auto w-full">
-        
+
         {/* Header da Seção */}
         <section className="mb-8 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
           <div>
@@ -150,8 +167,20 @@ function Apolices() {
           <input
             type="text"
             placeholder="Buscar por nome, CPF ou placa..."
-            className="w-full rounded-lg border border-white/10 bg-white/[0.05] py-2 pl-10 pr-4 text-sm text-[#FAFAFA] placeholder:text-[#A1A1AA] transition-all focus:border-[#22D3EE] focus:bg-[#22D3EE]/10 focus:shadow-[0_0_15px_rgba(34,211,238,0.3)] focus:outline-none font-['Inter']"
+            value={busca}
+            onChange={(evento) => setBusca(evento.target.value)}
+            className="w-full rounded-lg border border-white/10 bg-white/[0.05] py-2 pl-10 pr-10 text-sm text-[#FAFAFA] placeholder:text-[#A1A1AA] transition-all focus:border-[#22D3EE] focus:bg-[#22D3EE]/10 focus:shadow-[0_0_15px_rgba(34,211,238,0.3)] focus:outline-none font-['Inter']"
           />
+          {busca && (
+            <button
+              type="button"
+              onClick={() => setBusca("")}
+              className="absolute inset-y-0 right-0 flex items-center pr-3 text-[#A1A1AA] hover:text-[#FF4FD8] transition-colors cursor-pointer"
+              title="Limpar busca"
+            >
+              <X size={16} />
+            </button>
+          )}
         </div>
 
         {/* Tabela de Apólices */}
@@ -172,60 +201,60 @@ function Apolices() {
             </thead>
 
             <tbody className="divide-y divide-white/5">
-              {apolices.length === 0 ? (
+              {apolicesFiltradas.length === 0 ? (
                 <tr>
                   <td colSpan={9} className="py-10 text-center text-[#A1A1AA]">
                     Nenhuma apólice encontrada.
                   </td>
                 </tr>
               ) : (
-                apolices.map((apolice) => (
+                apolicesFiltradas.map((apolice) => (
                   <tr key={apolice.id} className="border-b border-white/10 hover:bg-white/5 transition-colors">
                     {/* ID */}
                     <td className="px-6 py-4 font-['JetBrains_Mono'] font-mono text-xs text-[#A1A1AA]">
                       AP-{String(apolice.id).padStart(4, '0')}
                     </td>
-                    
+
                     {/* Cliente */}
                     <td className="px-6 py-4 font-medium text-[#FAFAFA]">
                       {apolice.usuario?.nome || "—"}
                     </td>
-                    
+
                     {/* CPF */}
                     <td className="px-6 py-4 text-[#22D3EE] font-['JetBrains_Mono'] font-mono text-sm">
                       {apolice.usuario?.cpf || "—"}
                     </td>
-                    
+
                     {/* Placa */}
                     <td className="px-6 py-4 font-['JetBrains_Mono'] font-mono text-sm uppercase text-[#A1A1AA]">
                       {apolice.veiculo?.placa || "—"}
                     </td>
-                    
+
                     {/* Mensalidade */}
                     <td className="px-6 py-4 text-right font-['JetBrains_Mono'] font-mono text-[#FAFAFA]">
                       {formatarMoeda(apolice.mensalidade)}
                     </td>
-                    
+
                     {/* Cobertura */}
                     <td className="px-6 py-4 text-[#A1A1AA]">
                       {apolice.percentualCobertura ? `${apolice.percentualCobertura}%` : "---"}
                     </td>
-                    
+
                     {/* Franquia */}
                     <td className="px-6 py-4 text-right font-['JetBrains_Mono'] font-mono text-[#A1A1AA]">
                       {formatarMoeda(apolice.valorFranquia)}
                     </td>
-                    
+
                     {/* Início */}
                     <td className="px-6 py-4 font-['JetBrains_Mono'] font-mono text-[#A1A1AA]">
                       {formatarData(apolice.dataInicio)}
                     </td>
-                    
+
                     {/* Coluna de Ações */}
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-4">
                         {/* Botão Ver */}
-                        <button 
+                        <button
                           type="button"
                           onClick={() => abrirDetalhesVeiculo(apolice)}
                           className="inline-flex cursor-pointer items-center gap-1.5 rounded border border-white/10 bg-white/[0.05] px-2.5 py-1.5 text-xs font-medium text-[#FAFAFA] transition-all duration-300 hover:border-[#22D3EE] hover:bg-[#22D3EE]/10 hover:text-[#22D3EE] hover:shadow-[0_0_15px_rgba(34,211,238,0.4)]"
@@ -283,9 +312,9 @@ function Apolices() {
       {modalVeiculoAberto && veiculoSelecionado && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4">
           <div className="relative w-full max-w-lg rounded-xl border border-white/10 bg-[#16151E] p-8 text-[#FAFAFA] shadow-2xl font-['Inter']">
-            
+
             {/* Botão de fechar (X) */}
-            <button 
+            <button
               onClick={fecharDetalhesVeiculo}
               className="absolute right-6 top-6 cursor-pointer text-[#A1A1AA] transition-all duration-300 hover:text-[#22D3EE] hover:shadow-[0_0_10px_rgba(34,211,238,0.3)]"
             >
@@ -331,8 +360,8 @@ function Apolices() {
                   <div className="rounded-lg border border-white/10 bg-white/[0.05] p-4">
                     <span className="mb-1 block font-['JetBrains_Mono'] text-[10px] uppercase tracking-wider text-[#A1A1AA]">Preço FIPE</span>
                     <span className="text-2xl font-semibold text-[#FAFAFA] font-['JetBrains_Mono']">
-                      {veiculoRaw?.precoFip 
-                        ? formatarMoeda(veiculoRaw.precoFip) 
+                      {veiculoRaw?.precoFip
+                        ? formatarMoeda(veiculoRaw.precoFip)
                         : "R$ 142.500"
                       }
                     </span>
@@ -360,266 +389,3 @@ function Apolices() {
 }
 
 export default Apolices
-
-// import { useEffect, useState } from "react"
-// import { Pencil, Trash2, CarFront, Search } from "lucide-react"
-// import { toast } from "react-toastify"
-
-// import { buscar, deletar } from "../../services/Service"
-// import type Apolice from "../../models/Apolice"
-// import FormApolice from "../formapolices/FormApolice"
-
-// function Apolices() {
-//   const [apolices, setApolices] = useState<Apolice[]>([
-//     {
-//       id: 1,
-//       dataInicio: "2026-05-22T00:00:00.000Z",
-//       mensalidade: 320.00,
-//       status: "Ativo",
-//       percentualCobertura: 80,
-//       valorFranquia: 2800.00,
-//       usuario: {
-//         id: 1,
-//         nome: "Ana Beatriz Costa",
-//         cpf: "123.456.789-00"
-//       },
-//       veiculo: {
-//         id: 1,
-//         placa: "ABC-1D23"
-//       }
-//     }
-//   ]);
-//   const [modalAberto, setModalAberto] = useState(false)
-//   const [apoliceEditando, setApoliceEditando] = useState<Apolice | null>(null)
-
-//   const formatarMoeda = (valor?: number | string) => {
-//     const valorNumerico = Number(valor)
-//     if (Number.isNaN(valorNumerico)) return "-"
-//     return valorNumerico.toLocaleString("pt-BR", {
-//       style: "currency",
-//       currency: "BRL",
-//       minimumFractionDigits: 0,
-//     })
-//   }
-
-//   const formatarData = (data?: Date | string) => {
-//     if (!data) return "-"
-//     if (typeof data === "string" && data.includes("-")) {
-//       const [ano, mes, dia] = data.split("T")[0].split("-")
-//       return `${dia}/${mes}/${ano}`
-//     }
-//     const dataFormatada = new Date(data)
-//     if (Number.isNaN(dataFormatada.getTime())) return "-"
-//     return dataFormatada.toLocaleDateString("pt-BR")
-//   }
-
-//   async function buscarApolices() {
-//     try {
-//       await buscar("/apolices", setApolices)
-//     } catch (error) {
-//       console.log("Erro ao buscar apólices:", error)
-//       toast.error("Erro ao buscar apólices.")
-//     }
-//   }
-
-//   async function excluirApolice(id: number) {
-//     if (!window.confirm("Deseja realmente excluir esta apólice?")) {
-//       return
-//     }
-
-//     try {
-//       await deletar(`/apolices/${id}`)
-//       setApolices((apolicesAtuais) =>
-//         apolicesAtuais.filter((apolice) => apolice.id !== id)
-//       )
-//       toast.success("Apólice excluída com sucesso!")
-//     } catch (error) {
-//       console.error(error)
-//       toast.error("Erro ao excluir apólice.")
-//     }
-//   }
-
-//   function abrirCadastro() {
-//     setApoliceEditando(null)
-//     setModalAberto(true)
-//   }
-
-//   function abrirEdicao(apolice: Apolice) {
-//     setApoliceEditando(apolice)
-//     setModalAberto(true)
-//   }
-
-//   function fecharModal() {
-//     setModalAberto(false)
-//     setTimeout(() => {
-//       setApoliceEditando(null)
-//     }, 150)
-//   }
-
-//   useEffect(() => {
-//     // buscarApolices()
-//   }, [])
-
-//   return (
-//     /* Trocado font-body por font-['Inter'] para garantir a fonte do corpo caso o alias falhe */
-//     <main className="min-h-screen bg-[#050505] text-white px-6 py-12 md:px-16 font-['Inter'] antialiased">
-//       <div className="max-w-7xl mx-auto w-full">
-        
-//         {/* Header da Seção */}
-//         <section className="mb-8 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-//           <div>
-//             <p className="font-['JetBrains_Mono'] font-mono text-xs text-zinc-500 uppercase tracking-widest">
-//               Contratos ativos
-//             </p>
-//             {/* Forçado o uso direto da fonte 'Anton' de forma arbitrária no Tailwind */}
-//             <h1 className="text-5xl font-['Anton'] uppercase tracking-wide mt-1 text-white">
-//               Apólices
-//             </h1>
-//           </div>
-
-//           <button
-//             onClick={abrirCadastro}
-//             className="rounded-lg bg-sky-600 px-6 py-2.5 text-sm font-bold tracking-wider text-white transition-all hover:bg-sky-700 active:scale-98"
-//           >
-//             + Adicionar apólice
-//           </button>
-//         </section>
-
-        
-// {/* Barra de Busca baseada na image_3ff368.png */}
-//         <div className="mb-6 max-w-md relative group">
-//           <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-//             <Search size={16} className="text-zinc-500 group-focus-within:text-zinc-300 transition-colors" />
-//           </span>
-//           <input
-//             type="text"
-//             placeholder="Buscar por nome, CPF ou placa..."
-//             className="w-full bg-[#0a0a0a]/40 text-sm text-white placeholder-zinc-600 pl-10 pr-4 py-2 rounded-lg border border-white/10 focus:outline-none focus:border-zinc-500 focus:bg-[#0a0a0a]/80 transition-all font-['Inter']"
-//           />
-//         </div>
-
-//         {/* Tabela de Apólices */}
-//         <section className="rounded-lg border border-white/10 bg-[#0a0a0a]/40 overflow-hidden">
-//           <table className="w-full border-collapse text-left text-sm">
-//             <thead>
-//               <tr className="border-b border-white/10 text-zinc-400 text-xs uppercase font-medium bg-[#0a0a0a]/80">
-//                 <th className="px-6 py-4">ID</th>
-//                 <th className="px-6 py-4">Cliente</th>
-//                 <th className="px-6 py-4">CPF</th>
-//                 <th className="px-6 py-4">Placa</th>
-//                 <th className="px-6 py-4 text-right">Mensalidade</th>
-//                 <th className="px-6 py-4">Cobertura</th>
-//                 <th className="px-6 py-4 text-right">Franquia</th>
-//                 <th className="px-6 py-4">Início</th>
-//                 <th className="px-6 py-4 text-right">Veículo</th>
-//               </tr>
-//             </thead>
-
-//             <tbody className="divide-y divide-white/5">
-//               {apolices.length === 0 ? (
-//                 <tr>
-//                   <td colSpan={9} className="py-10 text-center text-zinc-500">
-//                     Nenhuma apólice encontrada.
-//                   </td>
-//                 </tr>
-//               ) : (
-//                 apolices.map((apolice) => (
-//                   <tr key={apolice.id} className="border-b border-white/10 hover:bg-white/5 transition-colors">
-//                     {/* ID */}
-//                     <td className="px-6 py-4 font-['JetBrains_Mono'] font-mono text-xs text-zinc-500">
-//                       AP-{String(apolice.id).padStart(4, '0')}
-//                     </td>
-                    
-//                     {/* Cliente */}
-//                     <td className="px-6 py-4 font-medium text-white">
-//                       {apolice.usuario?.nome || "—"}
-//                     </td>
-                    
-//                     {/* CPF */}
-//                     <td className="px-6 py-4 text-zinc-400 font-['JetBrains_Mono'] font-mono text-sm">
-//                       {apolice.usuario?.cpf || "—"}
-//                     </td>
-                    
-//                     {/* Placa */}
-//                     <td className="px-6 py-4 text-zinc-300 font-['JetBrains_Mono'] font-mono text-sm uppercase">
-//                       {apolice.veiculo?.placa || "—"}
-//                     </td>
-                    
-//                     {/* Mensalidade */}
-//                     <td className="px-6 py-4 text-right font-['JetBrains_Mono'] font-mono text-white">
-//                       {formatarMoeda(apolice.mensalidade)}
-//                     </td>
-                    
-//                     {/* Cobertura */}
-//                     <td className="px-6 py-4 text-zinc-300">
-//                       {apolice.percentualCobertura ? `${apolice.percentualCobertura}%` : "---"}
-//                     </td>
-                    
-//                     {/* Franquia */}
-//                     <td className="px-6 py-4 text-right font-['JetBrains_Mono'] font-mono text-zinc-400">
-//                       {formatarMoeda(apolice.valorFranquia)}
-//                     </td>
-                    
-//                     {/* Início */}
-//                     <td className="px-6 py-4 text-zinc-400 font-['JetBrains_Mono'] font-mono">
-//                       {formatarData(apolice.dataInicio)}
-//                     </td>
-                    
-//                     {/* Coluna de Ações integrada com o botão "Ver" */}
-//                     <td className="px-6 py-4 text-right">
-//                       <div className="flex items-center justify-end gap-4">
-//                         {/* Botão Ver */}
-//                         <button className="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-300 hover:text-white transition-colors bg-white/5 hover:bg-white/10 rounded px-2.5 py-1.5 border border-white/10">
-//                           <CarFront size={14} className="text-zinc-400" />
-//                           <span>Ver</span>
-//                         </button>
-
-//                         {/* Botão Editar */}
-//                         <button
-//                           type="button"
-//                           onClick={() => abrirEdicao(apolice)}
-//                           className="rounded p-1 text-zinc-400 hover:bg-white/5 hover:text-sky-400 transition-all"
-//                           title="Editar apólice"
-//                         >
-//                           <Pencil size={15} />
-//                         </button>
-
-//                         {/* Botão Excluir */}
-//                         <button
-//                           type="button"
-//                           onClick={() => excluirApolice(apolice.id)}
-//                           className="rounded p-1 text-zinc-400 hover:bg-white/5 hover:text-red-500 transition-all"
-//                           title="Excluir apólice"
-//                         >
-//                           <Trash2 size={15} />
-//                         </button>
-//                       </div>
-//                     </td>
-//                   </tr>
-//                 ))
-//               )}
-//             </tbody>
-//           </table>
-//         </section>
-
-//       </div>
-
-//       {/* Modal */}
-//       {modalAberto && (
-//         <FormApolice
-//           fecharModal={fecharModal}
-//           atualizarListagem={buscarApolices}
-//           apoliceEditando={apoliceEditando}
-//           adicionarApolice={(apolice: Apolice) =>
-//             setApolices((apolicesAtuais) => {
-//               if (apolicesAtuais.some((a) => a.id === apolice.id)) return apolicesAtuais;
-//               return [...apolicesAtuais, apolice]
-//             })
-//           }
-//         />
-//       )}
-//     </main>
-//   )
-// }
-
-// export default Apolices

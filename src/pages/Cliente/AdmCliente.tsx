@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
-import { MagnifyingGlass,PencilSimple,Plus,Trash,X } from '@phosphor-icons/react'
+import { MagnifyingGlass, PencilSimple, Plus, Trash, X } from '@phosphor-icons/react'
 import { AxiosError } from 'axios'
 import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
@@ -83,12 +83,33 @@ function AdmCliente() {
   const [clienteEditandoCpf, setClienteEditandoCpf] = useState<string | null>(null)
   const [carregando, setCarregando] = useState(false)
 
+  const clientesFiltrados = clientes.filter((cliente) => {
+    const termoBusca = buscaCpf.trim().toLowerCase()
+    if (!termoBusca) return true
+
+    const nomeCliente = cliente.nome.toLowerCase()
+    const emailCliente = cliente.email.toLowerCase()
+    const cpfClienteLimpo = apenasNumeros(cliente.cpf)
+    const termoBuscaApenasNumeros = apenasNumeros(termoBusca)
+
+    // 1. Se o termo digitado contiver letras, filtra apenas por nome e email
+    if (!termoBuscaApenasNumeros) {
+      return nomeCliente.includes(termoBusca) || emailCliente.includes(termoBusca)
+    }
+
+    // 2. Se contiver números, filtra pelas lógicas de CPF
+    return (
+      cpfClienteLimpo.includes(termoBuscaApenasNumeros) ||
+      cliente.cpf.toLowerCase().includes(termoBusca)
+    )
+  })
+
   const carregarClientes = useCallback(async () => {
     try {
       setCarregando(true)
 
       const resposta = await api.get<UsuarioApi[]>('/usuario', obterHeaderAutenticado())
-      
+
       // FILTRO: Filtra e remove os administradores deixando APENAS quem não é ADM/ADMINISTRADOR
       const apenasClientes = resposta.data.filter((usuario) => {
         const tipoLimpo = String(usuario.tipo ?? '').toUpperCase().trim();
@@ -160,7 +181,7 @@ function AdmCliente() {
         }
 
         await api.put(
-          `/usuario/${clienteEditandoCpf ?? apenasNumeros(formulario.cpf)}`,
+          `/usuario/${clienteEditandoCpf}`,
           payloadEdicao,
           obterHeaderAutenticado()
         )
@@ -177,39 +198,6 @@ function AdmCliente() {
       fecharFormulario()
       await carregarClientes()
     } catch (error) {
-      toast.error(obterMensagemErro(error))
-    } finally {
-      setCarregando(false)
-    }
-  }
-
-  async function buscarClientePorCpf(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-
-    const cpf = apenasNumeros(buscaCpf)
-
-    if (!cpf) {
-      carregarClientes()
-      return
-    }
-
-    try {
-      setCarregando(true)
-
-      const resposta = await api.get<UsuarioApi>(`/usuario/${cpf}`, obterHeaderAutenticado())
-      const usuarioEncontrado = resposta.data;
-
-      // VALIDAÇÃO DE BUSCA: Impede que um ADM seja renderizado isoladamente na pesquisa por CPF
-      const tipoLimpo = String(usuarioEncontrado?.tipo ?? '').toUpperCase().trim();
-      if (tipoLimpo === 'ADM' || tipoLimpo === 'ADMINISTRADOR') {
-        setClientes([])
-        toast.warning('O CPF digitado pertence a um administrador, não a um cliente.')
-        return
-      }
-
-      setClientes([normalizarCliente(usuarioEncontrado)])
-    } catch (error) {
-      setClientes([])
       toast.error(obterMensagemErro(error))
     } finally {
       setCarregando(false)
@@ -290,8 +278,32 @@ function AdmCliente() {
           </button>
         </div>
 
-        <form
-          onSubmit={buscarClientePorCpf}
+        {/* Barra de Busca */}
+        <div className="mb-6 max-w-[560px] relative group">
+          <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+            <MagnifyingGlass size={18} className="text-[#A1A1AA] group-focus-within:text-[#22D3EE] transition-colors" />
+          </span>
+          <input
+            type="text"
+            placeholder="Buscar cliente por nome, CPF ou email..."
+            value={buscaCpf}
+            onChange={(event) => setBuscaCpf(event.target.value)}
+            className="w-full h-10 rounded-md border border-white/10 bg-white/[0.05] py-2 pl-10 pr-10 text-sm text-[#FAFAFA] placeholder:text-[#A1A1AA] transition-all focus:border-[#22D3EE] focus:bg-[#22D3EE]/10 focus:shadow-[0_0_15px_rgba(34,211,238,0.3)] focus:outline-none font-['Inter']"
+          />
+          {buscaCpf && (
+            <button
+              type="button"
+              onClick={() => setBuscaCpf('')}
+              className="absolute inset-y-0 right-0 flex items-center pr-3 text-[#A1A1AA] hover:text-[#FF4FD8] transition-colors cursor-pointer"
+              title="Limpar busca"
+            >
+              <X size={16} />
+            </button>
+          )}
+        </div>
+
+        {/* <form
+          onSubmit={(e) => e.preventDefault()}
           className="mb-6 flex max-w-[560px] flex-col gap-3 sm:flex-row"
         >
           <label className="flex h-10 flex-1 items-center gap-3 rounded-md border border-white/10 bg-white/[0.05] px-3 text-[#A1A1AA] focus-within:border-[#22D3EE]">
@@ -300,19 +312,19 @@ function AdmCliente() {
               type="search"
               value={buscaCpf}
               onChange={(event) => setBuscaCpf(event.target.value)}
-              placeholder="Buscar cliente por CPF..."
+              placeholder="Buscar cliente por nome, CPF ou email..."
               className="h-full w-full bg-transparent text-sm text-[#FAFAFA] outline-none placeholder:text-[#A1A1AA]"
             />
-          </label>
+          </label> */}
 
-          <button
+        {/* <button
             type="submit"
             className="h-10 rounded-md border border-white/10 bg-white/[0.05] px-5 text-sm font-bold text-[#FAFAFA] transition duration-300 ease-out hover:border-[#22D3EE] hover:bg-[#22D3EE]/10 hover:text-[#22D3EE] hover:shadow-[0_0_20px_rgba(34,211,238,0.5)] hover:scale-105 disabled:cursor-not-allowed disabled:opacity-60"
             disabled={carregando}
           >
             Buscar
-          </button>
-        </form>
+          </button> */}
+        {/* </form> */}
 
         <div className="overflow-hidden rounded-lg border border-white/10 bg-white/[0.05]">
           <div className="overflow-x-auto">
@@ -329,10 +341,10 @@ function AdmCliente() {
               </thead>
 
               <tbody>
-                {clientes.length > 0 ? (
-                  clientes.map((cliente, index) => (
+                {clientesFiltrados.length > 0 ? (
+                  clientesFiltrados.map((cliente, index) => (
                     <tr key={`${cliente.id}-${cliente.cpf}`} className="border-b border-white/10 transition hover:bg-white/[0.04] last:border-b-0">
-                      <td className="px-6 py-4 font-['JetBrains_Mono'] font-mono text-xs text-[#A1A1AA]">#{index + 1}</td>
+                      <td className="px-6 py-4 font-['JetBrains_Mono'] font-mono text-xs text-[#A1A1AA]">#{cliente.id}</td>
                       <td className="px-6 py-4 font-medium text-[#FAFAFA]">{cliente.nome}</td>
                       <td className="px-6 py-4 font-['JetBrains_Mono'] font-mono text-sm font-bold text-[#22D3EE]">{cliente.cpf}</td>
                       <td className="px-6 py-4 text-[#A1A1AA]">{cliente.email}</td>
@@ -509,5 +521,4 @@ function AdmCliente() {
     </div>
   )
 }
-
 export default AdmCliente
