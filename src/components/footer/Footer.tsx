@@ -6,7 +6,7 @@ function Footer() {
       </h2>
 
       <p className="text-center text-[11px] tracking-[3px] text-[#F0F2F4]/35">
-        © 2024 TRUSTWAY INSURANCE GROUP - MADE FOR AUTOMOTIVE ENTHUSIASTS
+        2026 TRUSTWAY - MADE BY TWOSTACK GROUP
       </p>
 
       <div className="flex gap-8">

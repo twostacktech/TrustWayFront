@@ -7,7 +7,6 @@ import {
   List,
   Question,
   Shield,
-  ShieldCheck,
   User,
   Users,
 } from "@phosphor-icons/react";
@@ -67,7 +66,7 @@ function Navbar() {
           </button>
 
           <p className="hidden pl-14 text-[11px] tracking-[4px] text-[#F0F2F4]/35 lg:block">
-            EST. 2024 / TRUSTWAY
+            2026 / TRUSTWAY
           </p>
         </div>
 
@@ -85,17 +84,7 @@ function Navbar() {
           >
             <span>
               <User size={15} weight="bold" />
-              LOGIN USUÁRIO
-            </span>
-          </Link>
-
-          <Link
-            to="/admcliente"
-            className="sliding-button is-filled inline-flex min-h-9 items-center gap-2 border border-[#4F46E5]/70 px-5 text-[0.68rem] font-black tracking-[0.08rem] text-[#F0F2F4]"
-          >
-            <span>
-              <ShieldCheck size={15} weight="bold" />
-              PAINEL ADMIN
+              LOGIN
             </span>
           </Link>
         </div>
