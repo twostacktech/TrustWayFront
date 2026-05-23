@@ -6,7 +6,8 @@ import { CaretDown } from "@phosphor-icons/react";
 import popular from "../../assets/popular.png";
 import luxury from "../../assets/luxury.png";
 import sport from "../../assets/sport.png";
-import garagem from "../../assets/garagem.png";
+import moto from "../../assets/moto.png";
+import carroAnimado from "../../assets/carro-animado.mp4";
 import Beatriz from "../../assets/equipe/Beatriz.jpg";
 import Daniel from "../../assets/equipe/Daniel.png";
 import Juliana from "../../assets/equipe/Juliana.jpeg";
@@ -172,6 +173,17 @@ function Home() {
         "Seguro de performance para quem exige precisão, agilidade e proteção em cada detalhe.",
       imagem: sport,
       fundo: "SPORT",
+    },
+    {
+      id: "04",
+      tipo: "MOTO",
+      nome: "KAWASAKI NINJA 400",
+      valorFipe: "R$ 38.900",
+      mediaSeguro: "R$ 2.150 / ano",
+      descricao:
+        "Proteção inteligente para motos esportivas, com cobertura ágil, assistência e cálculo ajustado ao perfil do piloto.",
+      imagem: moto,
+      fundo: "MOTO",
     },
   ];
 
@@ -381,13 +393,13 @@ function Home() {
     <main className="trustway-page min-h-screen overflow-x-hidden text-[#F0F2F4]">
       <section
         id="showcase"
-        className="hero-section relative isolate min-h-screen px-5 pb-10 pt-24 max-[760px]:pt-24"
+        className="hero-section relative isolate min-h-[94vh] px-5 pb-4 pt-64 max-[760px]:min-h-[88vh] max-[760px]:pt-48"
       >
         <div className="hero-noise absolute inset-0 -z-10 pointer-events-none opacity-30" aria-hidden="true" />
 
-        <section className="relative flex min-h-[58vh] items-center justify-center max-[760px]:min-h-[52vh]">
+        <section className="relative flex min-h-[42vh] items-center justify-center max-[760px]:min-h-[36vh]">
           <p className="absolute top-0 left-[max(7vw,5.5rem)] z-[5] m-0 text-[0.62rem] font-black tracking-[0.24rem] text-[#4F46E5] max-[760px]:left-5 max-[760px]:max-w-[calc(100%-2.5rem)] max-[760px]:tracking-[0.16rem]">
-            AUTO INSURANCE / FIPE INTELLIGENCE
+            SEGURO VEICULAR INTELIGENTE
           </p>
 
           <svg
@@ -447,14 +459,16 @@ function Home() {
               className="hero-car relative z-[2] h-[min(46vh,460px)] w-full object-contain max-[760px]:h-[310px] max-[520px]:h-[270px]"
             />
 
-            <div className="price-block absolute right-[-3.6rem] bottom-10 z-[4] px-6 py-4 max-[1100px]:right-4 max-[760px]:bottom-4 max-[760px]:p-0">
-              <p className="m-0 text-[0.58rem] font-black tracking-[0.22rem] text-[#4F46E5] max-[520px]:text-[0.56rem] max-[520px]:tracking-[0.14rem]">
+            <div className="price-block absolute bottom-6 right-[2%] z-[4] w-[min(30rem,42vw)] max-[1100px]:right-4 max-[760px]:bottom-5 max-[760px]:right-4 max-[760px]:w-[min(24rem,62vw)] max-[520px]:w-[min(19rem,78vw)]">
+              <p className="m-0 text-[0.62rem] font-black uppercase tracking-[0.28rem] text-[#4F46E5] max-[760px]:text-[0.58rem] max-[520px]:tracking-[0.16rem]">
                 MÉDIA SEGURO
               </p>
 
-              <h3 className="m-0 font-[var(--font-display)] text-[clamp(2rem,3vw,3.2rem)] font-normal leading-[0.95] tracking-[0.01em] max-[760px]:text-[2.2rem] max-[520px]:text-[1.8rem]">
+              <h3 className="m-0 mt-2 whitespace-nowrap font-[var(--font-display)] text-[clamp(2rem,3vw,3.2rem)] font-normal leading-[0.95] tracking-[0.01em] text-[#F8FAFC] drop-shadow-[0_0.75rem_1.4rem_rgba(0,0,0,0.65)] max-[760px]:text-[2.2rem] max-[520px]:text-[1.8rem]">
                 {carroSelecionado.mediaSeguro}
               </h3>
+
+              <div className="mt-4 h-px w-[min(16rem,68%)] bg-[#4F46E5] shadow-[0_0_18px_rgba(79,70,229,0.45)]" />
             </div>
           </div>
         </section>
@@ -472,7 +486,7 @@ function Home() {
         </div>
 
         <section
-          className="relative z-[5] mt-12 flex justify-center gap-[clamp(2rem,5vw,4.5rem)] max-[760px]:mt-10 max-[760px]:gap-5"
+          className="relative z-[5] mt-6 flex flex-wrap justify-center gap-x-[clamp(1.5rem,4vw,4rem)] gap-y-5 max-[760px]:mt-5 max-[760px]:gap-x-5"
           aria-label="Selecionar categoria de veículo"
         >
           {carros.map((carro) => {
@@ -581,9 +595,13 @@ function Home() {
           </div>
         </div>
 
-        <img
-          src={imageSrc(garagem)}
-          alt="Garagem escura"
+        <video
+          src={carroAnimado}
+          aria-label="Carro animado"
+          autoPlay
+          muted
+          loop
+          playsInline
           className="aspect-square w-[min(560px,44vw)] rounded-lg object-cover opacity-75 shadow-[0_2.5rem_5rem_rgba(0,0,0,0.55)] grayscale-[0.2] contrast-[1.12] transition duration-300 hover:scale-[1.015] hover:opacity-95 hover:grayscale-0 hover:contrast-[1.1] max-[1100px]:w-[min(100%,560px)]"
         />
       </section>
@@ -599,7 +617,7 @@ function Home() {
             </h2>
 
             <p className="mb-2 mt-0 text-[0.72rem] font-black tracking-[0.25rem] text-[#4F46E5]">
-              FULL COVERAGE
+              PROTEÇÃO TOTAL
             </p>
           </div>
 
