@@ -83,13 +83,36 @@ function Colaborador() {
     const [colaboradorEditandoCpf, setColaboradorEditandoCpf] = useState<string | null>(null)
     const [carregando, setCarregando] = useState(false)
 
+
+    const colaboradoresFiltrados = colaboradores.filter((colaborador) => {
+        const termoBusca = buscaCpf.trim().toLowerCase()
+        if (!termoBusca) return true
+
+        const nomeColaborador = colaborador.nome.toLowerCase()
+        const emailColaborador = colaborador.email.toLowerCase()
+        const cpfColaboradorLimpo = apenasNumeros(colaborador.cpf)
+        const termoBuscaApenasNumeros = apenasNumeros(termoBusca)
+
+        // 1. Se o termo digitado contiver letras, filtra por nome e email
+        if (!termoBuscaApenasNumeros) {
+            return nomeColaborador.includes(termoBusca) || emailColaborador.includes(termoBusca)
+        }
+
+        // 2. Se contiver números, filtra pelas lógicas de CPF
+        return (
+            cpfColaboradorLimpo.includes(termoBuscaApenasNumeros) ||
+            colaborador.cpf.toLowerCase().includes(termoBusca)
+        )
+    })
+
+
     const carregarColaboradores = useCallback(async () => {
         try {
             setCarregando(true)
 
             const resposta = await api.get<UsuarioApi[]>('/usuario', obterHeaderAutenticado())
 
-            // INVERSÃO DO FILTRO: Retorna APENAS quem é ADM ou ADMINISTRADOR
+            // Retorna APENAS quem é ADM ou ADMINISTRADOR
             const apenasColaboradores = resposta.data.filter((usuario) => {
                 const tipoLimpo = String(usuario.tipo ?? '').toUpperCase().trim();
                 return tipoLimpo === 'ADM' || tipoLimpo === 'ADMINISTRADOR';
@@ -291,28 +314,31 @@ function Colaborador() {
                     </button>
                 </div>
 
-                <form
-                    onSubmit={buscarColaboradorPorCpf}
-                    className="mb-6 flex max-w-[560px] flex-col gap-3 sm:flex-row"
-                >
-                    <label className="flex h-10 flex-1 items-center gap-3 rounded-md border border-white/10 bg-white/[0.05] px-3 text-[#A1A1AA] focus-within:border-[#22D3EE]">
-                        <MagnifyingGlass size={18} />
-                        <input
-                            type="search"
-                            value={buscaCpf}
-                            onChange={(event) => setBuscaCpf(event.target.value)}
-                            placeholder="Buscar colaborador por CPF..."
-                            className="h-full w-full bg-transparent text-sm text-[#FAFAFA] outline-none placeholder:text-[#A1A1AA]"
-                        />
-                    </label>
-
-                    <button
-                        type="submit"
-                        className="h-10 rounded-md border border-white/10 bg-white/[0.05] px-5 text-sm font-bold text-[#FAFAFA] transition duration-300 ease-out hover:border-[#22D3EE] hover:bg-[#22D3EE]/10 hover:text-[#22D3EE] hover:shadow-[0_0_20px_rgba(34,211,238,0.5)] hover:scale-105 disabled:cursor-not-allowed disabled:opacity-60"
-                        disabled={carregando}
-                    >
-                        Buscar
-                    </button>
+                {/* Barra de Busca Unificada */}
+                <form onSubmit={buscarColaboradorPorCpf} className="mb-6 max-w-[560px] relative group">
+                    <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                        <MagnifyingGlass size={18} className="text-[#A1A1AA] group-focus-within:text-[#22D3EE] transition-colors" />
+                    </span>
+                    <input
+                        type="text"
+                        placeholder="Buscar por nome, e-mail ou CPF..."
+                        value={buscaCpf}
+                        onChange={(event) => setBuscaCpf(event.target.value)}
+                        className="w-full h-10 rounded-md border border-white/10 bg-white/[0.05] py-2 pl-10 pr-10 text-sm text-[#FAFAFA] placeholder:text-[#A1A1AA] transition-all focus:border-[#22D3EE] focus:bg-[#22D3EE]/10 focus:shadow-[0_0_15px_rgba(34,211,238,0.3)] focus:outline-none font-['Inter']"
+                    />
+                    {buscaCpf && (
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setBuscaCpf('');
+                                carregarColaboradores(); // Limpa a busca e traz a lista completa de volta
+                            }}
+                            className="absolute inset-y-0 right-0 flex items-center pr-3 text-[#A1A1AA] hover:text-[#FF4FD8] transition-colors cursor-pointer"
+                            title="Limpar busca"
+                        >
+                            <X size={16} />
+                        </button>
+                    )}
                 </form>
 
                 <div className="overflow-hidden rounded-lg border border-white/10 bg-white/[0.05]">
@@ -330,8 +356,8 @@ function Colaborador() {
                             </thead>
 
                             <tbody>
-                                {colaboradores.length > 0 ? (
-                                    colaboradores.map((colaborador, index) => (
+                                {colaboradoresFiltrados.length > 0 ? (
+                                    colaboradoresFiltrados.map((colaborador, index) => (
                                         <tr key={`${colaborador.id}-${colaborador.cpf}`} className="border-b border-white/10 transition hover:bg-white/[0.04] last:border-b-0">
                                             <td className="px-6 py-4 font-['JetBrains_Mono'] font-mono text-xs text-[#A1A1AA]">#{index + 1}</td>
                                             <td className="px-6 py-4 font-medium text-[#FAFAFA]">{colaborador.nome}</td>
