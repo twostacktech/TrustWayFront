@@ -88,7 +88,14 @@ function AdmCliente() {
       setCarregando(true)
 
       const resposta = await api.get<UsuarioApi[]>('/usuario', obterHeaderAutenticado())
-      setClientes(resposta.data.map(normalizarCliente))
+      
+      // FILTRO: Filtra e remove os administradores deixando APENAS quem não é ADM/ADMINISTRADOR
+      const apenasClientes = resposta.data.filter((usuario) => {
+        const tipoLimpo = String(usuario.tipo ?? '').toUpperCase().trim();
+        return tipoLimpo !== 'ADM' && tipoLimpo !== 'ADMINISTRADOR';
+      });
+
+      setClientes(apenasClientes.map(normalizarCliente))
     } catch (error) {
       toast.error(obterMensagemErro(error))
     } finally {
@@ -190,7 +197,17 @@ function AdmCliente() {
       setCarregando(true)
 
       const resposta = await api.get<UsuarioApi>(`/usuario/${cpf}`, obterHeaderAutenticado())
-      setClientes([normalizarCliente(resposta.data)])
+      const usuarioEncontrado = resposta.data;
+
+      // VALIDAÇÃO DE BUSCA: Impede que um ADM seja renderizado isoladamente na pesquisa por CPF
+      const tipoLimpo = String(usuarioEncontrado?.tipo ?? '').toUpperCase().trim();
+      if (tipoLimpo === 'ADM' || tipoLimpo === 'ADMINISTRADOR') {
+        setClientes([])
+        toast.warning('O CPF digitado pertence a um administrador, não a um cliente.')
+        return
+      }
+
+      setClientes([normalizarCliente(usuarioEncontrado)])
     } catch (error) {
       setClientes([])
       toast.error(obterMensagemErro(error))
