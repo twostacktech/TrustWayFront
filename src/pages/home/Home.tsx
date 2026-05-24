@@ -424,7 +424,7 @@ function Home() {
   return (
     <main className="trustway-page min-h-screen overflow-x-hidden text-[#F0F2F4]">
       <section
-        id="showcase"
+        id="home"
         className="hero-section relative isolate min-h-[clamp(680px,94svh,960px)] px-5 pb-8 pt-[clamp(6rem,18vh,16rem)] max-[760px]:min-h-0 max-[760px]:px-4 max-[760px]:pb-10 max-[760px]:pt-28"
       >
         <div className="hero-noise absolute inset-0 -z-10 pointer-events-none opacity-30" aria-hidden="true" />
@@ -476,11 +476,11 @@ function Home() {
             key={`frame-${carroAtual.id}`}
           >
             <div className="price-block absolute left-[-4.2rem] top-10 z-[4] max-[1100px]:left-4 max-[760px]:top-5">
-              <p className="m-0 text-[0.58rem] font-black tracking-[0.22rem] text-[#4F46E5] max-[520px]:text-[0.56rem] max-[520px]:tracking-[0.14rem]">
+              <p className="m-0 text-[0.58rem] font-black tracking-[0.22rem] !text-white max-[520px]:text-[0.56rem] max-[520px]:tracking-[0.14rem]">
                 VALOR FIPE
               </p>
 
-              <h3 className="m-0 font-[var(--font-display)] text-[clamp(2rem,3vw,3.2rem)] font-normal leading-[0.95] tracking-[0.01em] max-[760px]:text-[2.2rem] max-[520px]:text-[1.8rem]">
+              <h3 className="m-0 font-[var(--font-display)] text-[clamp(2rem,3vw,3.2rem)] font-normal leading-[0.95] tracking-[0.01em] !text-white drop-shadow-[0_0.65rem_1.2rem_rgba(0,0,0,0.72)] max-[760px]:text-[2.2rem] max-[520px]:text-[1.8rem]">
                 {carroAtual.valorFipe}
               </h3>
             </div>
@@ -492,7 +492,7 @@ function Home() {
             />
 
             <div className="price-block absolute bottom-6 right-[2%] z-[4] w-[min(30rem,42vw)] max-[1100px]:right-4 max-[760px]:bottom-5 max-[760px]:right-4 max-[760px]:w-[min(24rem,62vw)] max-[520px]:w-[min(19rem,78vw)]">
-              <p className="m-0 text-[0.62rem] font-black uppercase tracking-[0.28rem] text-[#4F46E5] max-[760px]:text-[0.58rem] max-[520px]:tracking-[0.16rem]">
+              <p className="m-0 text-[0.62rem] font-black uppercase tracking-[0.28rem] !text-white max-[760px]:text-[0.58rem] max-[520px]:tracking-[0.16rem]">
                 MÉDIA SEGURO
               </p>
 
@@ -644,9 +644,9 @@ function Home() {
       >
         <div className="mx-auto w-[min(1400px,100%)]">
           <div className="mb-[4.4rem] flex items-end justify-between gap-8 max-[760px]:block">
-            <h2 className="m-0 font-[var(--font-display)] text-[clamp(3.8rem,7vw,6.5rem)] font-normal leading-[0.88] tracking-[0.03em] max-[520px]:text-[3.15rem] max-[380px]:text-[2.8rem]">
-              VANTAGENS
-              <span className="block">PREMIUM</span>
+
+            <h2 className="m-0 font-[var(--font-display)] text-[clamp(3.1rem,5.8vw,5.4rem)] font-normal leading-[0.9] tracking-[0.03em]">
+              VANTAGENS PREMIUM
             </h2>
 
             <p className="mb-2 mt-0 text-[0.72rem] font-black tracking-[0.25rem] text-[#4F46E5]">

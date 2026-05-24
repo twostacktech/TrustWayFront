@@ -80,7 +80,6 @@ function Colaborador() {
     const [formulario, setFormulario] = useState<ColaboradorForm>(formularioInicial)
     const [modalAberto, setModalAberto] = useState(false)
     const [colaboradorEditandoId, setColaboradorEditandoId] = useState<number | null>(null)
-    const [colaboradorEditandoCpf, setColaboradorEditandoCpf] = useState<string | null>(null)
     const [carregando, setCarregando] = useState(false)
 
 
@@ -150,7 +149,6 @@ function Colaborador() {
             dataNascimento: colaborador.dataNascimento,
         })
         setColaboradorEditandoId(colaborador.id)
-        setColaboradorEditandoCpf(apenasNumeros(colaborador.cpf))
         setModalAberto(true)
     }
 
@@ -158,7 +156,6 @@ function Colaborador() {
         setModalAberto(false)
         setFormulario(formularioInicial)
         setColaboradorEditandoId(null)
-        setColaboradorEditandoCpf(null)
     }
 
     async function salvarColaborador(event: FormEvent<HTMLFormElement>) {
