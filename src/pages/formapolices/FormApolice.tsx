@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import axios from "axios"
 import { toast } from "react-toastify"
-import { X } from "@phosphor-icons/react"
+import { CircleNotch, X } from "@phosphor-icons/react"
 
 import { api, atualizar, cadastrar, obterHeaderAutenticado } from "../../services/Service"
 import type Apolice from "../../models/Apolice"
@@ -192,7 +192,7 @@ function FormApolice({
         apoliceSalva = await atualizar(
           `/apolices/${apoliceEditando.id}`,
           { id: apoliceEditando.id, ...dadosParaEnviar },
-          () => {},
+          () => { },
           obterHeaderAutenticado()
         )
         toast.success("Apólice atualizada com sucesso!")
@@ -203,7 +203,7 @@ function FormApolice({
           if (!erroNaoEncontrado(error)) throw error
 
           try {
-            await cadastrar("/veiculos", veiculoParaEnviar, () => {}, obterHeaderAutenticado())
+            await cadastrar("/veiculos", veiculoParaEnviar, () => { }, obterHeaderAutenticado())
           } catch (erroCadastroVeiculo) {
             const detalhe = obterDetalheErro(erroCadastroVeiculo)
             throw new Error(
@@ -215,7 +215,7 @@ function FormApolice({
         }
 
         try {
-          apoliceSalva = await cadastrar("/apolices", dadosParaEnviar, () => {}, obterHeaderAutenticado())
+          apoliceSalva = await cadastrar("/apolices", dadosParaEnviar, () => { }, obterHeaderAutenticado())
         } catch (erroCadastroApolice) {
           const detalhe = obterDetalheErro(erroCadastroApolice)
           throw new Error(
@@ -472,7 +472,7 @@ function FormApolice({
               type="button"
               onClick={fecharModal}
               disabled={salvando}
-              className="h-11 rounded-md border border-white/10 px-5 text-sm font-bold text-[#A1A1AA] transition hover:border-white/30 hover:text-white disabled:opacity-50"
+              className="h-11 rounded-md border border-white/10 px-5 text-sm uppercase font-bold text-[#A1A1AA] transition hover:border-white/30 hover:text-white disabled:opacity-50"
             >
               Cancelar
             </button>
@@ -480,10 +480,24 @@ function FormApolice({
             <button
               type="submit"
               disabled={salvando}
+              className="h-11 min-w-[140px] inline-flex items-center justify-center rounded-md border border-[#22D3EE]/25 bg-[#F0F2F4]/[0.035] px-5 text-center text-sm font-black shadow-[0_0_15px_rgba(34,211,238,0.05)] transition duration-200 hover:border-[#22D3EE]/45 hover:bg-[#F0F2F4]/[0.055] disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              {salvando ? (
+                <CircleNotch size={18} weight="bold" className="animate-spin text-[#22D3EE]" />
+              ) : (
+                <span className="animated-gradient-text uppercase tracking-[0.08rem] font-bold">
+                  {apoliceEditando ? 'Salvar' : 'Cadastrar'}
+                </span>
+              )}
+            </button>
+
+            {/* <button
+              type="submit"
+              disabled={salvando}
               className="h-11 rounded-md bg-[#D946EF] px-5 text-sm font-bold text-white transition duration-300 ease-out hover:scale-105 hover:bg-[#FF4FD8] hover:shadow-[0_0_20px_rgba(217,70,239,0.6)] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {salvando ? "Salvando..." : "Salvar"}
-            </button>
+            </button> */}
           </div>
         </form>
       </div>

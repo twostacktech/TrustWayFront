@@ -33,10 +33,10 @@ function NavBarAdm() {
           <div className="flex items-center gap-6">
             <Link
               to="/home"
-              className="flex items-center gap-2 border-r border-white/10 pr-6 text-sm text-[#A1A1AA] transition hover:text-[#FAFAFA]"
+              className="flex items-center gap-2 border-r border-white/10 pr-6 text-sm uppercase text-[#A1A1AA] transition hover:text-[#FAFAFA]"
             >
               <ArrowLeft size={17} weight="bold" />
-              Voltar ao site
+              Voltar para a home
             </Link>
 
             <div>
