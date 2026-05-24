@@ -378,6 +378,23 @@ export function MinhasApolices() {
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
+            <div className="inline-flex h-11 items-center gap-2 rounded-md border border-white/10 bg-white/[0.05] px-4 text-sm font-bold text-[#FAFAFA]">
+              <User size={16} className="text-[#A1A1AA]" />
+              <span className="max-w-[140px] truncate">{nomeCliente}</span>
+            </div>
+            <Link
+              to="/home"
+              onClick={sair}
+              className="group inline-flex h-11 w-fit items-center justify-center rounded-md border border-[#22D3EE]/25 bg-[#F0F2F4]/[0.035] px-6 text-center text-sm transition duration-200 hover:-translate-y-0.5 hover:scale-[1.03] hover:border-[#22D3EE]/45 hover:bg-[#F0F2F4]/[0.055] shadow-[0_0_20px_rgba(34,211,238,0.08)]"
+            >
+              <span className="animated-gradient-text flex items-center gap-2 tracking-[0.12rem] text-xl">
+                <SignOut size={18} className="text-[#D946EF]" />
+                Sair
+              </span>
+            </Link>
+          </div>
+
+          {/* <div className="flex flex-wrap items-center gap-3">
             <div className="inline-flex h-10 items-center gap-2 rounded-lg border border-white/10 bg-white/[0.05] px-4 text-sm font-bold text-[#FAFAFA]">
               <User size={16} className="text-[#A1A1AA]" />
               <span className="max-w-[140px] truncate">{nomeCliente}</span>
@@ -390,7 +407,7 @@ export function MinhasApolices() {
               <SignOut size={16} weight="bold" />
               Sair
             </Link>
-          </div>
+          </div> */}
         </div>
 
         {erro && (
@@ -467,9 +484,13 @@ export function MinhasApolices() {
                       {apolice.veiculo?.marca || "Veículo"} {apolice.veiculo?.modelo || ""}
                     </h2>
                     <p className="mt-1 text-sm text-[#A1A1AA]">Ano Modelo: {apolice.veiculo?.ano || "-"}</p>
-                    <div className="mt-2 text-sm">
+                    {/* <div className="mt-2 text-sm">
                       <p className="font-['JetBrains_Mono'] font-mono text-xs font-bold uppercase tracking-widest text-[#D946EF]">Plano de Cobertura</p>
                       <p className="text-xl font-bold text-[#D946EF]">{apolice.cobertura}</p>
+                    </div> */}
+                    <div className="mt-2 text-sm">
+                      <p className="font-['JetBrains_Mono'] font-mono text-xs font-bold uppercase tracking-widest text-[#22D3EE]">Plano de Cobertura</p>
+                      <p className="text-xl font-bold text-[#22D3EE]">{apolice.cobertura}</p>
                     </div>
                   </div>
 
@@ -510,9 +531,15 @@ export function MinhasApolices() {
                     </div>
 
                     <div className="space-y-4">
+                      {/* <div>
+                          <p className="font-['JetBrains_Mono'] font-mono text-[10px] uppercase tracking-widest text-[#A1A1AA]">Mensalidade</p>
+                          <p className="mt-1 font-['Anton'] text-4xl tracking-wide text-[#D946EF]">
+                            {formatarMoeda(apolice.mensalidade)}
+                          </p>
+                        </div> */}
                       <div>
                         <p className="font-['JetBrains_Mono'] font-mono text-[10px] uppercase tracking-widest text-[#A1A1AA]">Mensalidade</p>
-                        <p className="mt-1 font-['Anton'] text-4xl tracking-wide text-[#D946EF]">
+                        <p className="animated-gradient-text mt-1 w-fit font-['Anton'] text-4xl tracking-wide font-black">
                           {formatarMoeda(apolice.mensalidade)}
                         </p>
                       </div>
@@ -569,7 +596,7 @@ export function MinhasApolices() {
           )}
         </div>
 
-        <div className="mt-8 flex flex-col items-start justify-between gap-4 rounded-lg border border-[#D946EF]/30 bg-[#D946EF]/10 p-6 sm:flex-row sm:items-center">
+        {/* <div className="mt-8 flex flex-col items-start justify-between gap-4 rounded-lg border border-[#D946EF]/30 bg-[#D946EF]/10 p-6 sm:flex-row sm:items-center">
           <div className="flex gap-3 items-start">
             <Warning className="mt-0.5 h-5 w-5 shrink-0 text-[#D946EF]" />
             <div>
@@ -586,6 +613,33 @@ export function MinhasApolices() {
             className="inline-flex h-11 w-full shrink-0 items-center justify-center rounded-lg bg-[#D946EF] px-5 text-sm font-bold uppercase tracking-wider text-white transition-all duration-300 ease-out hover:scale-105 hover:bg-[#FF4FD8] hover:shadow-[0_0_20px_rgba(217,70,239,0.6)] sm:w-auto"
           >
             Acionar Seguro
+          </a>
+        </div> */}
+
+        <div className="mt-8 relative overflow-hidden rounded-2xl border border-[#22D3EE]/15 bg-[#F0F2F4]/[0.025] backdrop-blur-md p-6 shadow-[0_0_50px_rgba(34,211,238,0.05)] flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+
+          {/* Detalhe de iluminação sutil de fundo no topo do container */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-[2px] bg-gradient-to-r from-transparent via-[#22D3EE]/40 to-transparent" />
+
+          <div className="flex gap-3 items-start relative z-10">
+            <Warning className="mt-0.5 h-5 w-5 shrink-0 text-[#22D3EE]" />
+            <div>
+              <p className="font-medium text-sm text-[#F0F2F4]">Precisa de assistência ou sofreu um sinistro?</p>
+              <p className="mt-0.5 text-xs text-[#A1A1AA]">
+                Nossa central de suporte funciona 24 horas por dia para colisões, guinchos e chaveiro.
+              </p>
+            </div>
+          </div>
+
+          <a
+            href="https://wa.me/5511999999999?text=Ol%C3%A1%20Trustway%2C%20preciso%20de%20assist%C3%AAncia."
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group inline-flex h-11 w-full shrink-0 items-center justify-center rounded-lg border border-[#22D3EE]/25 bg-[#F0F2F4]/[0.035] px-6 text-center text-sm transition duration-200 hover:-translate-y-0.5 hover:border-[#22D3EE]/45 hover:bg-[#F0F2F4]/[0.055] shadow-[0_0_20px_rgba(34,211,238,0.08)] sm:w-auto relative z-10"
+          >
+            <span className="animated-gradient-text uppercase tracking-[0.12rem] font-bold">
+              Acionar Seguro
+            </span>
           </a>
         </div>
       </main>
