@@ -42,6 +42,12 @@ type ApoliceRelatorio = Apolice & {
     createdAt?: string;
 };
 
+type PontoGraficoReceita = {
+    label: string;
+    valor: number;
+    detalhe: string;
+};
+
 const obterTokenSalvo = () =>
     localStorage.getItem("token") ??
     localStorage.getItem("authToken") ??
@@ -139,6 +145,11 @@ function obterDescricaoCobertura(apolice: ApoliceRelatorio) {
     return percentual ? `${percentual}% de cobertura` : "Sem cobertura";
 }
 
+function apoliceEstaVigente(apolice: ApoliceRelatorio) {
+    const status = apolice.status?.toLowerCase().trim();
+    return !status || ["ativo", "ativa", "vigente"].includes(status);
+}
+
 function calcularValorSegurado(apolice: ApoliceRelatorio) {
     const valorSegurado = normalizarValorVeiculo(
         valorNumerico(apolice.valorSegurado ?? apolice.valor_segurado)
@@ -203,7 +214,7 @@ const dashboardCardVariants: Variants = {
     },
 };
 
-function KpiCard({ icon, label, value, detail }: { icon: ReactNode; label: string; value: string; detail?: string }) {
+function KpiCard({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
     return (
         <motion.div
             variants={dashboardCardVariants}
@@ -218,15 +229,15 @@ function KpiCard({ icon, label, value, detail }: { icon: ReactNode; label: strin
                 </span>
             </div>
             <p className="mt-5 font-['JetBrains_Mono'] font-mono text-3xl font-semibold text-[#FAFAFA]">{value}</p>
-            {detail && <p className="mt-3 text-xs text-[#A1A1AA]">{detail}</p>}
         </motion.div>
     );
 }
 
-function Sparkline({ valores }: { valores: number[] }) {
+function Sparkline({ pontosReceita }: { pontosReceita: PontoGraficoReceita[] }) {
     const [pontoAtivo, setPontoAtivo] = useState<number | null>(null);
     const largura = 520;
     const altura = 150;
+    const valores = pontosReceita.map((ponto) => ponto.valor);
     const maior = Math.max(...valores, 1);
     const menor = Math.min(...valores, 0);
     const intervalo = Math.max(maior - menor, 1);
@@ -314,10 +325,13 @@ function Sparkline({ valores }: { valores: number[] }) {
                     }}
                 >
                     <p className="font-['JetBrains_Mono'] font-mono text-[10px] uppercase tracking-widest text-[#A1A1AA]">
-                        Ponto {pontoAtivo + 1}
+                        {pontosReceita[pontoAtivo].label}
                     </p>
                     <p className="mt-1 font-['JetBrains_Mono'] font-mono text-xs font-semibold text-[#22D3EE]">
                         {fmtBRL(valores[pontoAtivo])}
+                    </p>
+                    <p className="mt-1 text-[10px] text-[#A1A1AA]">
+                        {pontosReceita[pontoAtivo].detalhe}
                     </p>
                 </div>
             )}
@@ -417,7 +431,22 @@ function Relatorios() {
             void carregarRelatorio();
         }, 30000);
 
-        return () => window.clearInterval(intervalo);
+        function atualizarQuandoVoltarParaPagina() {
+            if (document.visibilityState === "visible") {
+                void carregarRelatorio();
+            }
+        }
+
+        window.addEventListener("focus", atualizarQuandoVoltarParaPagina);
+        window.addEventListener("pageshow", atualizarQuandoVoltarParaPagina);
+        document.addEventListener("visibilitychange", atualizarQuandoVoltarParaPagina);
+
+        return () => {
+            window.clearInterval(intervalo);
+            window.removeEventListener("focus", atualizarQuandoVoltarParaPagina);
+            window.removeEventListener("pageshow", atualizarQuandoVoltarParaPagina);
+            document.removeEventListener("visibilitychange", atualizarQuandoVoltarParaPagina);
+        };
     }, [carregarRelatorio]);
 
     const metricas = useMemo(() => {
@@ -432,11 +461,10 @@ function Relatorios() {
         });
 
         const totalClientes = clientes.length || clientesPorApolice.size;
-        const apolicesVigentes = apolices.filter((apolice) => {
-            const status = apolice.status?.toLowerCase();
-            return !status || ["ativo", "ativa", "vigente"].includes(status);
-        });
-        const baseApolices = apolicesVigentes.length ? apolicesVigentes : apolices;
+        const totalApolicesCadastradas = apolices.length;
+        const apolicesVigentes = apolices.filter(apoliceEstaVigente);
+        const apolicesForaDeVigencia = Math.max(totalApolicesCadastradas - apolicesVigentes.length, 0);
+        const baseApolices = apolicesVigentes;
 
         const receitaMensal = baseApolices.reduce(
             (soma, apolice) => soma + valorNumerico(apolice.mensalidade),
@@ -453,7 +481,9 @@ function Relatorios() {
             : 0;
 
         const ticketMedio = baseApolices.length ? receitaMensal / baseApolices.length : 0;
-        const indiceVigencia = apolices.length ? (baseApolices.length / apolices.length) * 100 : 0;
+        const indiceVigencia = totalApolicesCadastradas
+            ? (baseApolices.length / totalApolicesCadastradas) * 100
+            : 0;
 
         const porCobertura = baseApolices.reduce<Record<string, number>>((acc, apolice) => {
             const nome = obterDescricaoCobertura(apolice);
@@ -465,12 +495,21 @@ function Relatorios() {
             .sort((a, b) => String(obterDataApolice(b)).localeCompare(String(obterDataApolice(a))))
             .slice(0, 5);
 
-        const graficoReceita = [...baseApolices]
+        const pontosReceita = [...baseApolices]
             .sort((a, b) => String(obterDataApolice(a)).localeCompare(String(obterDataApolice(b))))
-            .slice(-8)
-            .map((apolice) => valorNumerico(apolice.mensalidade));
+            .map((apolice) => {
+                const cliente = obterClienteApolice(apolice, clientes);
 
-        const barrasReceita = [...recentes]
+                return {
+                    label: `AP-${String(apolice.id).padStart(4, "0")}`,
+                    valor: valorNumerico(apolice.mensalidade),
+                    detalhe: cliente?.nome ?? "Cliente nao informado",
+                };
+            });
+
+        const barrasReceita = [...baseApolices]
+            .sort((a, b) => String(obterDataApolice(b)).localeCompare(String(obterDataApolice(a))))
+            .slice(0, 5)
             .reverse()
             .map((apolice) => ({
                 label: `AP-${String(apolice.id).padStart(4, "0")}`,
@@ -483,7 +522,9 @@ function Relatorios() {
 
         return {
             totalClientes,
-            totalApolices: baseApolices.length,
+            totalApolices: totalApolicesCadastradas,
+            totalApolicesVigentes: baseApolices.length,
+            apolicesForaDeVigencia,
             receitaMensal,
             coberturaTotal,
             percentualMedioCobertura,
@@ -491,7 +532,7 @@ function Relatorios() {
             indiceVigencia,
             porCobertura,
             recentes,
-            graficoReceita: graficoReceita.length ? graficoReceita : [0, 12, 20, 16, 28, 24, 34, 42],
+            pontosReceita,
             barrasReceita,
             maioresCoberturas,
         };
@@ -551,21 +592,27 @@ function Relatorios() {
                     >
                         <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
                             <div>
-                                <p className="font-['JetBrains_Mono'] font-mono text-xs uppercase tracking-widest text-[#A1A1AA]">Receita mensal</p>
+                                <p className="font-['JetBrains_Mono'] font-mono text-xs uppercase tracking-widest text-[#A1A1AA]">Receita mensal vigente</p>
                                 <p className="mt-3 font-['JetBrains_Mono'] font-mono text-4xl font-semibold text-[#FAFAFA]">{fmtBRL(metricas.receitaMensal)}</p>
                                 <p className="mt-2 text-sm text-[#A1A1AA]">
-                                    Ticket médio de {fmtBRL(metricas.ticketMedio)} por apólice vigente.
+                                    Soma das mensalidades das apólices vigentes. Cada ponto abaixo representa uma apólice.
                                 </p>
                             </div>
 
                             <div className="inline-flex w-fit items-center gap-2 rounded-md border border-[#22D3EE]/30 bg-[#22D3EE]/10 px-3 py-2 font-['JetBrains_Mono'] font-mono text-xs text-[#22D3EE]">
                                 <TrendUp size={16} weight="bold" />
-                                {metricas.totalApolices} apólices
+                                {metricas.totalApolicesVigentes} vigentes
                             </div>
                         </div>
 
                         <div className="mt-6">
-                            <Sparkline valores={metricas.graficoReceita} />
+                            {metricas.pontosReceita.length > 0 ? (
+                                <Sparkline pontosReceita={metricas.pontosReceita} />
+                            ) : (
+                                <div className="flex h-44 items-center justify-center rounded-md border border-white/10 bg-white/[0.04] text-sm text-[#A1A1AA]">
+                                    Nenhuma apólice vigente para calcular receita.
+                                </div>
+                            )}
                         </div>
                     </motion.div>
 
@@ -576,8 +623,13 @@ function Relatorios() {
                     >
                         <div className="flex items-start justify-between gap-4">
                             <div>
-                                <p className="font-['JetBrains_Mono'] font-mono text-xs uppercase tracking-widest text-[#A1A1AA]">Status da carteira</p>
-                                <p className="mt-3 text-2xl font-semibold text-[#FAFAFA]">Operação ativa</p>
+                                <p className="font-['JetBrains_Mono'] font-mono text-xs uppercase tracking-widest text-[#A1A1AA]">Apólices vigentes</p>
+                                <p className="mt-3 text-2xl font-semibold text-[#FAFAFA]">
+                                    {metricas.totalApolicesVigentes}
+                                </p>
+                                <p className="mt-1 text-sm text-[#A1A1AA]">
+                                    {metricas.totalApolices} cadastradas no total
+                                </p>
                             </div>
                             <ShieldCheck size={28} className="text-[#FF4FD8]" weight="bold" />
                         </div>
@@ -592,8 +644,8 @@ function Relatorios() {
                                 <p className="mt-2 font-['JetBrains_Mono'] font-mono text-lg text-[#FAFAFA]">{metricas.percentualMedioCobertura.toFixed(0)}%</p>
                             </div>
                             <div className="rounded-md border border-white/10 bg-white/[0.04] p-3">
-                                <p className="font-['JetBrains_Mono'] font-mono text-[10px] uppercase tracking-widest text-[#A1A1AA]">Clientes</p>
-                                <p className="mt-2 font-['JetBrains_Mono'] font-mono text-lg text-[#FAFAFA]">{metricas.totalClientes}</p>
+                                <p className="font-['JetBrains_Mono'] font-mono text-[10px] uppercase tracking-widest text-[#A1A1AA]">Fora de vigência</p>
+                                <p className="mt-2 font-['JetBrains_Mono'] font-mono text-lg text-[#FAFAFA]">{metricas.apolicesForaDeVigencia}</p>
                             </div>
                         </div>
                     </motion.div>
@@ -604,10 +656,10 @@ function Relatorios() {
                     style={{ y: kpisY }}
                     className="relative z-10 mb-6 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4"
                 >
-                    <KpiCard icon={<UsersThree className="h-5 w-5 text-[#22D3EE]" />} label="Clientes ativos" value={String(metricas.totalClientes)} detail="Base sincronizada" />
-                    <KpiCard icon={<FileText className="h-5 w-5 text-[#22D3EE]" />} label="Apólices vigentes" value={String(metricas.totalApolices)} detail={`${metricas.indiceVigencia.toFixed(0)}% da carteira`} />
-                    <KpiCard icon={<CurrencyDollar className="h-5 w-5 text-[#22D3EE]" />} label="Ticket médio" value={fmtBRL(metricas.ticketMedio)} detail="Mensalidade média" />
-                    <KpiCard icon={<ChartBar className="h-5 w-5 text-[#22D3EE]" />} label="Cobertura total" value={fmtBRL(metricas.coberturaTotal)} detail="Valor protegido" />
+                    <KpiCard icon={<UsersThree className="h-5 w-5 text-[#22D3EE]" />} label="Clientes cadastrados" value={String(metricas.totalClientes)} />
+                    <KpiCard icon={<FileText className="h-5 w-5 text-[#22D3EE]" />} label="Apólices cadastradas" value={String(metricas.totalApolices)} />
+                    <KpiCard icon={<CurrencyDollar className="h-5 w-5 text-[#22D3EE]" />} label="Receita mensal vigente" value={fmtBRL(metricas.receitaMensal)} />
+                    <KpiCard icon={<ChartBar className="h-5 w-5 text-[#22D3EE]" />} label="Cobertura vigente" value={fmtBRL(metricas.coberturaTotal)} />
                 </motion.div>
 
                 <motion.div
@@ -621,8 +673,8 @@ function Relatorios() {
                         className="rounded-lg border border-white/10 bg-white/[0.05] p-6 shadow-[0_18px_45px_rgba(0,0,0,0.24)] transition-colors duration-300 hover:border-[#22D3EE] hover:shadow-[0_0_22px_rgba(34,211,238,0.24)]"
                     >
                         <div className="mb-6 flex items-center justify-between gap-4">
-                            <p className="font-['JetBrains_Mono'] font-mono text-xs uppercase tracking-widest text-[#A1A1AA]">Receita por apólice</p>
-                            <span className="font-['JetBrains_Mono'] font-mono text-xs text-[#A1A1AA]">Recentes</span>
+                            <p className="font-['JetBrains_Mono'] font-mono text-xs uppercase tracking-widest text-[#A1A1AA]">Mensalidade por apólice vigente</p>
+                            <span className="font-['JetBrains_Mono'] font-mono text-xs text-[#A1A1AA]">Últimas 5</span>
                         </div>
 
                         <div className="flex h-44 items-end gap-3">
@@ -650,7 +702,7 @@ function Relatorios() {
                                 ))
                             ) : (
                                 <p className="self-center text-sm text-[#A1A1AA]">
-                                    {carregando ? "Carregando receita..." : "Nenhuma apólice encontrada."}
+                                    {carregando ? "Carregando receita..." : "Nenhuma apólice vigente encontrada."}
                                 </p>
                             )}
                         </div>
@@ -664,7 +716,7 @@ function Relatorios() {
                         <div className="mb-6 flex items-start justify-between gap-4">
                             <div>
                                 <p className="font-['JetBrains_Mono'] font-mono text-xs uppercase tracking-widest text-[#A1A1AA]">Distribuição por cobertura</p>
-                                <p className="mt-2 text-sm text-[#A1A1AA]">Planos mais usados na carteira atual.</p>
+                                <p className="mt-2 text-sm text-[#A1A1AA]">Percentuais usados nas apólices vigentes.</p>
                             </div>
                             <p className="font-['JetBrains_Mono'] font-mono text-2xl text-[#FAFAFA]">{metricas.percentualMedioCobertura.toFixed(0)}%</p>
                         </div>
@@ -672,7 +724,7 @@ function Relatorios() {
                         <div className="space-y-4">
                             {metricas.maioresCoberturas.length > 0 ? (
                                 metricas.maioresCoberturas.map(([nome, count]) => {
-                                    const pct = (count / Math.max(metricas.totalApolices, 1)) * 100;
+                                    const pct = (count / Math.max(metricas.totalApolicesVigentes, 1)) * 100;
                                     return (
                                         <div key={nome} className="group relative">
                                             <div className="flex justify-between gap-4 text-sm mb-1">
