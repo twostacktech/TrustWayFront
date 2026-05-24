@@ -1,11 +1,15 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
+import type { Variants } from "framer-motion";
 import {
     UsersThree,
     FileText,
     CurrencyDollar,
     ChartBar,
     ArrowClockwise,
+    ShieldCheck,
+    TrendUp,
 } from "@phosphor-icons/react";
 import { AxiosError } from "axios";
 
@@ -36,6 +40,12 @@ type ApoliceRelatorio = Apolice & {
     cobertura?: string;
     data_inicio?: string;
     createdAt?: string;
+};
+
+type PontoGraficoReceita = {
+    label: string;
+    valor: number;
+    detalhe: string;
 };
 
 const obterTokenSalvo = () =>
@@ -135,6 +145,11 @@ function obterDescricaoCobertura(apolice: ApoliceRelatorio) {
     return percentual ? `${percentual}% de cobertura` : "Sem cobertura";
 }
 
+function apoliceEstaVigente(apolice: ApoliceRelatorio) {
+    const status = apolice.status?.toLowerCase().trim();
+    return !status || ["ativo", "ativa", "vigente"].includes(status);
+}
+
 function calcularValorSegurado(apolice: ApoliceRelatorio) {
     const valorSegurado = normalizarValorVeiculo(
         valorNumerico(apolice.valorSegurado ?? apolice.valor_segurado)
@@ -172,14 +187,193 @@ function mensagemErro(error: unknown) {
     return "Nao foi possivel carregar os relatorios agora.";
 }
 
+const dashboardGridVariants: Variants = {
+    hidden: {},
+    visible: {
+        transition: {
+            staggerChildren: 0.16,
+            delayChildren: 0.08,
+        },
+    },
+};
+
+const dashboardCardVariants: Variants = {
+    hidden: {
+        opacity: 0,
+        y: 28,
+        scale: 0.98,
+    },
+    visible: {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        transition: {
+            duration: 0.85,
+            ease: "easeOut",
+        },
+    },
+};
+
 function KpiCard({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
     return (
-        <div className="rounded-3xl border border-purple-800 bg-slate-950 p-6 shadow-sm">
-            <div className="flex items-center justify-between text-slate-400">
-                <p className="font-mono text-[10px] uppercase tracking-[0.2em]">{label}</p>
-                {icon}
+        <motion.div
+            variants={dashboardCardVariants}
+            whileHover={{ y: -8, scale: 1.055 }}
+            transition={{ type: "spring", stiffness: 260, damping: 18 }}
+            className="group min-h-[138px] rounded-lg border border-white/10 bg-[linear-gradient(145deg,rgba(255,255,255,0.075),rgba(255,255,255,0.025))] p-6 shadow-[0_18px_45px_rgba(0,0,0,0.24)] transition-colors duration-300 hover:z-10 hover:border-[#22D3EE] hover:bg-[#22D3EE]/10 hover:shadow-[0_0_28px_rgba(34,211,238,0.32)]"
+        >
+            <div className="flex items-start justify-between gap-4 text-[#A1A1AA]">
+                <p className="font-['JetBrains_Mono'] font-mono text-[10px] uppercase tracking-widest">{label}</p>
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-md border border-[#22D3EE]/25 bg-[#22D3EE]/10 text-[#22D3EE] shadow-[0_0_16px_rgba(34,211,238,0.15)] transition-all duration-300 group-hover:border-[#22D3EE] group-hover:bg-[#22D3EE]/20 group-hover:shadow-[0_0_22px_rgba(34,211,238,0.38)]">
+                    {icon}
+                </span>
             </div>
-            <p className="mt-4 text-3xl font-semibold text-white tracking-tight">{value}</p>
+            <p className="mt-5 font-['JetBrains_Mono'] font-mono text-3xl font-semibold text-[#FAFAFA]">{value}</p>
+        </motion.div>
+    );
+}
+
+function Sparkline({ pontosReceita }: { pontosReceita: PontoGraficoReceita[] }) {
+    const [pontoAtivo, setPontoAtivo] = useState<number | null>(null);
+    const largura = 520;
+    const altura = 150;
+    const valores = pontosReceita.map((ponto) => ponto.valor);
+    const maior = Math.max(...valores, 1);
+    const menor = Math.min(...valores, 0);
+    const intervalo = Math.max(maior - menor, 1);
+
+    const pontos = valores.map((valor, index) => {
+        const x = valores.length === 1 ? largura / 2 : (index / (valores.length - 1)) * largura;
+        const y = altura - ((valor - menor) / intervalo) * (altura - 34) - 16;
+        return { x, y };
+    });
+
+    const path = pontos.map((ponto) => `${ponto.x},${ponto.y}`).join(" ");
+    const pontoSelecionado = pontoAtivo !== null ? pontos[pontoAtivo] : null;
+
+    return (
+        <div className="relative">
+            <svg
+                viewBox={`0 0 ${largura} ${altura}`}
+                className="h-44 w-full overflow-visible"
+                onMouseLeave={() => setPontoAtivo(null)}
+            >
+                <defs>
+                    <linearGradient id="sparklineStroke" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stopColor="#22D3EE" />
+                        <stop offset="52%" stopColor="#4F46E5" />
+                        <stop offset="100%" stopColor="#FF4FD8" />
+                    </linearGradient>
+                    <linearGradient id="sparklineFill" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#22D3EE" stopOpacity="0.28" />
+                        <stop offset="100%" stopColor="#22D3EE" stopOpacity="0" />
+                    </linearGradient>
+                </defs>
+                <motion.polyline
+                    points={`0,${altura} ${path} ${largura},${altura}`}
+                    fill="url(#sparklineFill)"
+                    stroke="none"
+                    initial={{ opacity: 0, scaleY: 0.2 }}
+                    animate={{ opacity: 1, scaleY: 1 }}
+                    transition={{ duration: 0.85, ease: "easeOut", delay: 0.28 }}
+                    style={{ originY: 1 }}
+                />
+                <motion.polyline
+                    points={path}
+                    fill="none"
+                    stroke="url(#sparklineStroke)"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="4"
+                    initial={{ pathLength: 0, opacity: 0 }}
+                    animate={{ pathLength: 1, opacity: 1 }}
+                    transition={{ duration: 1.25, ease: "easeOut", delay: 0.38 }}
+                />
+                {pontos.map((ponto, index) => (
+                    <g key={`${ponto.x}-${index}`} onMouseEnter={() => setPontoAtivo(index)}>
+                        {pontoAtivo === index && (
+                            <line
+                                x1={ponto.x}
+                                x2={ponto.x}
+                                y1="12"
+                                y2={altura - 8}
+                                stroke="rgba(34,211,238,0.25)"
+                                strokeWidth="1"
+                            />
+                        )}
+                        <motion.circle
+                            cx={ponto.x}
+                            cy={ponto.y}
+                            r={pontoAtivo === index ? "6" : "4"}
+                            className="fill-[#22D3EE] drop-shadow-[0_0_8px_rgba(34,211,238,0.85)]"
+                            initial={{ scale: 0, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            transition={{ duration: 0.34, ease: "easeOut", delay: 0.7 + index * 0.06 }}
+                        />
+                        <circle cx={ponto.x} cy={ponto.y} r="18" fill="transparent" />
+                    </g>
+                ))}
+            </svg>
+
+            {pontoSelecionado && pontoAtivo !== null && (
+                <div
+                    className="pointer-events-none absolute z-20 min-w-[92px] rounded-md border border-[#22D3EE]/45 bg-[#08111F]/95 px-3 py-2 text-center shadow-[0_0_18px_rgba(34,211,238,0.35)]"
+                    style={{
+                        left: `${(pontoSelecionado.x / largura) * 100}%`,
+                        top: `${(pontoSelecionado.y / altura) * 100}%`,
+                        transform: "translate(-50%, -118%)",
+                    }}
+                >
+                    <p className="font-['JetBrains_Mono'] font-mono text-[10px] uppercase tracking-widest text-[#A1A1AA]">
+                        {pontosReceita[pontoAtivo].label}
+                    </p>
+                    <p className="mt-1 font-['JetBrains_Mono'] font-mono text-xs font-semibold text-[#22D3EE]">
+                        {fmtBRL(valores[pontoAtivo])}
+                    </p>
+                    <p className="mt-1 text-[10px] text-[#A1A1AA]">
+                        {pontosReceita[pontoAtivo].detalhe}
+                    </p>
+                </div>
+            )}
+        </div>
+    );
+}
+
+function ProgressRing({ valor }: { valor: number }) {
+    const porcentagem = Math.max(0, Math.min(100, valor));
+    const raio = 54;
+    const circunferencia = 2 * Math.PI * raio;
+    const offset = circunferencia - (porcentagem / 100) * circunferencia;
+
+    return (
+        <div className="relative grid place-items-center">
+            <svg viewBox="0 0 140 140" className="h-40 w-40 -rotate-90">
+                <circle cx="70" cy="70" r={raio} fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="12" />
+                <motion.circle
+                    cx="70"
+                    cy="70"
+                    r={raio}
+                    fill="none"
+                    stroke="url(#ringGradient)"
+                    strokeLinecap="round"
+                    strokeWidth="12"
+                    strokeDasharray={circunferencia}
+                    initial={{ strokeDashoffset: circunferencia }}
+                    animate={{ strokeDashoffset: offset }}
+                    transition={{ duration: 1.15, ease: "easeOut", delay: 0.35 }}
+                />
+                <defs>
+                    <linearGradient id="ringGradient" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0%" stopColor="#22D3EE" />
+                        <stop offset="55%" stopColor="#4F46E5" />
+                        <stop offset="100%" stopColor="#FF4FD8" />
+                    </linearGradient>
+                </defs>
+            </svg>
+            <div className="absolute text-center">
+                <p className="font-['JetBrains_Mono'] font-mono text-3xl font-semibold text-[#FAFAFA]">{porcentagem.toFixed(0)}%</p>
+                <p className="text-xs text-[#A1A1AA]">vigentes</p>
+            </div>
         </div>
     );
 }
@@ -190,6 +384,11 @@ function Relatorios() {
     const [carregando, setCarregando] = useState(true);
     const [erro, setErro] = useState("");
     const [ultimaAtualizacao, setUltimaAtualizacao] = useState<Date | null>(null);
+    const { scrollYProgress } = useScroll();
+    const topoY = useTransform(scrollYProgress, [0, 1], [0, -28]);
+    const kpisY = useTransform(scrollYProgress, [0, 1], [0, -16]);
+    const graficosY = useTransform(scrollYProgress, [0, 1], [0, 22]);
+    const listaY = useTransform(scrollYProgress, [0, 1], [0, -12]);
 
     const carregarRelatorio = useCallback(async () => {
         const token = obterTokenSalvo();
@@ -232,7 +431,22 @@ function Relatorios() {
             void carregarRelatorio();
         }, 30000);
 
-        return () => window.clearInterval(intervalo);
+        function atualizarQuandoVoltarParaPagina() {
+            if (document.visibilityState === "visible") {
+                void carregarRelatorio();
+            }
+        }
+
+        window.addEventListener("focus", atualizarQuandoVoltarParaPagina);
+        window.addEventListener("pageshow", atualizarQuandoVoltarParaPagina);
+        document.addEventListener("visibilitychange", atualizarQuandoVoltarParaPagina);
+
+        return () => {
+            window.clearInterval(intervalo);
+            window.removeEventListener("focus", atualizarQuandoVoltarParaPagina);
+            window.removeEventListener("pageshow", atualizarQuandoVoltarParaPagina);
+            document.removeEventListener("visibilitychange", atualizarQuandoVoltarParaPagina);
+        };
     }, [carregarRelatorio]);
 
     const metricas = useMemo(() => {
@@ -247,11 +461,10 @@ function Relatorios() {
         });
 
         const totalClientes = clientes.length || clientesPorApolice.size;
-        const apolicesVigentes = apolices.filter((apolice) => {
-            const status = apolice.status?.toLowerCase();
-            return !status || ["ativo", "ativa", "vigente"].includes(status);
-        });
-        const baseApolices = apolicesVigentes.length ? apolicesVigentes : apolices;
+        const totalApolicesCadastradas = apolices.length;
+        const apolicesVigentes = apolices.filter(apoliceEstaVigente);
+        const apolicesForaDeVigencia = Math.max(totalApolicesCadastradas - apolicesVigentes.length, 0);
+        const baseApolices = apolicesVigentes;
 
         const receitaMensal = baseApolices.reduce(
             (soma, apolice) => soma + valorNumerico(apolice.mensalidade),
@@ -263,6 +476,15 @@ function Relatorios() {
             0,
         );
 
+        const percentualMedioCobertura = baseApolices.length
+            ? baseApolices.reduce((soma, apolice) => soma + valorNumerico(apolice.percentualCobertura), 0) / baseApolices.length
+            : 0;
+
+        const ticketMedio = baseApolices.length ? receitaMensal / baseApolices.length : 0;
+        const indiceVigencia = totalApolicesCadastradas
+            ? (baseApolices.length / totalApolicesCadastradas) * 100
+            : 0;
+
         const porCobertura = baseApolices.reduce<Record<string, number>>((acc, apolice) => {
             const nome = obterDescricaoCobertura(apolice);
             acc[nome] = (acc[nome] ?? 0) + 1;
@@ -273,26 +495,68 @@ function Relatorios() {
             .sort((a, b) => String(obterDataApolice(b)).localeCompare(String(obterDataApolice(a))))
             .slice(0, 5);
 
+        const pontosReceita = [...baseApolices]
+            .sort((a, b) => String(obterDataApolice(a)).localeCompare(String(obterDataApolice(b))))
+            .map((apolice) => {
+                const cliente = obterClienteApolice(apolice, clientes);
+
+                return {
+                    label: `AP-${String(apolice.id).padStart(4, "0")}`,
+                    valor: valorNumerico(apolice.mensalidade),
+                    detalhe: cliente?.nome ?? "Cliente nao informado",
+                };
+            });
+
+        const barrasReceita = [...baseApolices]
+            .sort((a, b) => String(obterDataApolice(b)).localeCompare(String(obterDataApolice(a))))
+            .slice(0, 5)
+            .reverse()
+            .map((apolice) => ({
+                label: `AP-${String(apolice.id).padStart(4, "0")}`,
+                valor: valorNumerico(apolice.mensalidade),
+            }));
+
+        const maioresCoberturas = Object.entries(porCobertura)
+            .sort(([, a], [, b]) => b - a)
+            .slice(0, 3);
+
         return {
             totalClientes,
-            totalApolices: baseApolices.length,
+            totalApolices: totalApolicesCadastradas,
+            totalApolicesVigentes: baseApolices.length,
+            apolicesForaDeVigencia,
             receitaMensal,
             coberturaTotal,
+            percentualMedioCobertura,
+            ticketMedio,
+            indiceVigencia,
             porCobertura,
             recentes,
+            pontosReceita,
+            barrasReceita,
+            maioresCoberturas,
         };
     }, [apolices, clientes]);
 
     const maiorQuantidade = Math.max(...Object.values(metricas.porCobertura), 1);
+    const maiorBarraReceita = Math.max(...metricas.barrasReceita.map((item) => item.valor), 1);
 
     return (
-        <section className="min-h-screen bg-gradient-to-br from-[#0a0a0a] via-[#0f0a1a] to-[#0a0a0a] px-6 py-10 md:px-16 lg:px-24">
-            <div className="max-w-6xl mx-auto">
-                <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <main className="min-h-screen bg-gradient-to-br from-[#0a0a0a] via-[#0f0a1a] to-[#0a0a0a] px-6 py-12 text-[#FAFAFA] antialiased md:px-16 font-['Inter']">
+            <motion.section
+                className="mx-auto w-full max-w-7xl"
+                initial="hidden"
+                animate="visible"
+                variants={dashboardGridVariants}
+            >
+                <motion.div
+                    variants={dashboardCardVariants}
+                    className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between"
+                >
                     <div>
-                        <p className="font-mono text-xs uppercase tracking-[0.2em] text-slate-400">Desempenho</p>
-                        <h1 className="mt-2 text-5xl font-semibold uppercase tracking-tight text-white">Relatórios</h1>
-                        <p className="mt-2 text-sm text-slate-500">
+                        <span className="font-['JetBrains_Mono'] font-mono text-xs uppercase tracking-widest text-[#A1A1AA]">Desempenho</span>
+                        <h1 className="mt-1 font-['Anton'] text-5xl uppercase tracking-wide text-[#FAFAFA]">Relatórios</h1>
+                        <p className="mt-2 text-sm text-[#A1A1AA]">
                             {ultimaAtualizacao
                                 ? `Atualizado em ${ultimaAtualizacao.toLocaleTimeString("pt-BR")}`
                                 : "Dados sincronizados com clientes e apólices"}
@@ -303,12 +567,12 @@ function Relatorios() {
                         type="button"
                         onClick={() => void carregarRelatorio()}
                         disabled={carregando}
-                        className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/[0.05] px-4 text-sm font-bold text-white transition hover:border-[#22D3EE] hover:text-[#22D3EE] disabled:cursor-not-allowed disabled:opacity-60"
+                        className="inline-flex h-10 w-fit items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/[0.05] px-5 text-sm font-bold tracking-wider text-[#FAFAFA] transition-all duration-300 ease-out hover:scale-105 hover:border-[#22D3EE] hover:bg-[#22D3EE]/10 hover:text-[#22D3EE] hover:shadow-[0_0_20px_rgba(34,211,238,0.5)] disabled:cursor-not-allowed disabled:opacity-60"
                     >
                         <ArrowClockwise size={16} className={carregando ? "animate-spin" : ""} />
                         Atualizar
                     </button>
-                </div>
+                </motion.div>
 
                 {erro && (
                     <div className="mb-6 rounded-lg border border-[#FF4FD8]/40 bg-[#FF4FD8]/10 px-4 py-3 text-sm text-[#FAFAFA]">
@@ -316,51 +580,192 @@ function Relatorios() {
                     </div>
                 )}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-                    <KpiCard icon={<UsersThree className="h-5 w-5 text-purple-400" />} label="Clientes ativos" value={String(metricas.totalClientes)} />
-                    <KpiCard icon={<FileText className="h-5 w-5 text-purple-400" />} label="Apólices vigentes" value={String(metricas.totalApolices)} />
-                    <KpiCard icon={<CurrencyDollar className="h-5 w-5 text-purple-400" />} label="Receita mensal" value={fmtBRL(metricas.receitaMensal)} />
-                    <KpiCard icon={<ChartBar className="h-5 w-5 text-purple-400" />} label="Cobertura total" value={fmtBRL(metricas.coberturaTotal)} />
-                </div>
+                <motion.div
+                    variants={dashboardGridVariants}
+                    style={{ y: topoY }}
+                    className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-[1.45fr_0.8fr]"
+                >
+                    <motion.div
+                        variants={dashboardCardVariants}
+                        whileHover={{ y: -4, scale: 1.005 }}
+                        className="overflow-visible rounded-lg border border-white/10 bg-[linear-gradient(135deg,rgba(34,211,238,0.12),rgba(255,79,216,0.08)_48%,rgba(255,255,255,0.04))] p-6 shadow-[0_24px_80px_rgba(0,0,0,0.35)] transition-colors duration-300 hover:border-[#22D3EE] hover:shadow-[0_0_26px_rgba(34,211,238,0.22)]"
+                    >
+                        <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
+                            <div>
+                                <p className="font-['JetBrains_Mono'] font-mono text-xs uppercase tracking-widest text-[#A1A1AA]">Receita mensal vigente</p>
+                                <p className="mt-3 font-['JetBrains_Mono'] font-mono text-4xl font-semibold text-[#FAFAFA]">{fmtBRL(metricas.receitaMensal)}</p>
+                                <p className="mt-2 text-sm text-[#A1A1AA]">
+                                    Soma das mensalidades das apólices vigentes. Cada ponto abaixo representa uma apólice.
+                                </p>
+                            </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div className="rounded-3xl border border-purple-800 bg-slate-950 p-6 shadow-sm">
-                        <p className="font-mono text-xs uppercase tracking-[0.2em] text-slate-400">Valor total segurado</p>
-                        <p className="mt-4 text-4xl font-semibold text-slate-100">{fmtBRL(metricas.coberturaTotal)}</p>
-                        <p className="mt-2 text-sm text-slate-500">
-                            Soma calculada pelo preço FIPE do veículo vezes o percentual de cobertura.
-                        </p>
-                    </div>
+                            <div className="inline-flex w-fit items-center gap-2 rounded-md border border-[#22D3EE]/30 bg-[#22D3EE]/10 px-3 py-2 font-['JetBrains_Mono'] font-mono text-xs text-[#22D3EE]">
+                                <TrendUp size={16} weight="bold" />
+                                {metricas.totalApolicesVigentes} vigentes
+                            </div>
+                        </div>
 
-                    <div className="rounded-3xl border border-purple-800 bg-slate-950 p-6 shadow-sm">
-                        <p className="font-mono text-xs uppercase tracking-[0.2em] text-slate-400 mb-4">Distribuição por cobertura</p>
+                        <div className="mt-6">
+                            {metricas.pontosReceita.length > 0 ? (
+                                <Sparkline pontosReceita={metricas.pontosReceita} />
+                            ) : (
+                                <div className="flex h-44 items-center justify-center rounded-md border border-white/10 bg-white/[0.04] text-sm text-[#A1A1AA]">
+                                    Nenhuma apólice vigente para calcular receita.
+                                </div>
+                            )}
+                        </div>
+                    </motion.div>
+
+                    <motion.div
+                        variants={dashboardCardVariants}
+                        whileHover={{ y: -4, scale: 1.005 }}
+                        className="rounded-lg border border-white/10 bg-white/[0.05] p-6 shadow-[0_24px_80px_rgba(0,0,0,0.35)] transition-colors duration-300 hover:border-[#FF4FD8] hover:bg-[#FF4FD8]/10 hover:shadow-[0_0_26px_rgba(255,79,216,0.22)]"
+                    >
+                        <div className="flex items-start justify-between gap-4">
+                            <div>
+                                <p className="font-['JetBrains_Mono'] font-mono text-xs uppercase tracking-widest text-[#A1A1AA]">Apólices vigentes</p>
+                                <p className="mt-3 text-2xl font-semibold text-[#FAFAFA]">
+                                    {metricas.totalApolicesVigentes}
+                                </p>
+                                <p className="mt-1 text-sm text-[#A1A1AA]">
+                                    {metricas.totalApolices} cadastradas no total
+                                </p>
+                            </div>
+                            <ShieldCheck size={28} className="text-[#FF4FD8]" weight="bold" />
+                        </div>
+
+                        <div className="mt-5 flex justify-center">
+                            <ProgressRing valor={metricas.indiceVigencia} />
+                        </div>
+
+                        <div className="mt-5 grid grid-cols-2 gap-3">
+                            <div className="rounded-md border border-white/10 bg-white/[0.04] p-3">
+                                <p className="font-['JetBrains_Mono'] font-mono text-[10px] uppercase tracking-widest text-[#A1A1AA]">Cobertura média</p>
+                                <p className="mt-2 font-['JetBrains_Mono'] font-mono text-lg text-[#FAFAFA]">{metricas.percentualMedioCobertura.toFixed(0)}%</p>
+                            </div>
+                            <div className="rounded-md border border-white/10 bg-white/[0.04] p-3">
+                                <p className="font-['JetBrains_Mono'] font-mono text-[10px] uppercase tracking-widest text-[#A1A1AA]">Fora de vigência</p>
+                                <p className="mt-2 font-['JetBrains_Mono'] font-mono text-lg text-[#FAFAFA]">{metricas.apolicesForaDeVigencia}</p>
+                            </div>
+                        </div>
+                    </motion.div>
+                </motion.div>
+
+                <motion.div
+                    variants={dashboardGridVariants}
+                    style={{ y: kpisY }}
+                    className="relative z-10 mb-6 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4"
+                >
+                    <KpiCard icon={<UsersThree className="h-5 w-5 text-[#22D3EE]" />} label="Clientes cadastrados" value={String(metricas.totalClientes)} />
+                    <KpiCard icon={<FileText className="h-5 w-5 text-[#22D3EE]" />} label="Apólices cadastradas" value={String(metricas.totalApolices)} />
+                    <KpiCard icon={<CurrencyDollar className="h-5 w-5 text-[#22D3EE]" />} label="Receita mensal vigente" value={fmtBRL(metricas.receitaMensal)} />
+                    <KpiCard icon={<ChartBar className="h-5 w-5 text-[#22D3EE]" />} label="Cobertura vigente" value={fmtBRL(metricas.coberturaTotal)} />
+                </motion.div>
+
+                <motion.div
+                    variants={dashboardGridVariants}
+                    style={{ y: graficosY }}
+                    className="grid grid-cols-1 gap-6 xl:grid-cols-[0.82fr_1.18fr]"
+                >
+                    <motion.div
+                        variants={dashboardCardVariants}
+                        whileHover={{ y: -4, scale: 1.005 }}
+                        className="rounded-lg border border-white/10 bg-white/[0.05] p-6 shadow-[0_18px_45px_rgba(0,0,0,0.24)] transition-colors duration-300 hover:border-[#22D3EE] hover:shadow-[0_0_22px_rgba(34,211,238,0.24)]"
+                    >
+                        <div className="mb-6 flex items-center justify-between gap-4">
+                            <p className="font-['JetBrains_Mono'] font-mono text-xs uppercase tracking-widest text-[#A1A1AA]">Mensalidade por apólice vigente</p>
+                            <span className="font-['JetBrains_Mono'] font-mono text-xs text-[#A1A1AA]">Últimas 5</span>
+                        </div>
+
+                        <div className="flex h-44 items-end gap-3">
+                            {metricas.barrasReceita.length > 0 ? (
+                                metricas.barrasReceita.map((item) => (
+                                    <div key={item.label} className="group relative flex min-w-0 flex-1 flex-col items-center gap-3">
+                                        <div className="flex h-32 w-full items-end rounded-md bg-white/[0.04] p-1">
+                                            <motion.div
+                                                className="w-full rounded bg-[linear-gradient(180deg,#22D3EE,#4F46E5,#FF4FD8)] shadow-[0_0_18px_rgba(34,211,238,0.35)] transition-all duration-300 hover:shadow-[0_0_24px_rgba(255,79,216,0.45)]"
+                                                initial={{ height: "8%", opacity: 0.45 }}
+                                                animate={{ height: `${Math.max((item.valor / maiorBarraReceita) * 100, 8)}%`, opacity: 1 }}
+                                                transition={{ duration: 0.85, ease: "easeOut", delay: 0.35 }}
+                                            />
+                                        </div>
+                                        <div className="pointer-events-none absolute -top-12 left-1/2 z-20 min-w-[112px] -translate-x-1/2 rounded-md border border-[#22D3EE]/45 bg-[#08111F]/95 px-3 py-2 text-center opacity-0 shadow-[0_0_18px_rgba(34,211,238,0.35)] transition-all duration-200 group-hover:-top-14 group-hover:opacity-100">
+                                            <p className="font-['JetBrains_Mono'] font-mono text-[10px] uppercase tracking-widest text-[#A1A1AA]">
+                                                {item.label}
+                                            </p>
+                                            <p className="mt-1 font-['JetBrains_Mono'] font-mono text-xs font-semibold text-[#22D3EE]">
+                                                {fmtBRL(item.valor)}
+                                            </p>
+                                        </div>
+                                        <span className="truncate font-['JetBrains_Mono'] font-mono text-[10px] text-[#A1A1AA]">{item.label}</span>
+                                    </div>
+                                ))
+                            ) : (
+                                <p className="self-center text-sm text-[#A1A1AA]">
+                                    {carregando ? "Carregando receita..." : "Nenhuma apólice vigente encontrada."}
+                                </p>
+                            )}
+                        </div>
+                    </motion.div>
+
+                    <motion.div
+                        variants={dashboardCardVariants}
+                        whileHover={{ y: -4, scale: 1.005 }}
+                        className="rounded-lg border border-white/10 bg-white/[0.05] p-6 shadow-[0_18px_45px_rgba(0,0,0,0.24)] transition-colors duration-300 hover:border-[#22D3EE] hover:shadow-[0_0_22px_rgba(34,211,238,0.24)]"
+                    >
+                        <div className="mb-6 flex items-start justify-between gap-4">
+                            <div>
+                                <p className="font-['JetBrains_Mono'] font-mono text-xs uppercase tracking-widest text-[#A1A1AA]">Distribuição por cobertura</p>
+                                <p className="mt-2 text-sm text-[#A1A1AA]">Percentuais usados nas apólices vigentes.</p>
+                            </div>
+                            <p className="font-['JetBrains_Mono'] font-mono text-2xl text-[#FAFAFA]">{metricas.percentualMedioCobertura.toFixed(0)}%</p>
+                        </div>
+
                         <div className="space-y-4">
-                            {Object.entries(metricas.porCobertura).length > 0 ? (
-                                Object.entries(metricas.porCobertura).map(([nome, count]) => {
-                                    const pct = (count / Math.max(metricas.totalApolices, 1)) * 100;
+                            {metricas.maioresCoberturas.length > 0 ? (
+                                metricas.maioresCoberturas.map(([nome, count]) => {
+                                    const pct = (count / Math.max(metricas.totalApolicesVigentes, 1)) * 100;
                                     return (
-                                        <div key={nome}>
+                                        <div key={nome} className="group relative">
                                             <div className="flex justify-between gap-4 text-sm mb-1">
-                                                <span className="text-white">{nome}</span>
-                                                <span className="font-mono text-slate-400">{count} ({pct.toFixed(0)}%)</span>
+                                                <span className="text-[#FAFAFA]">{nome}</span>
+                                                <span className="font-['JetBrains_Mono'] font-mono text-[#A1A1AA]">{count} ({pct.toFixed(0)}%)</span>
                                             </div>
-                                            <div className="h-2.5 overflow-hidden rounded-full bg-slate-800">
-                                                <div className="h-full rounded-full bg-purple-800" style={{ width: `${(count / maiorQuantidade) * 100}%` }} />
+                                            <div className="h-2.5 overflow-hidden rounded-full bg-white/10">
+                                                <motion.div
+                                                    className="h-full rounded-full bg-[#D946EF]"
+                                                    initial={{ width: 0 }}
+                                                    animate={{ width: `${(count / maiorQuantidade) * 100}%` }}
+                                                    transition={{ duration: 0.9, ease: "easeOut", delay: 0.45 }}
+                                                />
+                                            </div>
+                                            <div className="pointer-events-none absolute right-0 top-4 z-20 min-w-[124px] rounded-md border border-[#D946EF]/45 bg-[#13081F]/95 px-3 py-2 text-right opacity-0 shadow-[0_0_18px_rgba(217,70,239,0.35)] transition-all duration-200 group-hover:top-6 group-hover:opacity-100">
+                                                <p className="font-['JetBrains_Mono'] font-mono text-[10px] uppercase tracking-widest text-[#A1A1AA]">
+                                                    Cobertura
+                                                </p>
+                                                <p className="mt-1 font-['JetBrains_Mono'] font-mono text-xs font-semibold text-[#FF4FD8]">
+                                                    {count} apólice{count === 1 ? "" : "s"} · {pct.toFixed(0)}%
+                                                </p>
                                             </div>
                                         </div>
                                     );
                                 })
                             ) : (
-                                <p className="text-sm text-slate-500">
+                                <p className="text-sm text-[#A1A1AA]">
                                     {carregando ? "Carregando distribuição..." : "Nenhuma apólice encontrada."}
                                 </p>
                             )}
                         </div>
-                    </div>
-                </div>
+                    </motion.div>
+                </motion.div>
 
-                <div className="mt-6 rounded-3xl border border-purple-800 bg-slate-950 p-6 shadow-sm">
-                    <p className="font-mono text-xs uppercase tracking-[0.2em] text-slate-400 mb-4">Apólices recentes</p>
+                <motion.div
+                    variants={dashboardCardVariants}
+                    whileHover={{ y: -4, scale: 1.003 }}
+                    style={{ y: listaY }}
+                    className="mt-6 rounded-lg border border-white/10 bg-white/[0.05] p-6 shadow-[0_18px_45px_rgba(0,0,0,0.24)] transition-colors duration-300 hover:border-[#22D3EE] hover:shadow-[0_0_22px_rgba(34,211,238,0.24)]"
+                >
+                    <p className="mb-4 font-['JetBrains_Mono'] font-mono text-xs uppercase tracking-widest text-[#A1A1AA]">Apólices recentes</p>
                     <div className="space-y-3">
                         {metricas.recentes.length > 0 ? (
                             metricas.recentes.map((apolice) => {
@@ -368,29 +773,34 @@ function Relatorios() {
                                 const veiculo = `${apolice.veiculo?.marca ?? ""} ${apolice.veiculo?.modelo ?? ""}`.trim();
 
                                 return (
-                                    <div key={apolice.id} className="flex items-center justify-between gap-4 py-2 border-b border-slate-800 last:border-0">
+                                    <motion.div
+                                        key={apolice.id}
+                                        variants={dashboardCardVariants}
+                                        whileHover={{ x: 4 }}
+                                        className="flex items-center justify-between gap-4 rounded-md border border-white/0 border-b-white/10 px-3 py-3 transition-colors duration-300 hover:border-[#22D3EE] hover:bg-white/[0.04] last:border-b-white/0"
+                                    >
                                         <div>
-                                            <p className="font-semibold text-white">{cliente?.nome ?? "Cliente não informado"}</p>
-                                            <p className="mt-1 text-xs text-slate-500 font-mono">
+                                            <p className="font-medium text-[#FAFAFA]">{cliente?.nome ?? "Cliente não informado"}</p>
+                                            <p className="mt-1 font-['JetBrains_Mono'] font-mono text-xs text-[#A1A1AA]">
                                                 AP-{String(apolice.id).padStart(4, "0")} · {veiculo || apolice.veiculo?.placa || "Veículo não informado"}
                                             </p>
                                         </div>
                                         <div className="text-right">
-                                            <p className="font-mono text-white">{fmtBRL(valorNumerico(apolice.mensalidade))}/mês</p>
-                                            <p className="mt-1 text-xs text-slate-500">{formatarData(obterDataApolice(apolice))}</p>
+                                            <p className="font-['JetBrains_Mono'] font-mono text-[#FAFAFA]">{fmtBRL(valorNumerico(apolice.mensalidade))}/mês</p>
+                                            <p className="mt-1 text-xs text-[#A1A1AA]">{formatarData(obterDataApolice(apolice))}</p>
                                         </div>
-                                    </div>
+                                    </motion.div>
                                 );
                             })
                         ) : (
-                            <p className="text-sm text-slate-500">
+                            <p className="text-sm text-[#A1A1AA]">
                                 {carregando ? "Carregando apólices..." : "Nenhuma apólice encontrada."}
                             </p>
                         )}
                     </div>
-                </div>
-            </div>
-        </section>
+                </motion.div>
+            </motion.section>
+        </main>
     );
 }
 

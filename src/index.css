@@ -404,8 +404,8 @@ a {
   left: 50%;
   top: 50%;
   z-index: 1;
-  width: min(126vw, 1820px);
-  height: min(37vw, 535px);
+  width: min(96vw, 1600px);
+  height: min(34vw, 500px);
   transform: translate(-50%, -50%);
   animation: ghostIn 1800ms cubic-bezier(0.19, 1, 0.22, 1) both;
   opacity: 0.28;
@@ -806,6 +806,62 @@ a {
   }
 }
 
+@media (max-width: 1280px) {
+  .hero-ghost {
+    width: 96vw;
+    height: min(36vw, 430px);
+  }
+
+  .hero-ghost text {
+    font-size: 330px;
+  }
+}
+
+@media (max-height: 820px) and (min-width: 761px) {
+  .hero-section {
+    min-height: 660px;
+    padding-top: 5.6rem;
+  }
+
+  .car-frame {
+    min-height: 305px;
+  }
+
+  .hero-car {
+    height: min(39svh, 365px);
+  }
+
+  .price-block h3 {
+    font-size: clamp(1.85rem, 2.6vw, 2.65rem);
+  }
+
+  .simulator-section {
+    min-height: 0;
+  }
+}
+
+@media (max-width: 760px) {
+  .simulator-card {
+    gap: 1rem;
+  }
+
+  .simulator-card input,
+  .simulator-card select,
+  .simulator-card > button {
+    min-height: 3.6rem;
+  }
+
+  .faq-trigger {
+    min-height: 58px;
+    padding: 1rem;
+  }
+
+  .faq-answer p,
+  .faq-item.active .faq-answer p {
+    padding-inline: 1rem;
+  }
+}
+
 .faq-section::before {
   position: absolute;
   inset: 0;
@@ -1069,8 +1125,8 @@ a {
 
 @media (max-width: 760px) {
   .hero-ghost {
-    width: 138vw;
-    height: 49vw;
+    width: 96vw;
+    height: 42vw;
     opacity: 0.24;
   }
 }

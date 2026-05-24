@@ -207,7 +207,7 @@ function Home() {
   ];
 
   const [carroSelecionado, setCarroSelecionado] = useState(carros[0]);
-  const [faqAberta, setFaqAberta] = useState(0);
+  const [faqAberta, setFaqAberta] = useState(-1);
   const [simulacao, setSimulacao] = useState({
     marca: "",
     modelo: "",
@@ -425,12 +425,12 @@ function Home() {
     <main className="trustway-page min-h-screen overflow-x-hidden text-[#F0F2F4]">
       <section
         id="home"
-        className="hero-section relative isolate min-h-[94vh] px-5 pb-4 pt-64 max-[760px]:min-h-[88vh] max-[760px]:pt-48"
+        className="hero-section relative isolate min-h-[clamp(680px,94svh,960px)] px-5 pb-8 pt-[clamp(6rem,18vh,16rem)] max-[760px]:min-h-0 max-[760px]:px-4 max-[760px]:pb-10 max-[760px]:pt-28"
       >
         <div className="hero-noise absolute inset-0 -z-10 pointer-events-none opacity-30" aria-hidden="true" />
 
-        <section className="relative flex min-h-[42vh] items-center justify-center max-[760px]:min-h-[36vh]">
-          <p className="absolute top-0 left-[max(7vw,5.5rem)] z-[5] m-0 text-[0.62rem] font-black tracking-[0.24rem] text-[#4F46E5] max-[760px]:left-5 max-[760px]:max-w-[calc(100%-2.5rem)] max-[760px]:tracking-[0.16rem]">
+        <section className="relative flex min-h-[clamp(300px,42svh,430px)] items-center justify-center max-[760px]:min-h-[360px] max-[520px]:min-h-[330px]">
+          <p className="absolute top-0 left-[max(7vw,5.5rem)] z-[5] m-0 text-[0.62rem] font-black tracking-[0.24rem] text-[#4F46E5] max-[760px]:left-1 max-[760px]:max-w-[calc(100%-0.5rem)] max-[760px]:tracking-[0.16rem]">
             SEGURO VEICULAR INTELIGENTE
           </p>
 
@@ -464,7 +464,7 @@ function Home() {
               fill="transparent"
               stroke={`url(#ghost-gradient-${carroAtual.id})`}
               strokeWidth="1.4"
-              textLength="1540"
+              textLength="1400"
               lengthAdjust="spacingAndGlyphs"
             >
               {carroAtual.fundo}
@@ -472,15 +472,15 @@ function Home() {
           </svg>
 
           <div
-            className="car-frame relative z-[2] grid w-[min(68vw,1150px)] min-h-[410px] place-items-center overflow-visible max-[1100px]:w-[78vw] max-[760px]:min-h-[360px] max-[760px]:w-full max-[520px]:min-h-[320px]"
+            className="car-frame relative z-[2] grid w-[min(68vw,1150px)] min-h-[clamp(320px,42svh,410px)] place-items-center overflow-visible max-[1100px]:w-[78vw] max-[760px]:min-h-[360px] max-[760px]:w-full max-[520px]:min-h-[320px]"
             key={`frame-${carroAtual.id}`}
           >
             <div className="price-block absolute left-[-4.2rem] top-10 z-[4] max-[1100px]:left-4 max-[760px]:top-5">
-              <p className="m-0 text-[0.58rem] font-black tracking-[0.22rem] text-[#4F46E5] max-[520px]:text-[0.56rem] max-[520px]:tracking-[0.14rem]">
+              <p className="m-0 text-[0.58rem] font-black tracking-[0.22rem] !text-white max-[520px]:text-[0.56rem] max-[520px]:tracking-[0.14rem]">
                 VALOR FIPE
               </p>
 
-              <h3 className="m-0 font-[var(--font-display)] text-[clamp(2rem,3vw,3.2rem)] font-normal leading-[0.95] tracking-[0.01em] max-[760px]:text-[2.2rem] max-[520px]:text-[1.8rem]">
+              <h3 className="m-0 font-[var(--font-display)] text-[clamp(2rem,3vw,3.2rem)] font-normal leading-[0.95] tracking-[0.01em] !text-white drop-shadow-[0_0.65rem_1.2rem_rgba(0,0,0,0.72)] max-[760px]:text-[2.2rem] max-[520px]:text-[1.8rem]">
                 {carroAtual.valorFipe}
               </h3>
             </div>
@@ -488,15 +488,15 @@ function Home() {
             <img
               src={imageSrc(carroAtual.imagem)}
               alt={carroAtual.nome}
-              className="hero-car relative z-[2] h-[min(46vh,460px)] w-full object-contain max-[760px]:h-[310px] max-[520px]:h-[270px]"
+              className="hero-car relative z-[2] h-[min(42svh,460px)] w-full object-contain max-[760px]:h-[300px] max-[520px]:h-[250px]"
             />
 
             <div className="price-block absolute bottom-6 right-[2%] z-[4] w-[min(30rem,42vw)] max-[1100px]:right-4 max-[760px]:bottom-5 max-[760px]:right-4 max-[760px]:w-[min(24rem,62vw)] max-[520px]:w-[min(19rem,78vw)]">
-              <p className="m-0 text-[0.62rem] font-black uppercase tracking-[0.28rem] text-[#4F46E5] max-[760px]:text-[0.58rem] max-[520px]:tracking-[0.16rem]">
+              <p className="m-0 text-[0.62rem] font-black uppercase tracking-[0.28rem] !text-white max-[760px]:text-[0.58rem] max-[520px]:tracking-[0.16rem]">
                 MÉDIA SEGURO
               </p>
 
-              <h3 className="m-0 mt-2 whitespace-nowrap font-[var(--font-display)] text-[clamp(2rem,3vw,3.2rem)] font-normal leading-[0.95] tracking-[0.01em] text-[#F8FAFC] drop-shadow-[0_0.75rem_1.4rem_rgba(0,0,0,0.65)] max-[760px]:text-[2.2rem] max-[520px]:text-[1.8rem]">
+              <h3 className="m-0 mt-2 whitespace-nowrap font-[var(--font-display)] text-[clamp(2rem,3vw,3.2rem)] font-normal leading-[0.95] tracking-[0.01em] text-[#F8FAFC] drop-shadow-[0_0.75rem_1.4rem_rgba(0,0,0,0.65)] max-[760px]:text-[2.2rem] max-[520px]:text-[1.65rem]">
                 {carroAtual.mediaSeguro}
               </h3>
 
@@ -518,7 +518,7 @@ function Home() {
         </div>
 
         <section
-          className="relative z-[5] mt-6 flex flex-wrap justify-center gap-x-[clamp(1.5rem,4vw,4rem)] gap-y-5 max-[760px]:mt-5 max-[760px]:gap-x-5"
+          className="relative z-[5] mx-auto mt-6 grid w-[min(760px,100%)] grid-cols-4 justify-center gap-x-[clamp(1.5rem,4vw,4rem)] gap-y-5 max-[760px]:mt-6 max-[760px]:w-[min(100%,30rem)] max-[760px]:grid-cols-2 max-[760px]:gap-x-5"
           aria-label="Selecionar categoria de veículo"
         >
           {carros.map((carro) => {
@@ -558,7 +558,7 @@ function Home() {
 
       <section
         id="sobre"
-        className="flex min-h-screen items-center justify-center gap-[clamp(3rem,7vw,6rem)] bg-black px-5 py-24 max-[1100px]:flex-col max-[1100px]:items-start max-[1100px]:px-[clamp(1.25rem,8vw,5rem)]"
+        className="flex min-h-[min(100svh,900px)] items-center justify-center gap-[clamp(3rem,7vw,6rem)] bg-black px-5 py-24 min-[981px]:pl-36 max-[1100px]:min-h-0 max-[1100px]:flex-col max-[1100px]:items-center max-[1100px]:pr-[clamp(1.25rem,8vw,5rem)] max-[760px]:items-start max-[760px]:px-5 max-[760px]:py-20"
       >
         <div className="w-[min(520px,100%)]">
           <p className="mb-5 mt-0 text-[0.72rem] font-black tracking-[0.35rem] text-[#4F46E5]">
@@ -604,7 +604,7 @@ function Home() {
             coberturas dinâmicas e precisas.
           </p>
 
-          <div className="mt-11 flex gap-16 max-[520px]:flex-col max-[520px]:gap-6">
+          <div className="mt-11 flex flex-wrap gap-x-12 gap-y-6 max-[520px]:justify-between max-[520px]:gap-x-6">
             <div>
               <h3 className="font-impact m-0 text-[2.8rem] font-normal leading-[0.9]">
                 15k+
@@ -640,10 +640,11 @@ function Home() {
 
       <section
         id="beneficios"
-        className="bg-[#18181b] px-10 py-25 max-[760px]:px-5"
+        className="bg-[#18181b] px-10 py-24 min-[981px]:pl-36 max-[760px]:px-5 max-[760px]:py-20"
       >
         <div className="mx-auto w-[min(1400px,100%)]">
           <div className="mb-[4.4rem] flex items-end justify-between gap-8 max-[760px]:block">
+
             <h2 className="m-0 font-[var(--font-display)] text-[clamp(3.1rem,5.8vw,5.4rem)] font-normal leading-[0.9] tracking-[0.03em]">
               VANTAGENS PREMIUM
             </h2>
@@ -654,7 +655,7 @@ function Home() {
           </div>
 
           <motion.div
-            className="grid grid-cols-3 border border-[#F0F2F4]/10 max-[760px]:grid-cols-1"
+            className="grid grid-cols-3 border border-[#F0F2F4]/10 max-[980px]:grid-cols-1"
             variants={benefitsGridVariants}
             initial="hidden"
             whileInView="visible"
@@ -680,7 +681,7 @@ function Home() {
               <motion.div
                 key={index}
                 variants={benefitCardVariants}
-                className="benefit-card-neon relative min-h-[230px] border-r border-[#F0F2F4]/10 bg-[#050505] p-[clamp(2rem,4vw,3.2rem)] transition duration-300 hover:z-[2] hover:-translate-y-1 hover:border-transparent hover:bg-[#0b0b0c] last:border-r-0 max-[760px]:border-r-0 max-[760px]:border-b max-[760px]:last:border-b-0"
+                className="benefit-card-neon relative min-h-[230px] border-r border-[#F0F2F4]/10 bg-[#050505] p-[clamp(2rem,4vw,3.2rem)] transition duration-300 hover:z-[2] hover:-translate-y-1 hover:border-transparent hover:bg-[#0b0b0c] last:border-r-0 max-[980px]:min-h-0 max-[980px]:border-r-0 max-[980px]:border-b max-[980px]:last:border-b-0"
               >
                 <p className="mb-8 mt-0 text-[0.75rem] font-black text-[#4F46E5]">
                   0{index + 1}
@@ -699,14 +700,14 @@ function Home() {
 
       <section
         id="simulador"
-        className="simulator-section relative isolate grid min-h-screen grid-cols-[minmax(0,680px)_minmax(360px,520px)] items-center justify-center gap-[clamp(2rem,4vw,4rem)] overflow-hidden bg-black px-[clamp(1.25rem,6vw,6rem)] py-28 max-[980px]:grid-cols-1 max-[760px]:py-24"
+        className="simulator-section relative isolate grid min-h-[min(100svh,940px)] grid-cols-[minmax(0,680px)_minmax(340px,520px)] items-center justify-center gap-[clamp(2rem,4vw,4rem)] overflow-hidden bg-black px-[clamp(1.25rem,6vw,6rem)] py-24 min-[981px]:pl-36 max-[1180px]:min-h-0 max-[1180px]:grid-cols-1 max-[760px]:py-20"
       >
         <div className="simulator-copy">
           <p className="mb-6 mt-0 text-[0.72rem] font-black tracking-[0.4rem] text-[#22D3EE] max-[520px]:tracking-[0.22rem]">
             COTAÇÃO INTELIGENTE
           </p>
 
-          <h2 className="m-0 max-w-[620px] font-[var(--font-impact)] text-[clamp(4rem,8vw,7.5rem)] font-normal leading-[0.9] tracking-[0.01em] text-[#F0F2F4]">
+          <h2 className="m-0 max-w-[620px] font-[var(--font-impact)] text-[clamp(3.35rem,7vw,7.5rem)] font-normal leading-[0.9] tracking-[0.01em] text-[#F0F2F4]">
             Sua proteção começa{" "}
             <span className="animated-gradient-text inline-block">aqui.</span>
           </h2>
@@ -864,7 +865,7 @@ function Home() {
 
       <section
         id="duvidas"
-        className="faq-section relative isolate overflow-hidden bg-[#02050a] px-10 py-28 max-[760px]:px-5"
+        className="faq-section relative isolate overflow-hidden bg-[#02050a] px-10 py-24 min-[981px]:pl-36 max-[760px]:px-5 max-[760px]:py-20"
       >
         <div className="faq-orbit" aria-hidden="true" />
 
@@ -874,7 +875,7 @@ function Home() {
               TIRE SUAS DÚVIDAS
             </p>
 
-            <h2 className="m-0 font-[var(--font-display)] text-[clamp(4rem,8vw,7rem)] font-normal leading-[0.88] tracking-[0.03em] text-[#F0F2F4]">
+            <h2 className="m-0 font-[var(--font-display)] text-[clamp(3.2rem,7vw,7rem)] font-normal leading-[0.88] tracking-[0.03em] text-[#F0F2F4]">
               Dúvidas{" "}
               <span className="animated-gradient-text inline-block">
                 Frequentes
@@ -916,8 +917,8 @@ function Home() {
         </div>
       </section>
 
-      <section id="equipe" className="bg-black px-10 py-30 text-center max-[760px]:px-5">
-        <h2 className="animated-gradient-text font-impact m-0 text-[clamp(4rem,7.5vw,7rem)] font-normal leading-[0.88] tracking-[0.02em]">
+      <section id="equipe" className="bg-black px-10 py-24 text-center max-[760px]:px-5 max-[760px]:py-20">
+        <h2 className="animated-gradient-text font-impact m-0 text-[clamp(3.5rem,7vw,7rem)] font-normal leading-[0.88] tracking-[0.02em]">
           EQUIPE
         </h2>
 
@@ -925,13 +926,13 @@ function Home() {
           DESENVOLVEDORES POR TRÁS DA TRUSTWAY
         </p>
 
-        <div className="flex flex-wrap justify-center gap-7">
+        <div className="mx-auto grid w-[min(760px,100%)] grid-cols-3 justify-center gap-7 max-[760px]:w-[min(460px,100%)] max-[760px]:grid-cols-2 max-[520px]:gap-x-4 max-[520px]:gap-y-8 max-[380px]:grid-cols-1">
           {equipe.map((pessoa, index) => (
-            <div key={index} className="team-member-card w-[210px]">
+            <div key={index} className="team-member-card w-full">
               <img
                 src={imageSrc(pessoa.imagem)}
                 alt={pessoa.nome}
-                className="relative z-[1] h-[270px] w-[210px] bg-[#181818] object-cover transition duration-300"
+                className="relative z-[1] aspect-[7/9] w-full bg-[#181818] object-cover transition duration-300"
               />
 
               <h3 className="mb-1 mt-4 font-[var(--font-display)] text-[1.55rem] font-normal tracking-[0.05em]">

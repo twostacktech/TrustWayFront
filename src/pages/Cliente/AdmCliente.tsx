@@ -342,7 +342,7 @@ function AdmCliente() {
 
               <tbody>
                 {clientesFiltrados.length > 0 ? (
-                  clientesFiltrados.map((cliente, index) => (
+                  clientesFiltrados.map((cliente) => (
                     <tr key={`${cliente.id}-${cliente.cpf}`} className="border-b border-white/10 transition hover:bg-white/[0.04] last:border-b-0">
                       <td className="px-6 py-4 font-['JetBrains_Mono'] font-mono text-xs text-[#A1A1AA]">#{cliente.id}</td>
                       <td className="px-6 py-4 font-medium text-[#FAFAFA]">{cliente.nome}</td>
