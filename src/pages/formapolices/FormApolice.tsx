@@ -56,6 +56,31 @@ const obterValorMonetario = (valor: string) => {
   return Number.isNaN(valorNumerico) ? 0 : valorNumerico
 }
 
+const apenasNumeros = (valor: string) => valor.replace(/\D/g, "")
+
+const limitarTexto = (valor: string, limite: number) => valor.slice(0, limite)
+
+const formatarCpf = (valor: string) => {
+  const numeros = apenasNumeros(valor).slice(0, 11)
+
+  if (numeros.length <= 3) return numeros
+  if (numeros.length <= 6) return `${numeros.slice(0, 3)}.${numeros.slice(3)}`
+  if (numeros.length <= 9) {
+    return `${numeros.slice(0, 3)}.${numeros.slice(3, 6)}.${numeros.slice(6)}`
+  }
+
+  return `${numeros.slice(0, 3)}.${numeros.slice(3, 6)}.${numeros.slice(6, 9)}-${numeros.slice(9)}`
+}
+
+const formatarPlaca = (valor: string) =>
+  valor
+    .replace(/[^a-zA-Z0-9]/g, "")
+    .toUpperCase()
+    .slice(0, 7)
+
+const limitarNumeroInteiro = (valor: string, limite: number) =>
+  apenasNumeros(valor).slice(0, limite)
+
 type FormApoliceProps = {
   fecharModal: () => void
   atualizarListagem: () => Promise<void> | void
@@ -98,8 +123,8 @@ function FormApolice({
         status: apoliceEditando.status,
         percentualCobertura: apoliceEditando.percentualCobertura.toString(),
         valorFranquia: apoliceEditando.valorFranquia.toString(),
-        usuarioCpf: apoliceEditando.usuario?.cpf ?? "",
-        veiculoPlaca: apoliceEditando.veiculo?.placa ?? "",
+        usuarioCpf: formatarCpf(apoliceEditando.usuario?.cpf ?? ""),
+        veiculoPlaca: formatarPlaca(apoliceEditando.veiculo?.placa ?? ""),
         veiculoMarca: apoliceEditando.veiculo?.marca ?? "",
         veiculoModelo: apoliceEditando.veiculo?.modelo ?? "",
         veiculoAno: apoliceEditando.veiculo?.ano?.toString() ?? "",
@@ -113,9 +138,22 @@ function FormApolice({
   const atualizarCampo = (
     evento: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
+    const { name, value } = evento.target
+    const formatadores: Record<string, (valor: string) => string> = {
+      usuarioCpf: formatarCpf,
+      veiculoPlaca: formatarPlaca,
+      veiculoAno: (valor) => limitarNumeroInteiro(valor, 4),
+      veiculoMarca: (valor) => limitarTexto(valor, 40),
+      veiculoModelo: (valor) => limitarTexto(valor, 60),
+      mensalidade: (valor) => limitarTexto(valor, 12),
+      valorFranquia: (valor) => limitarTexto(valor, 12),
+      percentualCobertura: (valor) => limitarTexto(valor, 6),
+      veiculoPrecoFip: (valor) => limitarTexto(valor, 16),
+    }
+
     setFormData({
       ...formData,
-      [evento.target.name]: evento.target.value,
+      [name]: formatadores[name]?.(value) ?? value,
     })
   }
 
@@ -140,7 +178,7 @@ function FormApolice({
       percentualCobertura: Number(formData.percentualCobertura),
       valorFranquia: Number(formData.valorFranquia),
       usuario: {
-        cpf: formData.usuarioCpf.replace(/\D/g, ""),
+        cpf: apenasNumeros(formData.usuarioCpf),
       },
       veiculo: {
         placa: veiculoParaEnviar.placa,
@@ -202,22 +240,25 @@ function FormApolice({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-6">
-      <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl border border-zinc-800 bg-[#0c0c0e] p-6 shadow-2xl text-white">
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/75 px-4 py-6">
+      <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-md border border-white/10 bg-[#16151E] p-6 text-[#FAFAFA] shadow-2xl font-['Inter']">
         {/* Header do Modal */}
         <div className="mb-6 flex items-start justify-between">
           <div>
-            <h2 className="text-2xl font-bold tracking-tight text-white font-mono uppercase">
+            <span className="text-xs font-bold uppercase tracking-[0.35em] text-[#22D3EE]">
+              Apólice
+            </span>
+            <h2 className="mt-2 text-2xl font-bold text-[#FAFAFA]">
               {apoliceEditando ? "Editar apólice" : "Nova apólice"}
             </h2>
-            <p className="text-xs text-zinc-500 mt-1">Preencha os dados da apólice.</p>
           </div>
 
           <button
             type="button"
             onClick={fecharModal}
             disabled={salvando}
-            className="text-zinc-500 hover:text-[#22D3EE] hover:shadow-[0_0_10px_rgba(34,211,238,0.3)] transition-all duration-300 disabled:opacity-50"
+            className="rounded-md p-2 text-[#A1A1AA] transition hover:bg-white/[0.05] hover:text-white disabled:opacity-50"
+            aria-label="Fechar formulário"
           >
             <X size={20} />
           </button>
@@ -226,7 +267,7 @@ function FormApolice({
         {/* Formulário */}
         <form onSubmit={salvarApolice} className="space-y-5">
           <div>
-            <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-zinc-400 font-mono">
+            <label className="mb-2 block text-sm font-medium text-[#A1A1AA]">
               Data de início
             </label>
             <input
@@ -236,12 +277,12 @@ function FormApolice({
               onChange={atualizarCampo}
               required
               disabled={salvando}
-              className="w-full rounded-lg border border-zinc-800 bg-[#121214] px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none focus:border-[#22D3EE] focus:shadow-[0_0_15px_rgba(34,211,238,0.3)] transition-all disabled:opacity-50"
+              className="h-11 w-full rounded-md border border-white/10 bg-white/[0.05] px-3 text-sm text-[#FAFAFA] outline-none transition-all focus:border-[#22D3EE] focus:shadow-[0_0_15px_rgba(34,211,238,0.3)] disabled:opacity-50 [color-scheme:dark]"
             />
           </div>
 
           <div>
-            <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-zinc-400 font-mono">
+            <label className="mb-2 block text-sm font-medium text-[#A1A1AA]">
               Mensalidade
             </label>
             <input
@@ -252,14 +293,15 @@ function FormApolice({
               onChange={atualizarCampo}
               min="0"
               step="0.01"
+              maxLength={12}
               required
               disabled={salvando}
-              className="w-full rounded-lg border border-zinc-800 bg-[#121214] px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none focus:border-[#4F46E5] focus:shadow-[0_0_15px_rgba(79,70,229,0.3)] transition-all disabled:opacity-50"
+              className="h-11 w-full rounded-md border border-white/10 bg-white/[0.05] px-3 text-sm text-[#FAFAFA] placeholder:text-[#A1A1AA] outline-none transition-all focus:border-[#4F46E5] focus:shadow-[0_0_15px_rgba(79,70,229,0.3)] disabled:opacity-50"
             />
           </div>
 
           <div>
-            <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-zinc-400 font-mono">
+            <label className="mb-2 block text-sm font-medium text-[#A1A1AA]">
               Percentual de cobertura (%)
             </label>
             <input
@@ -271,14 +313,15 @@ function FormApolice({
               min="0"
               max="100"
               step="0.01"
+              maxLength={6}
               required
               disabled={salvando}
-              className="w-full rounded-lg border border-zinc-800 bg-[#121214] px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none focus:border-[#FF4FD8] focus:shadow-[0_0_15px_rgba(255,79,216,0.3)] transition-all disabled:opacity-50"
+              className="h-11 w-full rounded-md border border-white/10 bg-white/[0.05] px-3 text-sm text-[#FAFAFA] placeholder:text-[#A1A1AA] outline-none transition-all focus:border-[#FF4FD8] focus:shadow-[0_0_15px_rgba(255,79,216,0.3)] disabled:opacity-50"
             />
           </div>
 
           <div>
-            <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-zinc-400 font-mono">
+            <label className="mb-2 block text-sm font-medium text-[#A1A1AA]">
               Valor da franquia
             </label>
             <input
@@ -289,31 +332,34 @@ function FormApolice({
               onChange={atualizarCampo}
               min="0"
               step="0.01"
+              maxLength={12}
               required
               disabled={salvando}
-              className="w-full rounded-lg border border-zinc-800 bg-[#121214] px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none focus:border-[#22D3EE] focus:shadow-[0_0_15px_rgba(34,211,238,0.3)] transition-all disabled:opacity-50"
+              className="h-11 w-full rounded-md border border-white/10 bg-white/[0.05] px-3 text-sm text-[#FAFAFA] placeholder:text-[#A1A1AA] outline-none transition-all focus:border-[#22D3EE] focus:shadow-[0_0_15px_rgba(34,211,238,0.3)] disabled:opacity-50"
             />
           </div>
 
           <div>
-            <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-zinc-400 font-mono">
+            <label className="mb-2 block text-sm font-medium text-[#A1A1AA]">
               CPF do cliente
             </label>
             <input
               type="text"
               name="usuarioCpf"
-              placeholder="00000000000"
+              inputMode="numeric"
+              placeholder="000.000.000-00"
               value={formData.usuarioCpf}
               onChange={atualizarCampo}
+              maxLength={14}
               required
               disabled={salvando}
-              className="w-full rounded-lg border border-zinc-800 bg-[#121214] px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none focus:border-[#22D3EE] focus:shadow-[0_0_15px_rgba(34,211,238,0.3)] transition-all disabled:opacity-50"
+              className="h-11 w-full rounded-md border border-white/10 bg-white/[0.05] px-3 text-sm text-[#FAFAFA] placeholder:text-[#A1A1AA] outline-none transition-all focus:border-[#22D3EE] focus:shadow-[0_0_15px_rgba(34,211,238,0.3)] disabled:opacity-50"
             />
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-zinc-400 font-mono">
+              <label className="mb-2 block text-sm font-medium text-[#A1A1AA]">
                 Placa
               </label>
               <input
@@ -322,14 +368,15 @@ function FormApolice({
                 placeholder="ABC1D23"
                 value={formData.veiculoPlaca}
                 onChange={atualizarCampo}
+                maxLength={7}
                 required
                 disabled={salvando}
-                className="w-full rounded-lg border border-zinc-800 bg-[#121214] px-4 py-3 text-sm uppercase text-white placeholder-zinc-600 outline-none focus:border-[#4F46E5] focus:shadow-[0_0_15px_rgba(79,70,229,0.3)] transition-all disabled:opacity-50"
+                className="h-11 w-full rounded-md border border-white/10 bg-white/[0.05] px-3 text-sm uppercase text-[#FAFAFA] placeholder:text-[#A1A1AA] outline-none transition-all focus:border-[#4F46E5] focus:shadow-[0_0_15px_rgba(79,70,229,0.3)] disabled:opacity-50"
               />
             </div>
 
             <div>
-              <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-zinc-400 font-mono">
+              <label className="mb-2 block text-sm font-medium text-[#A1A1AA]">
                 Ano
               </label>
               <input
@@ -338,16 +385,19 @@ function FormApolice({
                 placeholder="2024"
                 value={formData.veiculoAno}
                 onChange={atualizarCampo}
+                min="1900"
+                max="2099"
+                maxLength={4}
                 required
                 disabled={salvando}
-                className="w-full rounded-lg border border-zinc-800 bg-[#121214] px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none focus:border-[#4F46E5] focus:shadow-[0_0_15px_rgba(79,70,229,0.3)] transition-all disabled:opacity-50"
+                className="h-11 w-full rounded-md border border-white/10 bg-white/[0.05] px-3 text-sm text-[#FAFAFA] placeholder:text-[#A1A1AA] outline-none transition-all focus:border-[#4F46E5] focus:shadow-[0_0_15px_rgba(79,70,229,0.3)] disabled:opacity-50"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-zinc-400 font-mono">
+              <label className="mb-2 block text-sm font-medium text-[#A1A1AA]">
                 Marca
               </label>
               <input
@@ -356,14 +406,15 @@ function FormApolice({
                 placeholder="Honda"
                 value={formData.veiculoMarca}
                 onChange={atualizarCampo}
+                maxLength={40}
                 required
                 disabled={salvando}
-                className="w-full rounded-lg border border-zinc-800 bg-[#121214] px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none focus:border-[#FF4FD8] focus:shadow-[0_0_15px_rgba(255,79,216,0.3)] transition-all disabled:opacity-50"
+                className="h-11 w-full rounded-md border border-white/10 bg-white/[0.05] px-3 text-sm text-[#FAFAFA] placeholder:text-[#A1A1AA] outline-none transition-all focus:border-[#FF4FD8] focus:shadow-[0_0_15px_rgba(255,79,216,0.3)] disabled:opacity-50"
               />
             </div>
 
             <div>
-              <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-zinc-400 font-mono">
+              <label className="mb-2 block text-sm font-medium text-[#A1A1AA]">
                 Modelo
               </label>
               <input
@@ -372,15 +423,16 @@ function FormApolice({
                 placeholder="Civic"
                 value={formData.veiculoModelo}
                 onChange={atualizarCampo}
+                maxLength={60}
                 required
                 disabled={salvando}
-                className="w-full rounded-lg border border-zinc-800 bg-[#121214] px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none focus:border-[#FF4FD8] focus:shadow-[0_0_15px_rgba(255,79,216,0.3)] transition-all disabled:opacity-50"
+                className="h-11 w-full rounded-md border border-white/10 bg-white/[0.05] px-3 text-sm text-[#FAFAFA] placeholder:text-[#A1A1AA] outline-none transition-all focus:border-[#FF4FD8] focus:shadow-[0_0_15px_rgba(255,79,216,0.3)] disabled:opacity-50"
               />
             </div>
           </div>
 
           <div>
-            <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-zinc-400 font-mono">
+            <label className="mb-2 block text-sm font-medium text-[#A1A1AA]">
               Preço FIPE
             </label>
             <input
@@ -390,14 +442,15 @@ function FormApolice({
               placeholder="Digite o valor FIPE"
               value={formData.veiculoPrecoFip}
               onChange={atualizarCampo}
+              maxLength={16}
               required
               disabled={salvando}
-              className="w-full rounded-lg border border-zinc-800 bg-[#121214] px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none focus:border-[#22D3EE] focus:shadow-[0_0_15px_rgba(34,211,238,0.3)] transition-all disabled:opacity-50"
+              className="h-11 w-full rounded-md border border-white/10 bg-white/[0.05] px-3 text-sm text-[#FAFAFA] placeholder:text-[#A1A1AA] outline-none transition-all focus:border-[#22D3EE] focus:shadow-[0_0_15px_rgba(34,211,238,0.3)] disabled:opacity-50"
             />
           </div>
 
           <div>
-            <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-zinc-400 font-mono">
+            <label className="mb-2 block text-sm font-medium text-[#A1A1AA]">
               Status
             </label>
             <select
@@ -405,7 +458,7 @@ function FormApolice({
               value={formData.status}
               onChange={atualizarCampo}
               disabled={salvando}
-              className="w-full rounded-lg border border-zinc-800 bg-[#121214] px-4 py-3 text-sm text-white outline-none focus:border-[#4F46E5] focus:shadow-[0_0_15px_rgba(79,70,229,0.3)] transition-all disabled:opacity-50 appearance-none"
+              className="h-11 w-full appearance-none rounded-md border border-white/10 bg-white/[0.05] px-3 text-sm text-[#FAFAFA] outline-none transition-all focus:border-[#4F46E5] focus:shadow-[0_0_15px_rgba(79,70,229,0.3)] disabled:opacity-50"
             >
               <option value="Ativa">Ativa</option>
               <option value="Pendente">Pendente</option>
@@ -414,12 +467,12 @@ function FormApolice({
           </div>
 
           {/* Botões de Ação */}
-          <div className="flex justify-end gap-4 pt-4 border-t border-zinc-900">
+          <div className="mt-6 flex justify-end gap-3 border-t border-white/10 pt-4">
             <button
               type="button"
               onClick={fecharModal}
               disabled={salvando}
-              className="text-sm font-bold uppercase tracking-wider text-zinc-400 hover:text-white transition-colors disabled:opacity-50"
+              className="h-11 rounded-md border border-white/10 px-5 text-sm font-bold text-[#A1A1AA] transition hover:border-white/30 hover:text-white disabled:opacity-50"
             >
               Cancelar
             </button>
@@ -427,7 +480,7 @@ function FormApolice({
             <button
               type="submit"
               disabled={salvando}
-              className="rounded-lg bg-[#D946EF] px-6 py-2.5 text-sm font-bold uppercase tracking-wider text-white transition-all duration-300 ease-out hover:bg-[#FF4FD8] hover:shadow-[0_0_20px_rgba(217,70,239,0.6)] hover:scale-105 active:scale-98 disabled:opacity-50"
+              className="h-11 rounded-md bg-[#D946EF] px-5 text-sm font-bold text-white transition duration-300 ease-out hover:scale-105 hover:bg-[#FF4FD8] hover:shadow-[0_0_20px_rgba(217,70,239,0.6)] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {salvando ? "Salvando..." : "Salvar"}
             </button>

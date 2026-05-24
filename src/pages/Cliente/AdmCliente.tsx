@@ -49,12 +49,38 @@ const formularioInicial: ClienteForm = {
 
 const apenasNumeros = (valor: string) => valor.replace(/\D/g, '')
 
+const limitarTexto = (valor: string, limite: number) => valor.slice(0, limite)
+
+const formatarCpf = (valor: string) => {
+  const numeros = apenasNumeros(valor).slice(0, 11)
+
+  if (numeros.length <= 3) return numeros
+  if (numeros.length <= 6) return `${numeros.slice(0, 3)}.${numeros.slice(3)}`
+  if (numeros.length <= 9) {
+    return `${numeros.slice(0, 3)}.${numeros.slice(3, 6)}.${numeros.slice(6)}`
+  }
+
+  return `${numeros.slice(0, 3)}.${numeros.slice(3, 6)}.${numeros.slice(6, 9)}-${numeros.slice(9)}`
+}
+
+const formatarTelefone = (valor: string) => {
+  const numeros = apenasNumeros(valor).slice(0, 11)
+
+  if (numeros.length <= 2) return numeros
+  if (numeros.length <= 6) return `(${numeros.slice(0, 2)}) ${numeros.slice(2)}`
+  if (numeros.length <= 10) {
+    return `(${numeros.slice(0, 2)}) ${numeros.slice(2, 6)}-${numeros.slice(6)}`
+  }
+
+  return `(${numeros.slice(0, 2)}) ${numeros.slice(2, 7)}-${numeros.slice(7)}`
+}
+
 const normalizarCliente = (usuario: UsuarioApi): Cliente => ({
   id: usuario.id ?? usuario.idUsuario ?? Date.now(),
   nome: usuario.nome,
-  cpf: usuario.cpf,
+  cpf: formatarCpf(usuario.cpf),
   email: usuario.email,
-  telefone: usuario.numeroTelefone ?? usuario.telefone ?? '',
+  telefone: formatarTelefone(usuario.numeroTelefone ?? usuario.telefone ?? ''),
   dataNascimento: usuario.dataNascimento ?? '',
 })
 
@@ -141,10 +167,10 @@ function AdmCliente() {
   function abrirEdicao(cliente: Cliente) {
     setFormulario({
       nome: cliente.nome,
-      cpf: cliente.cpf,
+      cpf: formatarCpf(cliente.cpf),
       email: cliente.email,
       senha: '',
-      numeroTelefone: cliente.telefone,
+      numeroTelefone: formatarTelefone(cliente.telefone),
       dataNascimento: cliente.dataNascimento,
     })
     setClienteEditandoId(cliente.id)
@@ -342,7 +368,7 @@ function AdmCliente() {
 
               <tbody>
                 {clientesFiltrados.length > 0 ? (
-                  clientesFiltrados.map((cliente, index) => (
+                  clientesFiltrados.map((cliente) => (
                     <tr key={`${cliente.id}-${cliente.cpf}`} className="border-b border-white/10 transition hover:bg-white/[0.04] last:border-b-0">
                       <td className="px-6 py-4 font-['JetBrains_Mono'] font-mono text-xs text-[#A1A1AA]">#{cliente.id}</td>
                       <td className="px-6 py-4 font-medium text-[#FAFAFA]">{cliente.nome}</td>
@@ -416,8 +442,9 @@ function AdmCliente() {
                 <input
                   required
                   value={formulario.nome}
+                  maxLength={100}
                   onChange={(event) =>
-                    setFormulario((dados) => ({ ...dados, nome: event.target.value }))
+                    setFormulario((dados) => ({ ...dados, nome: limitarTexto(event.target.value, 100) }))
                   }
                   className="h-11 w-full rounded-md border border-white/10 bg-white/[0.05] px-3 text-sm text-[#FAFAFA] outline-none focus:border-[#9D4EDD]"
                 />
@@ -428,8 +455,11 @@ function AdmCliente() {
                 <input
                   required
                   value={formulario.cpf}
+                  inputMode="numeric"
+                  maxLength={14}
+                  placeholder="000.000.000-00"
                   onChange={(event) =>
-                    setFormulario((dados) => ({ ...dados, cpf: event.target.value }))
+                    setFormulario((dados) => ({ ...dados, cpf: formatarCpf(event.target.value) }))
                   }
                   className="h-11 w-full rounded-md border border-white/10 bg-white/[0.05] px-3 text-sm text-[#FAFAFA] outline-none focus:border-[#22D3EE]"
                 />
@@ -444,7 +474,7 @@ function AdmCliente() {
                   onChange={(event) =>
                     setFormulario((dados) => ({ ...dados, dataNascimento: event.target.value }))
                   }
-                  className="h-11 w-full rounded-md border border-white/10 bg-white/[0.05] px-3 text-sm text-[#FAFAFA] outline-none focus:border-[#4F46E5]"
+                  className="h-11 w-full rounded-md border border-white/10 bg-white/[0.05] px-3 text-sm text-[#FAFAFA] outline-none focus:border-[#4F46E5] [color-scheme:dark]"
                 />
               </label>
 
@@ -453,8 +483,11 @@ function AdmCliente() {
                 <input
                   required
                   value={formulario.numeroTelefone}
+                  inputMode="tel"
+                  maxLength={15}
+                  placeholder="(00) 00000-0000"
                   onChange={(event) =>
-                    setFormulario((dados) => ({ ...dados, numeroTelefone: event.target.value }))
+                    setFormulario((dados) => ({ ...dados, numeroTelefone: formatarTelefone(event.target.value) }))
                   }
                   className="h-11 w-full rounded-md border border-white/10 bg-white/[0.05] px-3 text-sm text-[#FAFAFA] outline-none focus:border-[#4F46E5]"
                 />
@@ -466,8 +499,9 @@ function AdmCliente() {
                   required={!clienteEditandoId}
                   type="password"
                   value={formulario.senha}
+                  maxLength={72}
                   onChange={(event) =>
-                    setFormulario((dados) => ({ ...dados, senha: event.target.value }))
+                    setFormulario((dados) => ({ ...dados, senha: limitarTexto(event.target.value, 72) }))
                   }
                   className="h-11 w-full rounded-md border border-white/10 bg-white/[0.05] px-3 text-sm text-[#FAFAFA] outline-none focus:border-[#FF4FD8]"
                 />
@@ -479,8 +513,9 @@ function AdmCliente() {
                   required
                   type="email"
                   value={formulario.email}
+                  maxLength={120}
                   onChange={(event) =>
-                    setFormulario((dados) => ({ ...dados, email: event.target.value }))
+                    setFormulario((dados) => ({ ...dados, email: limitarTexto(event.target.value, 120) }))
                   }
                   className="h-11 w-full rounded-md border border-white/10 bg-white/[0.05] px-3 text-sm text-[#FAFAFA] outline-none focus:border-[#22D3EE]"
                 />
