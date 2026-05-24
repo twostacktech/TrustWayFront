@@ -214,14 +214,41 @@ function FormApolice({
           }
         }
 
+        // try {
+        //   apoliceSalva = await cadastrar("/apolices", dadosParaEnviar, () => { }, obterHeaderAutenticado())
+        // } catch (erroCadastroApolice) {
+        //   const detalhe = obterDetalheErro(erroCadastroApolice)
+        //   throw new Error(
+        //     detalhe
+        //       ? `Erro ao cadastrar apólice: ${detalhe}`
+        //       : "Erro ao cadastrar apólice."
+        //   )
+        // }
+
         try {
           apoliceSalva = await cadastrar("/apolices", dadosParaEnviar, () => { }, obterHeaderAutenticado())
         } catch (erroCadastroApolice) {
+          // Captura erros do Axios para isolar a validação do CPF
+          if (axios.isAxiosError(erroCadastroApolice)) {
+            const status = erroCadastroApolice.response?.status
+            const msgBackEnd = String(erroCadastroApolice.response?.data?.message || "").toLowerCase()
+
+            // 1. Captura erros normais do NestJS (404 ou 400)
+            if (status === 404 || (status === 400 && (msgBackEnd.includes("usuario") || msgBackEnd.includes("cpf") || msgBackEnd.includes("cliente")))) {
+              toast.warning("O CPF informado não pertence a nenhum cliente cadastrado!")
+              throw new Error("CPF do cliente não cadastrado.")
+            }
+
+            // 2. Intercepta o Erro 500 que o banco estourou por causa do CPF incorreto
+            if (status === 500) {
+              // toast.error("Erro interno no servidor. Verifique se o CPF do cliente está correto e cadastrado!")
+              throw new Error("Falha no servidor ao associar a apólice. Verifique o CPF.")
+            }
+          }
+
           const detalhe = obterDetalheErro(erroCadastroApolice)
           throw new Error(
-            detalhe
-              ? `Erro ao cadastrar apólice: ${detalhe}`
-              : "Erro ao cadastrar apólice."
+            detalhe ? `Erro ao cadastrar apólice: ${detalhe}` : "Erro ao cadastrar apólice."
           )
         }
 
