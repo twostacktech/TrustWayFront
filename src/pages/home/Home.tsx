@@ -424,7 +424,7 @@ function Home() {
   return (
     <main className="trustway-page min-h-screen overflow-x-hidden text-[#F0F2F4]">
       <section
-        id="showcase"
+        id="home"
         className="hero-section relative isolate min-h-[94vh] px-5 pb-4 pt-64 max-[760px]:min-h-[88vh] max-[760px]:pt-48"
       >
         <div className="hero-noise absolute inset-0 -z-10 pointer-events-none opacity-30" aria-hidden="true" />
@@ -644,7 +644,7 @@ function Home() {
       >
         <div className="mx-auto w-[min(1400px,100%)]">
           <div className="mb-[4.4rem] flex items-end justify-between gap-8 max-[760px]:block">
-            <h2 className="m-0 font-[var(--font-display)] text-[clamp(3.8rem,7vw,6.5rem)] font-normal leading-[0.88] tracking-[0.03em]">
+            <h2 className="m-0 font-[var(--font-display)] text-[clamp(3.1rem,5.8vw,5.4rem)] font-normal leading-[0.9] tracking-[0.03em]">
               VANTAGENS PREMIUM
             </h2>
 

@@ -12,7 +12,7 @@ import {
 } from "@phosphor-icons/react";
 
 const sideLinks = [
-  { id: "showcase", icon: Car, eyebrow: "01", label: "Trust Way" },
+  { id: "home", icon: Car, eyebrow: "01", label: "Trust Way" },
   { id: "sobre", icon: Shield, eyebrow: "02", label: "Sobre nós" },
   { id: "beneficios", icon: Lightning, eyebrow: "03", label: "Benefícios" },
   { id: "simulador", icon: Calculator, eyebrow: "04", label: "Simulador" },
