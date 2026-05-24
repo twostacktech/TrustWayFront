@@ -154,11 +154,22 @@ function Apolices() {
           <button
             type="button"
             onClick={abrirCadastro}
+            className="group inline-flex h-11 w-fit items-center justify-center gap-2 rounded-md border border-[#22D3EE]/30 bg-[#F0F2F4]/[0.035] px-6 text-center text-sm transition-all duration-300 ease-out shadow-[0_0_15px_rgba(34,211,238,0.05)] hover:-translate-y-0.5 hover:scale-[1.03] hover:border-[#22D3EE]/60 hover:bg-[#F0F2F4]/[0.065] hover:shadow-[0_0_25px_rgba(34,211,238,0.2)]"
+          >
+              <span className="animated-gradient-text flex items-center gap-2 tracking-[0.12rem] text-xl">
+                <Plus size={18} weight="bold" className="text-[#D946EF]" />
+                Adicionar apólice
+              </span>
+          </button>
+
+          {/* <button
+            type="button"
+            onClick={abrirCadastro}
             className="inline-flex w-fit items-center justify-center gap-2 rounded-lg bg-[#D946EF] px-6 py-2.5 text-sm font-bold tracking-wider text-white transition-all duration-300 ease-out hover:scale-105 hover:bg-[#FF4FD8] hover:shadow-[0_0_20px_rgba(217,70,239,0.6)]"
           >
             <Plus size={18} weight="bold" />
             Adicionar apólice
-          </button>
+          </button> */}
         </div>
 
         {/* Barra de Busca */}
@@ -250,7 +261,7 @@ function Apolices() {
                           {apolice.status || "Ativa"}
                         </span>
                       </td>
-                      
+
                       {/* Cobertura */}
                       <td className="px-6 py-4 text-[#A1A1AA]">
                         {apolice.percentualCobertura ? `${apolice.percentualCobertura}%` : "---"}

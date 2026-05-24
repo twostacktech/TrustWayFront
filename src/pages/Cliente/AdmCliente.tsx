@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
-import { MagnifyingGlass, PencilSimple, Plus, Trash, X } from '@phosphor-icons/react'
+import { CircleNotch, MagnifyingGlass, PencilSimple, Plus, Trash, X } from '@phosphor-icons/react'
 import { AxiosError } from 'axios'
 import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
@@ -296,12 +296,28 @@ function AdmCliente() {
           <button
             type="button"
             onClick={abrirCadastro}
+            disabled={carregando}
+            className="group inline-flex h-11 w-fit items-center justify-center rounded-md border border-[#22D3EE]/25 bg-[#F0F2F4]/[0.035] px-6 text-center text-sm transition duration-200 hover:-translate-y-0.5 hover:scale-[1.03] hover:border-[#22D3EE]/45 hover:bg-[#F0F2F4]/[0.055] shadow-[0_0_20px_rgba(34,211,238,0.08)] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:scale-100"
+          >
+            {carregando ? (
+              <CircleNotch size={18} className="animate-spin text-[#22D3EE]" />
+            ) : (
+              <span className="animated-gradient-text flex items-center gap-2 tracking-[0.12rem] text-xl">
+                <Plus size={18} className="text-[#D946EF]" />
+                Adicionar cliente
+              </span>
+            )}
+          </button>
+
+          {/* <button
+            type="button"
+            onClick={abrirCadastro}
             className="inline-flex w-fit items-center justify-center gap-2 rounded-lg bg-[#D946EF] px-6 py-2.5 text-sm font-bold tracking-wider text-white transition-all duration-300 ease-out hover:scale-105 hover:bg-[#FF4FD8] hover:shadow-[0_0_20px_rgba(217,70,239,0.6)] disabled:cursor-not-allowed disabled:opacity-60"
             disabled={carregando}
           >
             <Plus size={18} weight="bold" />
             Adicionar cliente
-          </button>
+          </button> */}
         </div>
 
         {/* Barra de Busca */}
@@ -526,16 +542,31 @@ function AdmCliente() {
               <button
                 type="button"
                 onClick={fecharFormulario}
-                className="h-11 rounded-md border border-white/10 px-5 text-sm font-bold text-[#A1A1AA] transition hover:border-white/30 hover:text-white"
+                className="h-11 rounded-md border border-white/10 px-5 text-sm font-bold text-[#A1A1AA] uppercase transition hover:border-white/30 hover:text-white"
               >
                 Cancelar
               </button>
-              <button
+
+              {/* <button
                 type="submit"
                 className="h-11 rounded-md bg-[#D946EF] px-5 text-sm font-bold text-white transition duration-300 ease-out hover:bg-[#FF4FD8] hover:shadow-[0_0_20px_rgba(217,70,239,0.6)] hover:scale-105 disabled:cursor-not-allowed disabled:opacity-60"
                 disabled={carregando}
               >
                 {clienteEditandoId ? 'Salvar alterações' : 'Cadastrar cliente'}
+              </button> */}
+
+              <button
+                type="submit"
+                disabled={carregando}
+                className="h-11 min-w-[140px] inline-flex items-center justify-center rounded-md border border-[#22D3EE]/25 bg-[#F0F2F4]/[0.035] px-5 text-center text-sm font-black shadow-[0_0_15px_rgba(34,211,238,0.05)] transition duration-200 hover:border-[#22D3EE]/45 hover:bg-[#F0F2F4]/[0.055] disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                {carregando ? (
+                  <CircleNotch size={18} weight="bold" className="animate-spin text-[#22D3EE]" />
+                ) : (
+                  <span className="animated-gradient-text uppercase tracking-[0.08rem] font-bold">
+                    {clienteEditandoId ? 'Salvar alterações' : 'Cadastrar'}
+                  </span>
+                )}
               </button>
             </div>
           </form>

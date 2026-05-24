@@ -10,6 +10,7 @@ import {
     ArrowClockwise,
     ShieldCheck,
     TrendUp,
+    CircleNotch,
 } from "@phosphor-icons/react";
 import { AxiosError } from "axios";
 
@@ -563,7 +564,7 @@ function Relatorios() {
                         </p>
                     </div>
 
-                    <button
+                    {/* <button
                         type="button"
                         onClick={() => void carregarRelatorio()}
                         disabled={carregando}
@@ -571,7 +572,24 @@ function Relatorios() {
                     >
                         <ArrowClockwise size={16} className={carregando ? "animate-spin" : ""} />
                         Atualizar
+                    </button> */}
+                    <button
+                        type="button"
+                        onClick={() => void carregarRelatorio()}
+                        disabled={carregando}
+                        className="group inline-flex h-11 w-fit items-center justify-center rounded-md border border-[#22D3EE]/25 bg-[#F0F2F4]/[0.035] px-6 text-center text-sm transition duration-200 hover:-translate-y-0.5 hover:scale-[1.03] hover:border-[#22D3EE]/45 hover:bg-[#F0F2F4]/[0.055] shadow-[0_0_20px_rgba(34,211,238,0.08)] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:scale-100"
+                    >
+                        {carregando ? (
+                            <CircleNotch size={18} className="animate-spin text-[#22D3EE]" />
+                        ) : (
+                            <span className="animated-gradient-text flex items-center gap-2 tracking-[0.12rem] text-xl">
+                                <ArrowClockwise size={18} className="text-[#D946EF]" />
+                                Atualizar
+                            </span>
+                        )}
                     </button>
+
+
                 </motion.div>
 
                 {erro && (
