@@ -156,10 +156,10 @@ function Apolices() {
             onClick={abrirCadastro}
             className="group inline-flex h-11 w-fit items-center justify-center gap-2 rounded-md border border-[#22D3EE]/30 bg-[#F0F2F4]/[0.035] px-6 text-center text-sm transition-all duration-300 ease-out shadow-[0_0_15px_rgba(34,211,238,0.05)] hover:-translate-y-0.5 hover:scale-[1.03] hover:border-[#22D3EE]/60 hover:bg-[#F0F2F4]/[0.065] hover:shadow-[0_0_25px_rgba(34,211,238,0.2)]"
           >
-              <span className="animated-gradient-text flex items-center gap-2 tracking-[0.12rem] text-xl">
-                <Plus size={18} weight="bold" className="text-[#D946EF]" />
-                Adicionar apólice
-              </span>
+            <span className="animated-gradient-text flex items-center gap-2 tracking-[0.12rem] text-xl">
+              <Plus size={18} weight="bold" className="text-[#D946EF]" />
+              Adicionar apólice
+            </span>
           </button>
 
           {/* <button
@@ -253,10 +253,12 @@ function Apolices() {
                       {/* Status */}
                       <td className="px-6 py-4">
                         <span className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium border ${apolice.status === "Ativa"
-                          ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
-                          : apolice.status === "Inativa"
-                            ? "bg-amber-500/10 border-amber-500/20 text-amber-400"
-                            : "bg-rose-500/10 border-rose-500/20 text-rose-400" // Cancelada
+                            ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
+                            : apolice.status === "Inativa"
+                              ? "bg-amber-500/10 border-amber-500/20 text-amber-400"
+                              : apolice.status === "Pendente"
+                                ? "bg-yellow-500/10 border-yellow-500/20 text-yellow-500" // Pendente em Amarelo
+                                : "bg-rose-500/10 border-rose-500/20 text-rose-400" // Cancelada (ou qualquer outro) em Vermelho
                           }`}>
                           {apolice.status || "Ativa"}
                         </span>
