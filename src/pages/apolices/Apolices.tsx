@@ -250,12 +250,7 @@ function Apolices() {
                           {apolice.status || "Ativa"}
                         </span>
                       </td>
-
-                      {/* Cobertura */}
-                      <td className="px-6 py-4 text-[#A1A1AA]">
-                        {apolice.percentualCobertura ? `${apolice.percentualCobertura}%` : "---"}
-                      </td>
-
+                      
                       {/* Cobertura */}
                       <td className="px-6 py-4 text-[#A1A1AA]">
                         {apolice.percentualCobertura ? `${apolice.percentualCobertura}%` : "---"}
