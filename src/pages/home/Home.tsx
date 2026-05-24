@@ -512,9 +512,6 @@ function Home() {
           <p className="mb-2 mt-0 text-[0.62rem] font-black tracking-[0.45rem] text-[#F0F2F4]/45 max-[760px]:tracking-[0.24rem]">
             {carroAtual.nome}
           </p>
-          <span className="block text-[0.8rem] leading-[1.6] text-[#F0F2F4]/70">
-            {carroAtual.descricao}
-          </span>
         </div>
 
         <section
