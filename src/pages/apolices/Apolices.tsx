@@ -188,110 +188,128 @@ function Apolices() {
         {/* Tabela de Apólices */}
         <div className="overflow-hidden rounded-lg border border-white/10 bg-white/[0.05]">
           <div className="overflow-x-auto">
-          <table className="w-full min-w-[1080px] border-collapse text-left text-sm">
-            <thead>
-              <tr className="border-b border-white/10 bg-[#0a0a0a]/40 text-xs uppercase text-[#A1A1AA]">
-                <th className="px-6 py-4 font-medium">ID</th>
-                <th className="px-6 py-4 font-medium">Cliente</th>
-                <th className="px-6 py-4 font-medium">CPF</th>
-                <th className="px-6 py-4 font-medium">Placa</th>
-                <th className="px-6 py-4 text-right font-medium">Mensalidade</th>
-                <th className="px-6 py-4 font-medium">Cobertura</th>
-                <th className="px-6 py-4 text-right font-medium">Franquia</th>
-                <th className="px-6 py-4 font-medium">Início</th>
-                <th className="px-6 py-4 text-right font-medium">Veículo</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {apolicesFiltradas.length === 0 ? (
-                <tr>
-                  <td colSpan={9} className="py-10 text-center text-[#A1A1AA]">
-                    Nenhuma apólice encontrada.
-                  </td>
+            <table className="w-full min-w-[1080px] border-collapse text-left text-sm">
+              <thead>
+                <tr className="border-b border-white/10 bg-[#0a0a0a]/40 text-xs uppercase text-[#A1A1AA]">
+                  <th className="px-6 py-4 font-medium">ID</th>
+                  <th className="px-6 py-4 font-medium">Cliente</th>
+                  <th className="px-6 py-4 font-medium">CPF</th>
+                  <th className="px-6 py-4 font-medium">Placa</th>
+                  <th className="px-6 py-4 text-right font-medium">Mensalidade</th>
+                  <th className="px-6 py-4 font-medium">Status</th>
+                  <th className="px-6 py-4 font-medium">Cobertura</th>
+                  <th className="px-6 py-4 text-right font-medium">Franquia</th>
+                  <th className="px-6 py-4 font-medium">Início</th>
+                  <th className="px-6 py-4 text-right font-medium">Veículo</th>
                 </tr>
-              ) : (
-                apolicesFiltradas.map((apolice) => (
-                  <tr key={apolice.id} className="border-b border-white/10 transition hover:bg-white/[0.04] last:border-b-0">
-                    {/* ID */}
-                    <td className="px-6 py-4 font-['JetBrains_Mono'] font-mono text-xs text-[#A1A1AA]">
-                      AP-{String(apolice.id).padStart(4, '0')}
-                    </td>
+              </thead>
 
-                    {/* Cliente */}
-                    <td className="px-6 py-4 font-medium text-[#FAFAFA]">
-                      {apolice.usuario?.nome || "—"}
-                    </td>
-
-                    {/* CPF */}
-                    <td className="px-6 py-4 text-[#22D3EE] font-['JetBrains_Mono'] font-mono text-sm">
-                      {apolice.usuario?.cpf || "—"}
-                    </td>
-
-                    {/* Placa */}
-                    <td className="px-6 py-4 font-['JetBrains_Mono'] font-mono text-sm uppercase text-[#A1A1AA]">
-                      {apolice.veiculo?.placa || "—"}
-                    </td>
-
-                    {/* Mensalidade */}
-                    <td className="px-6 py-4 text-right font-['JetBrains_Mono'] font-mono text-[#FAFAFA]">
-                      {formatarMoeda(apolice.mensalidade)}
-                    </td>
-
-                    {/* Cobertura */}
-                    <td className="px-6 py-4 text-[#A1A1AA]">
-                      {apolice.percentualCobertura ? `${apolice.percentualCobertura}%` : "---"}
-                    </td>
-
-                    {/* Franquia */}
-                    <td className="px-6 py-4 text-right font-['JetBrains_Mono'] font-mono text-[#A1A1AA]">
-                      {formatarMoeda(apolice.valorFranquia)}
-                    </td>
-
-                    {/* Início */}
-                    <td className="px-6 py-4 font-['JetBrains_Mono'] font-mono text-[#A1A1AA]">
-                      {formatarData(apolice.dataInicio)}
-                    </td>
-
-                    {/* Coluna de Ações */}
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex items-center justify-end gap-4">
-                        {/* Botão Ver */}
-                        <button
-                          type="button"
-                          onClick={() => abrirDetalhesVeiculo(apolice)}
-                          className="inline-flex cursor-pointer items-center gap-1.5 rounded border border-white/10 bg-white/[0.05] px-2.5 py-1.5 text-xs font-medium text-[#FAFAFA] transition-all duration-300 hover:border-[#22D3EE] hover:bg-[#22D3EE]/10 hover:text-[#22D3EE] hover:shadow-[0_0_15px_rgba(34,211,238,0.4)]"
-                        >
-                          <Car size={14} className="text-[#A1A1AA]" />
-                          <span>Ver</span>
-                        </button>
-
-                        {/* Botão Editar */}
-                        <button
-                          type="button"
-                          onClick={() => abrirEdicao(apolice)}
-                          className="cursor-pointer rounded p-1 text-[#A1A1AA] transition-all duration-300 hover:bg-white/[0.05] hover:text-[#22D3EE] hover:shadow-[0_0_10px_rgba(34,211,238,0.3)]"
-                          title="Editar apólice"
-                        >
-                          <PencilSimple size={15} />
-                        </button>
-
-                        {/* Botão Excluir */}
-                        <button
-                          type="button"
-                          onClick={() => excluirApolice(apolice.id)}
-                          className="cursor-pointer rounded p-1 text-[#A1A1AA] transition-all duration-300 hover:bg-white/[0.05] hover:text-[#FF4FD8] hover:shadow-[0_0_10px_rgba(255,79,216,0.3)]"
-                          title="Excluir apólice"
-                        >
-                          <Trash size={15} />
-                        </button>
-                      </div>
+              <tbody>
+                {apolicesFiltradas.length === 0 ? (
+                  <tr>
+                    <td colSpan={10} className="py-10 text-center text-[#A1A1AA]">
+                      Nenhuma apólice encontrada.
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ) : (
+                  apolicesFiltradas.map((apolice) => (
+                    <tr key={apolice.id} className="border-b border-white/10 transition hover:bg-white/[0.04] last:border-b-0">
+                      {/* ID */}
+                      <td className="px-6 py-4 font-['JetBrains_Mono'] font-mono text-xs text-[#A1A1AA]">
+                        AP-{String(apolice.id).padStart(4, '0')}
+                      </td>
+
+                      {/* Cliente */}
+                      <td className="px-6 py-4 font-medium text-[#FAFAFA]">
+                        {apolice.usuario?.nome || "—"}
+                      </td>
+
+                      {/* CPF */}
+                      <td className="px-6 py-4 text-[#22D3EE] font-['JetBrains_Mono'] font-mono text-sm">
+                        {apolice.usuario?.cpf || "—"}
+                      </td>
+
+                      {/* Placa */}
+                      <td className="px-6 py-4 font-['JetBrains_Mono'] font-mono text-sm uppercase text-[#A1A1AA]">
+                        {apolice.veiculo?.placa || "—"}
+                      </td>
+
+                      {/* Mensalidade */}
+                      <td className="px-6 py-4 text-right font-['JetBrains_Mono'] font-mono text-[#FAFAFA]">
+                        {formatarMoeda(apolice.mensalidade)}
+                      </td>
+
+                      {/* Status */}
+                      <td className="px-6 py-4">
+                        <span className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium border ${apolice.status === "Ativa"
+                          ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
+                          : apolice.status === "Inativa"
+                            ? "bg-amber-500/10 border-amber-500/20 text-amber-400"
+                            : "bg-rose-500/10 border-rose-500/20 text-rose-400" // Cancelada
+                          }`}>
+                          {apolice.status || "Ativa"}
+                        </span>
+                      </td>
+
+                      {/* Cobertura */}
+                      <td className="px-6 py-4 text-[#A1A1AA]">
+                        {apolice.percentualCobertura ? `${apolice.percentualCobertura}%` : "---"}
+                      </td>
+
+                      {/* Cobertura */}
+                      <td className="px-6 py-4 text-[#A1A1AA]">
+                        {apolice.percentualCobertura ? `${apolice.percentualCobertura}%` : "---"}
+                      </td>
+
+                      {/* Franquia */}
+                      <td className="px-6 py-4 text-right font-['JetBrains_Mono'] font-mono text-[#A1A1AA]">
+                        {formatarMoeda(apolice.valorFranquia)}
+                      </td>
+
+                      {/* Início */}
+                      <td className="px-6 py-4 font-['JetBrains_Mono'] font-mono text-[#A1A1AA]">
+                        {formatarData(apolice.dataInicio)}
+                      </td>
+
+                      {/* Coluna de Ações */}
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex items-center justify-end gap-4">
+                          {/* Botão Ver */}
+                          <button
+                            type="button"
+                            onClick={() => abrirDetalhesVeiculo(apolice)}
+                            className="inline-flex cursor-pointer items-center gap-1.5 rounded border border-white/10 bg-white/[0.05] px-2.5 py-1.5 text-xs font-medium text-[#FAFAFA] transition-all duration-300 hover:border-[#22D3EE] hover:bg-[#22D3EE]/10 hover:text-[#22D3EE] hover:shadow-[0_0_15px_rgba(34,211,238,0.4)]"
+                          >
+                            <Car size={14} className="text-[#A1A1AA]" />
+                            <span>Ver</span>
+                          </button>
+
+                          {/* Botão Editar */}
+                          <button
+                            type="button"
+                            onClick={() => abrirEdicao(apolice)}
+                            className="cursor-pointer rounded p-1 text-[#A1A1AA] transition-all duration-300 hover:bg-white/[0.05] hover:text-[#22D3EE] hover:shadow-[0_0_10px_rgba(34,211,238,0.3)]"
+                            title="Editar apólice"
+                          >
+                            <PencilSimple size={15} />
+                          </button>
+
+                          {/* Botão Excluir */}
+                          <button
+                            type="button"
+                            onClick={() => excluirApolice(apolice.id)}
+                            className="cursor-pointer rounded p-1 text-[#A1A1AA] transition-all duration-300 hover:bg-white/[0.05] hover:text-[#FF4FD8] hover:shadow-[0_0_10px_rgba(255,79,216,0.3)]"
+                            title="Excluir apólice"
+                          >
+                            <Trash size={15} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
 
