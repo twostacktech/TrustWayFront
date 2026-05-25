@@ -73,12 +73,12 @@ function Navbar() {
           </p>
         </div>
 
-        <Link
-          to="/home"
+        <a
+          href="#home"
           className="absolute left-1/2 -translate-x-1/2 font-[var(--font-display)] text-3xl leading-none tracking-[10px] text-[#F0F2F4] max-[520px]:text-2xl max-[520px]:tracking-[0.34rem]"
         >
           TRUSTWAY
-        </Link>
+        </a>
 
         <div className="flex gap-3">
           <Link
