@@ -468,7 +468,7 @@ function Colaborador() {
                                     onChange={(event) =>
                                         setFormulario((dados) => ({ ...dados, dataNascimento: event.target.value }))
                                     }
-                                    className="h-11 w-full rounded-md border border-white/10 bg-white/[0.05] px-3 text-sm text-[#FAFAFA] outline-none focus:border-[#4F46E5]"
+                                    className="h-11 w-full rounded-md border border-white/10 bg-white/[0.05] px-3 text-sm text-[#FAFAFA] outline-none focus:border-[#4F46E5] [color-scheme:dark]"
                                 />
                             </label>
 
