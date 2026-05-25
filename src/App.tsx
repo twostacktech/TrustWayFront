@@ -1,4 +1,6 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import AdmCliente from './pages/Cliente/AdmCliente'
 import Login from './pages/login/Login';
 import Register from './pages/register/Register';
@@ -51,6 +53,24 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/cadastro" element={<Register />} />
         <Route path="/gestao-colaborador" element={<AdminLayout><Colaborador /></AdminLayout>} />      </Routes>
+      <ToastContainer
+        position="top-center"
+        autoClose={7000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick={false}
+        pauseOnFocusLoss={false}
+        draggable
+        pauseOnHover
+        theme="dark"
+        style={{ zIndex: 999999 }}
+        toastStyle={{
+          background: "#16151E",
+          border: "1px solid rgba(34, 211, 238, 0.24)",
+          color: "#FAFAFA",
+          boxShadow: "0 18px 50px rgba(0, 0, 0, 0.45)",
+        }}
+      />
     </BrowserRouter>
   );
 }

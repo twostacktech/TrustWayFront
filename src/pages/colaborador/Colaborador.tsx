@@ -2,8 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { CircleNotch, MagnifyingGlass, PencilSimple, Plus, Trash, X } from '@phosphor-icons/react'
 import { AxiosError } from 'axios'
-import { toast, ToastContainer } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
+import { toast } from 'react-toastify'
 import { api, obterHeaderAutenticado } from '../../services/Service'
 
 type UsuarioApi = {
@@ -546,17 +545,6 @@ function Colaborador() {
                 </div>
             )}
 
-            <ToastContainer
-                position="top-right"
-                autoClose={3000}
-                hideProgressBar={false}
-                newestOnTop
-                closeOnClick
-                pauseOnFocusLoss
-                draggable
-                pauseOnHover
-                theme="dark"
-            />
         </div>
     )
 }

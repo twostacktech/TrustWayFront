@@ -2,8 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { CircleNotch, MagnifyingGlass, PencilSimple, Plus, Trash, X } from '@phosphor-icons/react'
 import { AxiosError } from 'axios'
-import { toast, ToastContainer } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
+import { toast } from 'react-toastify'
 import { api, obterHeaderAutenticado } from '../../services/Service'
 
 type UsuarioApi = {
@@ -86,6 +85,20 @@ const normalizarCliente = (usuario: UsuarioApi): Cliente => ({
 
 const obterMensagemErro = (error: unknown) => {
   if (error instanceof AxiosError) {
+    const mensagem = error.response?.data?.message
+
+    if (Array.isArray(mensagem)) {
+      return mensagem.join(' ')
+    }
+
+    if (typeof mensagem === 'string') {
+      return mensagem
+    }
+
+    if (error.response?.data?.error) {
+      return String(error.response.data.error)
+    }
+
     if (error.response?.status === 401 || error.response?.status === 403) {
       return 'A API recusou a requisicao. Faca login como administrador e tente novamente.'
     }
@@ -98,6 +111,12 @@ const obterMensagemErro = (error: unknown) => {
   }
 
   return 'Ocorreu um erro inesperado.'
+}
+
+const exibirErro = (error: unknown) => {
+  toast.error(obterMensagemErro(error), {
+    autoClose: 10000,
+  })
 }
 
 function AdmCliente() {
@@ -144,7 +163,7 @@ function AdmCliente() {
 
       setClientes(apenasClientes.map(normalizarCliente))
     } catch (error) {
-      toast.error(obterMensagemErro(error))
+      exibirErro(error)
     } finally {
       setCarregando(false)
     }
@@ -206,11 +225,24 @@ function AdmCliente() {
           ...(formulario.senha ? { senha: formulario.senha } : {}),
         }
 
-        await api.put(
-          `/usuario/${clienteEditandoCpf}`,
-          payloadEdicao,
-          obterHeaderAutenticado()
+        const cpfAtual = apenasNumeros(formulario.cpf)
+        const cpfsParaTentar = Array.from(
+          new Set([cpfAtual, clienteEditandoCpf].filter(Boolean))
         )
+        let erroAtualizacao: unknown = null
+
+        for (const cpf of cpfsParaTentar) {
+          try {
+            await api.put(`/usuario/${cpf}`, payloadEdicao, obterHeaderAutenticado())
+            erroAtualizacao = null
+            break
+          } catch (error) {
+            erroAtualizacao = error
+          }
+        }
+
+        if (erroAtualizacao) throw erroAtualizacao
+
         toast.success('Cliente atualizado com sucesso.')
       } else {
         await api.post(
@@ -224,7 +256,7 @@ function AdmCliente() {
       fecharFormulario()
       await carregarClientes()
     } catch (error) {
-      toast.error(obterMensagemErro(error))
+      exibirErro(error)
     } finally {
       setCarregando(false)
     }
@@ -274,7 +306,7 @@ function AdmCliente() {
       toast.success('Cliente excluido com sucesso.')
       await carregarClientes()
     } catch (error) {
-      toast.error(obterMensagemErro(error))
+      exibirErro(error)
     } finally {
       setCarregando(false)
     }
@@ -573,17 +605,6 @@ function AdmCliente() {
         </div>
       )}
 
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop
-        closeOnClick
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="dark"
-      />
     </div>
   )
 }

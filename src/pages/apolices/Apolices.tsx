@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react"
 import { Car, MagnifyingGlass, PencilSimple, Plus, Trash, X } from "@phosphor-icons/react"
-import { toast, ToastContainer } from "react-toastify"
-import "react-toastify/dist/ReactToastify.css"
+import { toast } from "react-toastify"
 
 import { buscar, deletar, obterHeaderAutenticado } from "../../services/Service"
 import type Apolice from "../../models/Apolice"
@@ -403,17 +402,6 @@ function Apolices() {
           </div>
         </div>
       )}
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop
-        closeOnClick
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="dark"
-      />
     </main>
   )
 }
