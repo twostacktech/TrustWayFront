@@ -373,12 +373,11 @@ function AdmCliente() {
             <table className="w-full min-w-[820px] border-collapse text-left text-sm">
               <thead>
                 <tr className="border-b border-white/10 bg-[#0a0a0a]/40 text-xs uppercase text-[#A1A1AA]">
-                  <th className="w-16 px-6 py-4 font-medium">ID</th>
                   <th className="px-6 py-4 font-medium">Nome</th>
                   <th className="px-6 py-4 font-medium">CPF</th>
                   <th className="px-6 py-4 font-medium">Email</th>
                   <th className="px-6 py-4 font-medium">Telefone</th>
-                  <th className="w-28 px-6 py-4 text-right font-medium">Acoes</th>
+                  <th className="w-28 px-6 py-4 text-right font-medium">Ações</th>
                 </tr>
               </thead>
 
@@ -386,7 +385,6 @@ function AdmCliente() {
                 {clientesFiltrados.length > 0 ? (
                   clientesFiltrados.map((cliente) => (
                     <tr key={`${cliente.id}-${cliente.cpf}`} className="border-b border-white/10 transition hover:bg-white/[0.04] last:border-b-0">
-                      <td className="px-6 py-4 font-['JetBrains_Mono'] font-mono text-xs text-[#A1A1AA]">#{cliente.id}</td>
                       <td className="px-6 py-4 font-medium text-[#FAFAFA]">{cliente.nome}</td>
                       <td className="px-6 py-4 font-['JetBrains_Mono'] font-mono text-sm font-bold text-[#22D3EE]">{cliente.cpf}</td>
                       <td className="px-6 py-4 text-[#A1A1AA]">{cliente.email}</td>
