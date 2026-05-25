@@ -80,14 +80,15 @@ function Navbar() {
           TRUSTWAY
         </Link>
 
-        <div className="hidden gap-3 md:flex">
+        <div className="flex gap-3">
           <Link
             to="/login"
-            className="sliding-button inline-flex min-h-9 items-center gap-2 border border-[#F0F2F4]/15 px-5 text-[0.68rem] font-black tracking-[0.08rem] text-[#F0F2F4]"
+            aria-label="Login"
+            className="sliding-button inline-flex min-h-9 items-center gap-2 border border-[#F0F2F4]/15 px-5 text-[0.68rem] font-black tracking-[0.08rem] text-[#F0F2F4] max-[520px]:size-9 max-[520px]:justify-center max-[520px]:px-0"
           >
             <span>
               <User size={15} weight="bold" />
-              LOGIN
+              <span className="max-[520px]:sr-only">LOGIN</span>
             </span>
           </Link>
         </div>

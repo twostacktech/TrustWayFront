@@ -1047,9 +1047,10 @@ a {
 
 .about-outline-title {
   display: block;
-  width: min(112%, 680px);
+  width: min(100%, 680px);
   height: auto;
   overflow: visible;
+  max-width: 100%;
 }
 
 .about-outline-title text {
@@ -1057,6 +1058,25 @@ a {
   font-size: 112px;
   font-weight: 400;
   letter-spacing: 0.01em;
+  paint-order: stroke;
+}
+
+@media (max-width: 768px) {
+  .about-outline-title {
+    width: 100%;
+  }
+  
+  .about-outline-title text {
+    font-size: 80px;
+    stroke-width: 2;
+  }
+}
+
+@media (max-width: 520px) {
+  .about-outline-title text {
+    font-size: 56px;
+    stroke-width: 1.8;
+  }
 }
 
 @keyframes frameIn {

@@ -198,7 +198,7 @@ function Home() {
   ];
 
   const equipe = [
-    { nome: "BEATRIZ BRAGA", cargo: "FULLSTACK DEV", imagem: Beatriz },
+    { nome: "BEATRIZ", cargo: "FULLSTACK DEV", imagem: Beatriz },
     { nome: "DANIEL", cargo: "FULLSTACK DEV", imagem: Daniel },
     { nome: "JULIANA", cargo: "FULLSTACK DEV", imagem: Juliana },
     { nome: "LORENA", cargo: "FULLSTACK DEV", imagem: Lorena },
@@ -568,10 +568,11 @@ function Home() {
 
           <svg
             className="about-outline-title mt-3"
-            viewBox="0 0 780 150"
-            preserveAspectRatio="xMinYMid meet"
+            viewBox="0 0 850 160"
+            preserveAspectRatio="xMinYMid slice"
             aria-label="SEM LIMITES."
             role="img"
+            overflow="visible"
           >
             <defs>
               <linearGradient id="about-outline-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -583,12 +584,14 @@ function Home() {
             </defs>
 
             <text
-              x="0"
-              y="76"
+              x="10"
+              y="85"
               dominantBaseline="middle"
               fill="transparent"
               stroke="url(#about-outline-gradient)"
-              strokeWidth="2.2"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             >
               SEM LIMITES.
             </text>
