@@ -180,7 +180,7 @@ function Colaborador() {
                 }
 
                 await api.put(
-                    `/usuario/${apenasNumeros(formulario.cpf)}`,
+                    `/usuario/${colaboradorEditandoCpf ?? apenasNumeros(formulario.cpf)}`,
                     payloadEdicao,
                     obterHeaderAutenticado()
                 )
