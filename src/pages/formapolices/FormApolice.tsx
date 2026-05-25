@@ -485,11 +485,10 @@ function FormApolice({
               value={formData.status}
               onChange={atualizarCampo}
               disabled={salvando}
-              className="h-11 w-full appearance-none rounded-md border border-white/10 bg-white/[0.05] px-3 text-sm text-[#FAFAFA] outline-none transition-all focus:border-[#4F46E5] focus:shadow-[0_0_15px_rgba(79,70,229,0.3)] disabled:opacity-50"
-            >
-              <option value="Ativa">Ativa</option>
-              <option value="Pendente">Pendente</option>
-              <option value="Cancelada">Cancelada</option>
+              className="h-11 w-full appearance-none rounded-md border border-white/10 bg-white/[0.05] px-3 text-sm text-[#FAFAFA] outline-none transition-all focus:border-[#4F46E5] focus:shadow-[0_0_15px_rgba(79,70,229,0.3)] disabled:opacity-50"            >
+              <option value="Ativa" className="bg-[#16151E] text-[#FAFAFA]">Ativa</option>
+              <option value="Pendente" className="bg-[#16151E] text-[#FAFAFA]">Pendente</option>
+              <option value="Cancelada" className="bg-[#16151E] text-[#FAFAFA]">Cancelada</option>
             </select>
           </div>
 
