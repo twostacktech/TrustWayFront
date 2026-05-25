@@ -1076,18 +1076,22 @@ a {
 
 @media (max-width: 768px) {
   .about-outline-title {
-    width: 100%;
+    width: min(112%, 520px);
   }
   
   .about-outline-title text {
-    font-size: 80px;
+    font-size: 104px;
     stroke-width: 2;
   }
 }
 
 @media (max-width: 520px) {
+  .about-outline-title {
+    width: min(112%, 480px);
+  }
+
   .about-outline-title text {
-    font-size: 72px;
+    font-size: 96px;
     stroke-width: 2.1;
   }
 }
