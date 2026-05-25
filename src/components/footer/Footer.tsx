@@ -44,7 +44,7 @@ function Footer() {
           </p>
           <div className="grid gap-3 text-sm font-bold text-[#F0F2F4]/62">
             <span>suporte@trustway.com</span>
-            <span>Segunda a sexta, 8h às 18h</span>
+            <span>Segunda à sexta, 8h às 18h</span>
             <span>Contratação 100% online</span>
           </div>
         </div>
