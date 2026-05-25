@@ -7,7 +7,7 @@ type LoginResponse = {
   token?: string;
   accessToken?: string;
   authToken?: string;
-  usuario?: string; // Aqui vem o e-mail do usuário (v@gmail.com)
+  usuario?: string;
   nome?: string;
   cpf?: string;
 };
@@ -90,84 +90,158 @@ export default function Login() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0a0a0a] via-[#0f0a1a] to-[#0a0a0a] flex items-center justify-center p-6 text-[#F0F2F4] antialiased font-['Inter']">      <div className="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
 
-     {/* Lado Esquerdo - Informações */}
-        <div className="space-y-8 flex flex-col items-center text-center lg:items-start lg:text-left">
-          <div className="flex flex-col items-center text-center lg:items-start lg:text-left space-y-6 w-full">
-            <h1 className="mt-1 font-['Anton'] text-[4.5rem] sm:text-[5.25rem] uppercase tracking-wide text-[#FAFAFA] leading-[0.85]">
-              Acesse
-            </h1>
-            <h1 className="mt-1 font-['Anton'] text-[4.5rem] sm:text-[5.25rem] uppercase tracking-wide text-[#FAFAFA] leading-[0.85]">
-              sua conta
-            </h1>
+      {/* Lado Esquerdo - Informações */}
+      <div className="space-y-6 flex flex-col items-center text-center lg:items-start lg:text-left">
+        <div className="flex flex-col items-center text-center lg:items-start lg:text-left pt-10 md:pt-16 lg:pt-0 space-y-4 w-full">
+          <h1 className="font-['Anton'] text-4xl sm:text-5xl md:text-6xl lg:text-[4.5rem] uppercase tracking-wide text-[#FAFAFA] leading-[0.85]">            Acesse
+          </h1>
+          <h1 className="-mt-1 md:mt-0 font-['Anton'] text-4xl sm:text-5xl md:text-6xl lg:text-[4.5rem] uppercase tracking-wide text-[#FAFAFA] leading-[0.85]">            sua conta
+          </h1>
 
-            <svg
-              className="about-outline-title -mt-2 w-full max-w-[450px]"
-              viewBox="0 0 550 110"
-              preserveAspectRatio="xMinYMid meet"
-              aria-label="Trustway"
-              role="img"
-            >
-              <defs>
-                <linearGradient id="login-outline-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#22D3EE" />
-                  <stop offset="42%" stopColor="#4F46E5" />
-                  <stop offset="72%" stopColor="#D946EF" />
-                  <stop offset="100%" stopColor="#FF4FD8" />
-                </linearGradient>
-              </defs>
+          {/* Definição do Gradiente de Cores */}
+          <svg className="!absolute !w-0 !h-0">
+            <defs>
+              <linearGradient id="login-outline-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#22D3EE" stopOpacity={1} />
+                <stop offset="100%" stopColor="#FF4FD8" stopOpacity={1} />
+              </linearGradient>
+            </defs>
+          </svg>
 
-              {/* 1. TEXTO MOBILE: Só aparece em telas pequenas e some no desktop (lg:hidden) */}
-              <text
-                x="50%"
-                y="65"
-                fontFamily="Anton, sans-serif"
-                fontSize="90"
-                fontWeight="normal"
-                letterSpacing="2"
-                dominantBaseline="middle"
-                textAnchor="middle"
-                fill="transparent"
-                stroke="url(#login-outline-gradient)"
-                strokeWidth="2"
-                className="block lg:hidden"
-              >
-                TRUSTWAY
-              </text>
+          {/* 1. TRUSTWAY MOBILE - Forçado para sumir a partir do MD */}
+          <svg
+            className="about-outline-title mt-1 md:-mt-1 w-full max-w-[240px] !block md:!hidden"
+            viewBox="0 0 800 110"
+            preserveAspectRatio="xMinYMid meet"
+            aria-label="Trustway"
+            role="img"
+          >
+            <text x="50%" y="70" fontFamily="Anton, sans-serif" fontSize="55" textAnchor="middle" fill="transparent" stroke="url(#login-outline-gradient)" strokeWidth="2">
+              TRUSTWAY
+            </text>
+          </svg>
 
-              {/* 2. TEXTO DESKTOP: Fica oculto no mobile e só aparece no desktop (lg:block) */}
-              <text
-                x="0"
-                y="65"
-                fontFamily="Anton, sans-serif"
-                fontSize="90"
-                fontWeight="normal"
-                letterSpacing="2"
-                dominantBaseline="middle"
-                textAnchor="start"
-                fill="transparent"
-                stroke="url(#login-outline-gradient)"
-                strokeWidth="2"
-                className="hidden lg:block"
-              >
-                TRUSTWAY
-              </text>
-            </svg>
+          {/* 2. TRUSTWAY TABLET - Forçado para aparecer SÓ no MD */}
+          <svg
+            className="about-outline-title mt-4 !hidden md:!block lg:!hidden"
+            style={{ width: '450px', maxWidth: '100%' }}
+            viewBox="0 0 800 110"
+            preserveAspectRatio="xMinYMid meet"
+            aria-label="Trustway"
+            role="img"
+          >
+            <text x="50%" y="80" fontFamily="Anton, sans-serif" fontSize="55" textAnchor="middle" fill="transparent" stroke="url(#login-outline-gradient)" strokeWidth="2">
+              TRUSTWAY
+            </text>
+          </svg>
 
-            {/* 1. TEXTO DESCRITIVO MOBILE: Aparece em telas pequenas e some no desktop (lg:hidden) */}
-            <p className="block lg:hidden text-[#FFFFFFFF]/80 text-lg max-w-md pt-4">
-              Gerencie apólices, veículos e seu perfil em um só lugar. Tudo com a segurança e velocidade que você merece.
-            </p>
+          {/* 3. TRUSTWAY DESKTOP - Forçado para aparecer SÓ no LG */}
+          <svg
+            className="about-outline-title mt-2 w-full max-w-[450px] !hidden lg:!block lg:self-start"
+            viewBox="0 0 800 110"
+            preserveAspectRatio="xMinYMid meet"
+            aria-label="Trustway"
+            role="img"
+          >
+            <text x="0" y="85" fontFamily="Anton, sans-serif" fontSize="60" textAnchor="start" fill="transparent" stroke="url(#login-outline-gradient)" strokeWidth="2">
+              TRUSTWAY
+            </text>
+          </svg>
 
-            {/* 2. TEXTO DESCRITIVO DESKTOP: Fica oculto por padrão e aparece a partir do desktop (lg:block) */}
-            <p className="hidden lg:block text-[#FFFFFFFF]/80 text-lg max-w-md pt-4 pr-8">
-              Gerencie apólices, veículos e seu perfil em um só lugar. Tudo com a segurança e velocidade que você merece.
-            </p>
+          {/* 1. TEXTO DESCRITIVO MOBILE/TABLET */}
+          <p className="!block lg:!hidden text-[#FFFFFFFF]/80 text-base sm:text-base md:text-xl max-w-sm md:max-w-lg pt-3">
+            Gerencie apólices, veículos e seu perfil. Tudo com a segurança e velocidade que você merece.
+          </p>
 
-          </div>
+          {/* 2. TEXTO DESCRITIVO DESKTOP */}
+          <p className="!hidden lg:!block text-[#FFFFFFFF]/80 text-lg max-w-md pt-4 pr-8">
+            Gerencie apólices, veículos e seu perfil em um só lugar. Tudo com a segurança e velocidade que você merece.
+          </p>
+
         </div>
+      </div>
+
+      {/* 
+                <div className="space-y-6 flex flex-col items-center text-center lg:items-start lg:text-left">
+        <div className="flex flex-col items-center text-center lg:items-start lg:text-left space-y-4 w-full">
+
+          <h1 className="mt-1 font-['Anton'] text-4xl sm:text-5xl md:text-5xl lg:text-[4.5rem] uppercase tracking-wide text-[#FAFAFA] leading-[0.85]">
+            <br></br>
+            Acesse
+          </h1>
+          <h1 className="mt-1 font-['Anton'] text-4xl sm:text-5xl md:text-5xl lg:text-[4.5rem] uppercase tracking-wide text-[#FAFAFA] leading-[0.85]">
+            sua conta
+          </h1> */}
+
+      {/* <svg
+            className="about-outline-title -mt-1 w-full max-w-[240px] sm:max-w-[280px] md:max-w-[180px] lg:max-w-[450px]"
+            viewBox="0 0 800 110"
+            preserveAspectRatio="xMinYMid meet"
+            aria-label="Trustway"
+            role="img"
+          >
+            <defs>
+              <linearGradient id="login-outline-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#22D3EE" />
+                <stop offset="42%" stopColor="#4F46E5" />
+                <stop offset="72%" stopColor="#D946EF" />
+                <stop offset="100%" stopColor="#FF4FD8" />
+              </linearGradient>
+            </defs> */}
+
+      {/* 1. TEXTO MOBILE E TABLET VERTICAL: Fica centralizado e menor (fontSize="65")
+            <text
+              x="50%"
+              y="70"
+              fontFamily="Anton, sans-serif"
+              fontSize="65"
+              fontWeight="normal"
+              letterSpacing="2"
+              dominantBaseline="middle"
+              textAnchor="middle"
+              fill="transparent"
+              stroke="url(#login-outline-gradient)"
+              strokeWidth="2"
+              className="block lg:hidden"
+            >
+              TRUSTWAY
+              <br></br>
+            </text> */}
+
+      {/* 2. TEXTO DESKTOP: Fica oculto no mobile e só aparece no desktop (lg:block)
+            <text
+              x="0"
+              y="70"
+              fontFamily="Anton, sans-serif"
+              fontSize="60"
+              fontWeight="normal"
+              letterSpacing="2"
+              dominantBaseline="middle"
+              textAnchor="start"
+              fill="transparent"
+              stroke="url(#login-outline-gradient)"
+              strokeWidth="2"
+              className="hidden lg:block"
+            >
+              TRUSTWAY
+            </text>
+          </svg> */}
+
+      {/* 1. TEXTO DESCRITIVO MOBILE: Aparece em telas pequenas e some no desktop (lg:hidden)
+          <p className="block lg:hidden text-[#FFFFFFFF]/80 text-sm sm:text-base max-w-sm pt-2">
+            Gerencie apólices, veículos e seu perfil em um só lugar. Tudo com a segurança e velocidade que você merece.
+          </p> */}
+
+      {/* 2. TEXTO DESCRITIVO DESKTOP: Fica oculto por padrão e aparece a partir do desktop (lg:block)
+          <p className="hidden lg:block text-[#FFFFFFFF]/80 text-lg max-w-md pt-4 pr-8">
+            Gerencie apólices, veículos e seu perfil em um só lugar. Tudo com a segurança e velocidade que você merece.
+          </p> */}
+
+      {/* </div>
+      </div> */}
 
       {/* Lado Direito - Formulário */}
-      <div className="w-full max-w-md border border-[#22D3EE]/15 bg-[#F0F2F4]/[0.025] backdrop-blur-md p-8 rounded-2xl shadow-[0_0_50px_rgba(34,211,238,0.05)] relative overflow-hidden mx-auto lg:mx-0">
+      <div className="w-full max-w-md md:max-w-xl border border-[#22D3EE]/15 bg-[#F0F2F4]/[0.025] backdrop-blur-md p-8 rounded-2xl shadow-[0_0_50px_rgba(34,211,238,0.05)] relative overflow-hidden mx-auto lg:mx-0">
 
         {/* Detalhe de iluminação sutil de fundo*/}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-[2px] bg-gradient-to-r from-transparent via-[#22D3EE]/40 to-transparent" />
