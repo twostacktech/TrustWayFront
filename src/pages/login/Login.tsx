@@ -95,53 +95,71 @@ export default function Login() {
               sua conta
             </h1>
 
-            <svg
-              className="about-outline-title -mt-2 w-full max-w-[450px]"
-              viewBox="0 0 550 110"
-              preserveAspectRatio="xMinYMid meet"
-              aria-label="Trustway"
-              role="img"
-            >
-              <defs>
-                <linearGradient id="login-outline-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#22D3EE" />
-                  <stop offset="42%" stopColor="#4F46E5" />
-                  <stop offset="72%" stopColor="#D946EF" />
-                  <stop offset="100%" stopColor="#FF4FD8" />
-                </linearGradient>
-              </defs>
-              <text
-                x="50%"
-                y="65"
-                fontFamily="Anton, sans-serif"
-                fontSize="90"
-                letterSpacing="2"
-                dominantBaseline="middle"
-                textAnchor="middle"
-                fill="transparent"
-                stroke="url(#login-outline-gradient)"
-                strokeWidth="2"
-                className="block lg:hidden"
-              >
-                TRUSTWAY
-              </text>
-              <text
-                x="0"
-                y="65"
-                fontFamily="Anton, sans-serif"
-                fontSize="90"
-                letterSpacing="2"
-                dominantBaseline="middle"
-                textAnchor="start"
-                fill="transparent"
-                stroke="url(#login-outline-gradient)"
-                strokeWidth="2"
-                className="hidden lg:block"
-              >
-                TRUSTWAY
-              </text>
-            </svg>
+            {/* VERSÃO MOBILE (Aparece em telas menores e some a partir do breakpoint 'lg') */}
+<svg
+  className="block lg:hidden w-full max-w-[320px] sm:max-w-[420px] mx-auto -mt-1 sm:-mt-2"
+  viewBox="0 0 400 120" /* <-- Você pode ajustar esse viewBox especificamente para o mobile */
+  preserveAspectRatio="xMinYMid meet"
+  aria-label="Trustway"
+  role="img"
+>
+  <defs>
+    <linearGradient id="login-outline-gradient-mobile" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stopColor="#22D3EE" />
+      <stop offset="42%" stopColor="#4F46E5" />
+      <stop offset="72%" stopColor="#D946EF" />
+      <stop offset="100%" stopColor="#FF4FD8" />
+    </linearGradient>
+  </defs>
+  <text
+    x="0"
+    y="75" /* <-- Ajuste o Y para centralizar melhor no mobile */
+    fontFamily="Anton, sans-serif"
+    fontSize="80" /* <-- Fonte um pouco menor para o mobile, se necessário */
+    fontWeight="normal"
+    letterSpacing="2"
+    dominantBaseline="middle"
+    textAnchor="start"
+    fill="transparent"
+    stroke="url(#login-outline-gradient-mobile)"
+    strokeWidth="2.5"
+  >
+    TRUSTWAY
+  </text>
+</svg>
 
+{/* VERSÃO DESKTOP (Fica escondida no mobile e aparece a partir do breakpoint 'lg') */}
+<svg
+  className="hidden lg:block w-full max-w-[500px] lg:max-w-[550px] lg:-ml-1"
+  viewBox="0 0 550 110"
+  preserveAspectRatio="xMinYMid meet"
+  aria-label="Trustway"
+  role="img"
+>
+  <defs>
+    <linearGradient id="login-outline-gradient-desktop" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stopColor="#22D3EE" />
+      <stop offset="42%" stopColor="#4F46E5" />
+      <stop offset="72%" stopColor="#D946EF" />
+      <stop offset="100%" stopColor="#FF4FD8" />
+    </linearGradient>
+  </defs>
+  <text
+    x="0"
+    y="65"
+    fontFamily="Anton, sans-serif"
+    fontSize="95"
+    fontWeight="normal"
+    letterSpacing="3"
+    dominantBaseline="middle"
+    textAnchor="start"
+    fill="transparent"
+    stroke="url(#login-outline-gradient-desktop)"
+    strokeWidth="2.5"
+  >
+    TRUSTWAY
+  </text>
+</svg>
             <p className="text-[#FFFFFFFF]/80 text-sm sm:text-base lg:text-lg max-w-md pt-2 lg:pt-4 lg:pr-8">
               Gerencie apolices, veiculos e seu perfil em um so lugar. Tudo com a seguranca e
               velocidade que voce merece.
