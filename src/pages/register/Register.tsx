@@ -41,7 +41,7 @@ export default function Register() {
           senha,
           numeroTelefone
         },
-        () => {}
+        () => { }
       );
 
       navigate('/login');
@@ -62,18 +62,29 @@ export default function Register() {
       <div className="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
 
         {/* Lado Esquerdo - Informações Sincronizadas */}
-        <div className="space-y-8 flex flex-col items-center text-center lg:items-start lg:text-left">
-          <div className="flex flex-col items-center text-center lg:items-start lg:text-left space-y-6 w-full">
-            <h1 className="mt-1 font-['Anton'] text-[4.5rem] sm:text-[5.25rem] uppercase tracking-wide text-[#FAFAFA] leading-[0.85]">
-              Crie agora
-            </h1>
-            <h1 className="mt-1 font-['Anton'] text-[4.5rem] sm:text-[5.25rem] uppercase tracking-wide text-[#FAFAFA] leading-[0.85]">
-              sua conta
+        <div className="space-y-6 flex flex-col items-center text-center lg:items-start lg:text-left">
+          <div className="flex flex-col items-center text-center lg:items-start lg:text-left pt-10 md:pt-16 lg:pt-0 space-y-4 w-full">            <h1 className="font-['Anton'] text-4xl sm:text-5xl md:text-6xl lg:text-[4.5rem] uppercase tracking-wide text-[#FAFAFA] leading-[0.85]">
+            Crie agora
+          </h1>
+            <h1 className="-mt-1 md:-mt-1 lg:mt-0 font-['Anton'] text-4xl sm:text-5xl md:text-6xl lg:text-[4.5rem] uppercase tracking-wide text-[#FAFAFA] leading-[0.85]">              sua conta
             </h1>
 
+            {/* Definição Isolada do Gradiente (Para não sumir em nenhuma tela) */}
+            <svg className="!absolute !w-0 !h-0">
+              <defs>
+                <linearGradient id="register-outline-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#22D3EE" />
+                  <stop offset="42%" stopColor="#4F46E5" />
+                  <stop offset="72%" stopColor="#D946EF" />
+                  <stop offset="100%" stopColor="#FF4FD8" />
+                </linearGradient>
+              </defs>
+            </svg>
+
+            {/* 1. TRUSTWAY MOBILE - Aparece apenas no celular */}
             <svg
-              className="about-outline-title -mt-2 w-full max-w-[450px]"
-              viewBox="0 0 550 110"
+              className="about-outline-title mt-1 md:-mt-1 w-full max-w-[240px] !block md:!hidden"
+              viewBox="0 0 800 110"
               preserveAspectRatio="xMinYMid meet"
               aria-label="Trustway"
               role="img"
@@ -86,58 +97,52 @@ export default function Register() {
                   <stop offset="100%" stopColor="#FF4FD8" />
                 </linearGradient>
               </defs>
-
-              {/* 1. TEXTO MOBILE */}
-              <text
-                x="50%"
-                y="65"
-                fontFamily="Anton, sans-serif"
-                fontSize="90"
-                fontWeight="normal"
-                letterSpacing="2"
-                dominantBaseline="middle"
-                textAnchor="middle"
-                fill="transparent"
-                stroke="url(#register-outline-gradient)"
-                strokeWidth="2"
-                className="block lg:hidden"
-              >
-                TRUSTWAY
-              </text>
-
-              {/* 2. TEXTO DESKTOP */}
-              <text
-                x="0"
-                y="65"
-                fontFamily="Anton, sans-serif"
-                fontSize="90"
-                fontWeight="normal"
-                letterSpacing="2"
-                dominantBaseline="middle"
-                textAnchor="start"
-                fill="transparent"
-                stroke="url(#register-outline-gradient)"
-                strokeWidth="2"
-                className="hidden lg:block"
-              >
+              <text x="50%" y="70" fontFamily="Anton, sans-serif" fontSize="55" textAnchor="middle" fill="transparent" stroke="url(#register-outline-gradient)" strokeWidth="2">
                 TRUSTWAY
               </text>
             </svg>
 
-            {/* 1. TEXTO DESCRITIVO MOBILE */}
-            <p className="block lg:hidden text-[#FFFFFFFF]/80 text-lg max-w-md pt-4">
+            {/* 2. TRUSTWAY TABLET - Aparece no Tablet  */}
+            <svg
+              className="about-outline-title mt-1 !hidden md:!block lg:!hidden"
+              style={{ width: '450px', maxWidth: '100%' }}
+              viewBox="0 0 800 110"
+              preserveAspectRatio="xMinYMid meet"
+              aria-label="Trustway"
+              role="img"
+            >
+              <text x="50%" y="80" fontFamily="Anton, sans-serif" fontSize="55" textAnchor="middle" fill="transparent" stroke="url(#register-outline-gradient)" strokeWidth="2">
+                TRUSTWAY
+              </text>
+            </svg>
+
+            {/* 3. TRUSTWAY DESKTOP - O seu Desktop que já estava perfeito */}
+            <svg
+              className="about-outline-title mt-2 w-full max-w-[450px] !hidden lg:!block lg:self-start"
+              viewBox="0 0 800 110"
+              preserveAspectRatio="xMinYMid meet"
+              aria-label="Trustway"
+              role="img"
+            >
+              <text x="0" y="85" fontFamily="Anton, sans-serif" fontSize="60" textAnchor="start" fill="transparent" stroke="url(#register-outline-gradient)" strokeWidth="2">
+                TRUSTWAY
+              </text>
+            </svg>
+
+            {/* 1. TEXTO DESCRITIVO MOBILE/TABLET */}
+            <p className="!block lg:!hidden text-[#FFFFFFFF]/80 text-base sm:text-base md:text-xl max-w-sm md:max-w-lg pt-3">
               Tenha acesso à plataforma de seguro automotivo mais robusta do mercado.
             </p>
 
             {/* 2. TEXTO DESCRITIVO DESKTOP */}
-            <p className="hidden lg:block text-[#FFFFFFFF]/80 text-lg max-w-md pt-4 pr-8">
+            <p className="!hidden lg:!block text-[#FFFFFFFF]/80 text-lg max-w-md lg:mt-6 pr-8">
               Tenha acesso à plataforma de seguro automotivo mais robusta do mercado.
             </p>
           </div>
         </div>
 
         {/* Lado Direito - Formulário Reestilizado */}
-        <div className="w-full max-w-xl border border-[#22D3EE]/15 bg-[#F0F2F4]/[0.025] backdrop-blur-md p-8 rounded-2xl shadow-[0_0_50px_rgba(34,211,238,0.05)] relative overflow-hidden mx-auto lg:mx-0ADA">
+        <div className="w-full max-w-xl border border-[#22D3EE]/15 bg-[#F0F2F4]/[0.025] backdrop-blur-md p-8 rounded-2xl shadow-[0_0_50px_rgba(34,211,238,0.05)] relative overflow-hidden mx-auto lg:mx-0">
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-[2px] bg-gradient-to-r from-transparent via-[#22D3EE]/40 to-transparent" />
 
           <h2 className="text-3xl font-[var(--font-display)] font-normal text-center mb-8 tracking-[0.05em] uppercase text-[#F0F2F4]">
@@ -151,7 +156,7 @@ export default function Register() {
           )}
 
           <form className="space-y-5" onSubmit={handleRegister}>
-            
+
             {/* Nome Completo */}
             <div className="flex flex-col space-y-2">
               <label className="text-[0.85rem] font-black tracking-[0.12rem] text-[#22D3EE] uppercase">
@@ -299,7 +304,6 @@ export default function Register() {
             </Link>
           </div>
         </div>
-
       </div>
     </div>
   );
