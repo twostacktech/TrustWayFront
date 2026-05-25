@@ -81,6 +81,32 @@ const formatarPlaca = (valor: string) =>
 const limitarNumeroInteiro = (valor: string, limite: number) =>
   apenasNumeros(valor).slice(0, limite)
 
+const BRASIL_API_BASE = "https://brasilapi.com.br/api"
+
+type TipoVeiculoFipe = "carros" | "motos"
+
+type MarcaFipeBrasil = {
+  nome: string
+  valor: string
+}
+
+type VeiculoFipeBrasil = {
+  nome: string
+  modelo?: string
+  codigoFipe: string
+}
+
+type PrecoFipeBrasil = {
+  valor: string
+  marca: string
+  modelo: string
+  anoModelo: number
+  codigoFipe: string
+}
+
+const obterNomeVeiculoFipe = (veiculo: VeiculoFipeBrasil) =>
+  veiculo.modelo ?? veiculo.nome
+
 type FormApoliceProps = {
   fecharModal: () => void
   atualizarListagem: () => Promise<void> | void
@@ -94,7 +120,14 @@ function FormApolice({
   adicionarApolice,
   apoliceEditando,
 }: FormApoliceProps) {
-  const [salvando, setSalvando] = useState(false)
+	  const [salvando, setSalvando] = useState(false)
+	  const [carregandoFipe, setCarregandoFipe] = useState(false)
+	  const [erroFipe, setErroFipe] = useState("")
+	  const [marcasFipe, setMarcasFipe] = useState<MarcaFipeBrasil[]>([])
+	  const [modelosFipe, setModelosFipe] = useState<VeiculoFipeBrasil[]>([])
+	  const [precosFipe, setPrecosFipe] = useState<PrecoFipeBrasil[]>([])
+	  const [tipoVeiculoFipe, setTipoVeiculoFipe] = useState<TipoVeiculoFipe>("carros")
+	  const [codigoFipeSelecionado, setCodigoFipeSelecionado] = useState("")
 
   const [formData, setFormData] = useState({
     dataInicio: "",
@@ -110,9 +143,9 @@ function FormApolice({
     veiculoPrecoFip: "",
   })
 
-  useEffect(() => {
-    const timer = window.setTimeout(() => {
-      if (!apoliceEditando) return
+	  useEffect(() => {
+	    const timer = window.setTimeout(() => {
+	      if (!apoliceEditando) return
 
       setFormData({
         dataInicio:
@@ -131,9 +164,67 @@ function FormApolice({
         veiculoPrecoFip: apoliceEditando.veiculo?.precoFip?.toString() ?? "",
       })
     }, 0)
+	
+	    return () => window.clearTimeout(timer)
+	  }, [apoliceEditando])
 
-    return () => window.clearTimeout(timer)
-  }, [apoliceEditando])
+	  useEffect(() => {
+	    async function buscarMarcasFipe() {
+	      try {
+	        setCarregandoFipe(true)
+	        setErroFipe("")
+	        const resposta = await fetch(`${BRASIL_API_BASE}/fipe/marcas/v1/${tipoVeiculoFipe}`)
+	        if (!resposta.ok) throw new Error("Erro ao buscar marcas FIPE")
+	        const marcas = (await resposta.json()) as MarcaFipeBrasil[]
+	        setMarcasFipe(marcas)
+	      } catch (error) {
+	        console.error("Erro ao buscar marcas FIPE:", error)
+	        setErroFipe("Não foi possível carregar marcas FIPE agora.")
+	      } finally {
+	        setCarregandoFipe(false)
+	      }
+	    }
+
+	    buscarMarcasFipe()
+	  }, [tipoVeiculoFipe])
+
+	  async function buscarModelosFipe(codigoMarca: string) {
+	    if (!codigoMarca) return
+
+	    try {
+	      setCarregandoFipe(true)
+	      setErroFipe("")
+	      const resposta = await fetch(
+	        `${BRASIL_API_BASE}/fipe/veiculos/v1/${tipoVeiculoFipe}/${codigoMarca}`
+	      )
+	      if (!resposta.ok) throw new Error("Erro ao buscar modelos FIPE")
+	      const modelos = (await resposta.json()) as VeiculoFipeBrasil[]
+	      setModelosFipe(modelos)
+	    } catch (error) {
+	      console.error("Erro ao buscar modelos FIPE:", error)
+	      setErroFipe("Não foi possível carregar modelos desta marca.")
+	    } finally {
+	      setCarregandoFipe(false)
+	    }
+	  }
+
+	  async function buscarPrecosFipe(codigoFipe: string) {
+	    if (!codigoFipe) return
+
+	    try {
+	      setCarregandoFipe(true)
+	      setErroFipe("")
+	      const resposta = await fetch(`${BRASIL_API_BASE}/fipe/preco/v1/${codigoFipe}`)
+	      if (!resposta.ok) throw new Error("Erro ao buscar preço FIPE")
+	      const precos = (await resposta.json()) as PrecoFipeBrasil[]
+	      setPrecosFipe(precos)
+	    } catch (error) {
+	      console.error("Erro ao buscar preço FIPE:", error)
+	      setErroFipe("Não foi possível carregar os anos/preços deste modelo.")
+	    } finally {
+	      setCarregandoFipe(false)
+	    }
+	  }
 
   const atualizarCampo = (
     evento: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -366,9 +457,9 @@ function FormApolice({
             />
           </div>
 
-          <div>
-            <label className="mb-2 block text-sm font-medium text-[#A1A1AA]">
-              CPF do cliente
+	          <div>
+	            <label className="mb-2 block text-sm font-medium text-[#A1A1AA]">
+	              CPF do cliente
             </label>
             <input
               type="text"
@@ -381,13 +472,41 @@ function FormApolice({
               required
               disabled={salvando}
               className="h-11 w-full rounded-md border border-white/10 bg-white/[0.05] px-3 text-sm text-[#FAFAFA] placeholder:text-[#A1A1AA] outline-none transition-all focus:border-[#22D3EE] focus:shadow-[0_0_15px_rgba(34,211,238,0.3)] disabled:opacity-50"
-            />
-          </div>
+	            />
+	          </div>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div>
-              <label className="mb-2 block text-sm font-medium text-[#A1A1AA]">
-                Placa
+		          <div>
+	            <label className="mb-2 block text-sm font-medium text-[#A1A1AA]">
+	              Tipo de veículo
+	            </label>
+	            <select
+	              value={tipoVeiculoFipe}
+	              onChange={(evento) => {
+	                const tipoVeiculo = evento.target.value as TipoVeiculoFipe
+	                setTipoVeiculoFipe(tipoVeiculo)
+	                setCodigoFipeSelecionado("")
+	                setModelosFipe([])
+	                setPrecosFipe([])
+	                setFormData((atual) => ({
+	                  ...atual,
+	                  veiculoMarca: "",
+	                  veiculoModelo: "",
+	                  veiculoAno: "",
+	                  veiculoPrecoFip: "",
+	                }))
+	              }}
+	              disabled={salvando || carregandoFipe}
+	              className="h-11 w-full appearance-none rounded-md border border-white/10 bg-white/[0.05] px-3 text-sm text-[#FAFAFA] outline-none transition-all focus:border-[#22D3EE] focus:shadow-[0_0_15px_rgba(34,211,238,0.3)] disabled:opacity-50"
+	            >
+	              <option value="carros" className="bg-[#16151E] text-[#FAFAFA]">Carro</option>
+	              <option value="motos" className="bg-[#16151E] text-[#FAFAFA]">Moto</option>
+	            </select>
+	          </div>
+	
+		          <div>
+	            <div>
+	              <label className="mb-2 block text-sm font-medium text-[#A1A1AA]">
+	                Placa
               </label>
               <input
                 type="text"
@@ -398,85 +517,127 @@ function FormApolice({
                 maxLength={7}
                 required
                 disabled={salvando}
-                className="h-11 w-full rounded-md border border-white/10 bg-white/[0.05] px-3 text-sm uppercase text-[#FAFAFA] placeholder:text-[#A1A1AA] outline-none transition-all focus:border-[#4F46E5] focus:shadow-[0_0_15px_rgba(79,70,229,0.3)] disabled:opacity-50"
-              />
-            </div>
+	                className="h-11 w-full rounded-md border border-white/10 bg-white/[0.05] px-3 text-sm uppercase text-[#FAFAFA] placeholder:text-[#A1A1AA] outline-none transition-all focus:border-[#4F46E5] focus:shadow-[0_0_15px_rgba(79,70,229,0.3)] disabled:opacity-50"
+	              />
+	            </div>
+	          </div>
 
-            <div>
-              <label className="mb-2 block text-sm font-medium text-[#A1A1AA]">
-                Ano
-              </label>
-              <input
-                type="number"
-                name="veiculoAno"
-                placeholder="2024"
-                value={formData.veiculoAno}
-                onChange={atualizarCampo}
-                min="1900"
-                max="2099"
-                maxLength={4}
-                required
-                disabled={salvando}
-                className="h-11 w-full rounded-md border border-white/10 bg-white/[0.05] px-3 text-sm text-[#FAFAFA] placeholder:text-[#A1A1AA] outline-none transition-all focus:border-[#4F46E5] focus:shadow-[0_0_15px_rgba(79,70,229,0.3)] disabled:opacity-50"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div>
-              <label className="mb-2 block text-sm font-medium text-[#A1A1AA]">
-                Marca
-              </label>
-              <input
-                type="text"
-                name="veiculoMarca"
-                placeholder="Honda"
-                value={formData.veiculoMarca}
-                onChange={atualizarCampo}
-                maxLength={40}
-                required
-                disabled={salvando}
-                className="h-11 w-full rounded-md border border-white/10 bg-white/[0.05] px-3 text-sm text-[#FAFAFA] placeholder:text-[#A1A1AA] outline-none transition-all focus:border-[#FF4FD8] focus:shadow-[0_0_15px_rgba(255,79,216,0.3)] disabled:opacity-50"
-              />
-            </div>
+	          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+	            <div>
+	              <label className="mb-2 block text-sm font-medium text-[#A1A1AA]">
+	                Marca
+	              </label>
+	              <select
+	                value={formData.veiculoMarca}
+	                onChange={(evento) => {
+	                  const marca = marcasFipe.find((item) => item.nome === evento.target.value)
+	                  setFormData((atual) => ({
+	                    ...atual,
+	                    veiculoMarca: marca?.nome ?? "",
+	                    veiculoModelo: "",
+	                    veiculoAno: "",
+	                    veiculoPrecoFip: "",
+	                  }))
+	                  setCodigoFipeSelecionado("")
+	                  setModelosFipe([])
+	                  setPrecosFipe([])
+	                  if (marca) buscarModelosFipe(marca.valor)
+	                }}
+	                required
+	                disabled={salvando || carregandoFipe || marcasFipe.length === 0}
+	                className="h-11 w-full appearance-none rounded-md border border-white/10 bg-white/[0.05] px-3 text-sm text-[#FAFAFA] outline-none transition-all focus:border-[#FF4FD8] focus:shadow-[0_0_15px_rgba(255,79,216,0.3)] disabled:opacity-50"
+	              >
+	                <option value="" className="bg-[#16151E] text-[#FAFAFA]">Selecione a marca</option>
+	                {marcasFipe.map((marca) => (
+	                  <option key={marca.valor} value={marca.nome} className="bg-[#16151E] text-[#FAFAFA]">
+	                    {marca.nome}
+	                  </option>
+	                ))}
+	              </select>
+	            </div>
 
             <div>
               <label className="mb-2 block text-sm font-medium text-[#A1A1AA]">
                 Modelo
               </label>
-              <input
-                type="text"
-                name="veiculoModelo"
-                placeholder="Civic"
-                value={formData.veiculoModelo}
-                onChange={atualizarCampo}
-                maxLength={60}
-                required
-                disabled={salvando}
-                className="h-11 w-full rounded-md border border-white/10 bg-white/[0.05] px-3 text-sm text-[#FAFAFA] placeholder:text-[#A1A1AA] outline-none transition-all focus:border-[#FF4FD8] focus:shadow-[0_0_15px_rgba(255,79,216,0.3)] disabled:opacity-50"
-              />
-            </div>
-          </div>
+	              <select
+	                value={codigoFipeSelecionado}
+	                onChange={(evento) => {
+	                  const codigoFipe = evento.target.value
+	                  const modelo = modelosFipe.find((item) => item.codigoFipe === codigoFipe)
+	                  setCodigoFipeSelecionado(codigoFipe)
+	                  setFormData((atual) => ({
+	                    ...atual,
+	                    veiculoModelo: modelo ? obterNomeVeiculoFipe(modelo) : "",
+	                    veiculoAno: "",
+	                    veiculoPrecoFip: "",
+	                  }))
+	                  setPrecosFipe([])
+	                  if (codigoFipe) buscarPrecosFipe(codigoFipe)
+	                }}
+	                required
+	                disabled={salvando || carregandoFipe || modelosFipe.length === 0}
+	                className="h-11 w-full appearance-none rounded-md border border-white/10 bg-white/[0.05] px-3 text-sm text-[#FAFAFA] outline-none transition-all focus:border-[#FF4FD8] focus:shadow-[0_0_15px_rgba(255,79,216,0.3)] disabled:opacity-50"
+	              >
+	                <option value="" className="bg-[#16151E] text-[#FAFAFA]">
+	                  {formData.veiculoMarca ? "Selecione o modelo" : "Escolha uma marca primeiro"}
+	                </option>
+	                {modelosFipe.map((modelo) => (
+	                  <option key={modelo.codigoFipe} value={modelo.codigoFipe} className="bg-[#16151E] text-[#FAFAFA]">
+	                    {obterNomeVeiculoFipe(modelo)}
+	                  </option>
+	                ))}
+	              </select>
+	            </div>
+	          </div>
 
           <div>
             <label className="mb-2 block text-sm font-medium text-[#A1A1AA]">
               Preço FIPE
             </label>
-            <input
-              type="text"
-              inputMode="decimal"
-              name="veiculoPrecoFip"
-              placeholder="Digite o valor FIPE"
-              value={formData.veiculoPrecoFip}
-              onChange={atualizarCampo}
-              maxLength={16}
-              required
-              disabled={salvando}
-              className="h-11 w-full rounded-md border border-white/10 bg-white/[0.05] px-3 text-sm text-[#FAFAFA] placeholder:text-[#A1A1AA] outline-none transition-all focus:border-[#22D3EE] focus:shadow-[0_0_15px_rgba(34,211,238,0.3)] disabled:opacity-50"
-            />
-          </div>
+	            <select
+	              value={formData.veiculoAno}
+	              onChange={(evento) => {
+	                const preco = precosFipe.find(
+	                  (item) => String(item.anoModelo) === evento.target.value
+	                )
+	                setFormData((atual) => ({
+	                  ...atual,
+	                  veiculoAno: preco ? String(preco.anoModelo) : "",
+	                  veiculoPrecoFip: preco?.valor ?? "",
+	                }))
+	              }}
+	              required
+	              disabled={salvando || carregandoFipe || precosFipe.length === 0}
+	              className="h-11 w-full appearance-none rounded-md border border-white/10 bg-white/[0.05] px-3 text-sm text-[#FAFAFA] outline-none transition-all focus:border-[#22D3EE] focus:shadow-[0_0_15px_rgba(34,211,238,0.3)] disabled:opacity-50"
+	            >
+	              <option value="" className="bg-[#16151E] text-[#FAFAFA]">
+	                {codigoFipeSelecionado ? "Selecione ano e valor FIPE" : "Escolha um modelo primeiro"}
+	              </option>
+	              {precosFipe.map((preco) => (
+	                <option
+	                  key={`${preco.codigoFipe}-${preco.anoModelo}-${preco.valor}`}
+	                  value={preco.anoModelo}
+	                  className="bg-[#16151E] text-[#FAFAFA]"
+	                >
+	                  {preco.anoModelo} - {preco.valor}
+	                </option>
+	              ))}
+	            </select>
+		            {formData.veiculoPrecoFip && (
+		              <p className="mt-2 text-xs font-medium text-[#22D3EE]">
+		                Valor selecionado: {formData.veiculoPrecoFip}
+		              </p>
+		            )}
+	          </div>
 
-          <div>
+	          {erroFipe && (
+	            <p className="rounded-md border border-red-500/20 bg-red-500/10 px-3 py-2 text-sm text-red-300">
+	              {erroFipe}
+	            </p>
+	          )}
+	
+	          <div>
             <label className="mb-2 block text-sm font-medium text-[#A1A1AA]">
               Status
             </label>

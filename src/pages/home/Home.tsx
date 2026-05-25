@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import type { Variants } from "framer-motion";
 import { CaretDown } from "@phosphor-icons/react";
@@ -16,12 +16,20 @@ import Lorena from "../../assets/equipe/Lorena.png";
 import Luanna from "../../assets/equipe/Luanna.png";
 import Lucas from "../../assets/equipe/Lucas.jpeg";
 
-const FIPE_API_BASE = "https://parallelum.com.br/fipe/api/v1/carros";
+const FIPE_API_ROOT = "https://parallelum.com.br/fipe/api/v1";
 const PERCENTUAL_COBERTURA_PADRAO = 80;
+const FATOR_MENSALIDADE_BASE = 0.0042;
+
 const HONDA_CITY_HATCH_2024_FIPE = {
   marca: "25",
   modelo: "9733",
   ano: "2024-5",
+};
+
+const KAWASAKI_NINJA_400_2024_BUSCA = {
+  marca: "KAWASAKI",
+  modelo: "NINJA 400",
+  ano: "2024",
 };
 
 type MarcaFipe = {
@@ -30,12 +38,10 @@ type MarcaFipe = {
 };
 
 type ModeloFipe = {
-  codigo: number;
-  nome: string;
-};
-
-type ModelosFipeResponse = {
-  modelos: ModeloFipe[];
+  codigo?: number;
+  codigoFipe?: string;
+  nome?: string;
+  modelo?: string;
 };
 
 type AnoFipe = {
@@ -52,6 +58,11 @@ type PrecoFipe = {
   MesReferencia: string;
 };
 
+type TipoVeiculoFipe = "carros" | "motos";
+
+const obterFipeApiBase = (tipoVeiculo: TipoVeiculoFipe) =>
+  `${FIPE_API_ROOT}/${tipoVeiculo}`;
+
 type ComboboxOption = {
   value: string;
   label: string;
@@ -62,6 +73,9 @@ const formatarMoeda = (valor: number) =>
     style: "currency",
     currency: "BRL",
   }).format(valor);
+
+const calcularMensalidadePadrao = (valorFipe: number) =>
+  valorFipe * FATOR_MENSALIDADE_BASE * (PERCENTUAL_COBERTURA_PADRAO / 100);
 
 const obterValorNumericoFipe = (valor: string) =>
   Number(valor.replace(/\./g, "").replace(/[^\d,]/g, "").replace(",", "."));
@@ -146,9 +160,15 @@ function Home() {
   const imageSrc = (image: string | { src: string }) =>
     typeof image === "string" ? image : image.src;
   const [precoFipePopular, setPrecoFipePopular] = useState<PrecoFipe | null>(null);
+  const [precoFipeMoto, setPrecoFipeMoto] = useState<PrecoFipe | null>(null);
   const mediaSeguroPopular = precoFipePopular
-    ? `${formatarMoeda(Math.max(49.9, obterValorNumericoFipe(precoFipePopular.Valor) * 0.0042))} / mês`
+    ? `${formatarMoeda(Math.max(49.9, calcularMensalidadePadrao(obterValorNumericoFipe(precoFipePopular.Valor))))} / mês`
     : "R$ 512 / mês";
+  const mediaSeguroMoto = precoFipeMoto
+    ? `${formatarMoeda(Math.max(49.9, calcularMensalidadePadrao(obterValorNumericoFipe(precoFipeMoto.Valor))))} / mês`
+    : "R$ 106,42 / mês";
+  const fipeLuxury = 1574000;
+  const fipeSport = 2150000;
 
   const carros = [
     {
@@ -166,8 +186,8 @@ function Home() {
       id: "02",
       tipo: "LUXURY",
       nome: "MERCEDES S-CLASS",
-      valorFipe: "R$ 985.700",
-      mediaSeguro: "R$ 2.050 / mês",
+      valorFipe: formatarMoeda(fipeLuxury),
+      mediaSeguro: `${formatarMoeda(calcularMensalidadePadrao(fipeLuxury))} / mês`,
       descricao:
         "Cobertura premium para veículos de alto valor, com atendimento reservado e peças originais.",
       imagem: luxury,
@@ -177,8 +197,8 @@ function Home() {
       id: "03",
       tipo: "SPORT",
       nome: "PORSCHE 911 TURBO",
-      valorFipe: "R$ 1.482.900",
-      mediaSeguro: "R$ 3.183 / mês",
+      valorFipe: formatarMoeda(fipeSport),
+      mediaSeguro: `${formatarMoeda(calcularMensalidadePadrao(fipeSport))} / mês`,
       descricao:
         "Seguro de performance para quem exige precisão, agilidade e proteção em cada detalhe.",
       imagem: sport,
@@ -188,8 +208,8 @@ function Home() {
       id: "04",
       tipo: "MOTO",
       nome: "KAWASAKI NINJA 400",
-      valorFipe: "R$ 38.900",
-      mediaSeguro: "R$ 179 / mês",
+      valorFipe: precoFipeMoto?.Valor ?? "R$ 31.673,00",
+      mediaSeguro: mediaSeguroMoto,
       descricao:
         "Proteção inteligente para motos esportivas, com cobertura ágil, assistência e cálculo ajustado ao perfil do piloto.",
       imagem: moto,
@@ -198,17 +218,18 @@ function Home() {
   ];
 
   const equipe = [
-    { nome: "BEATRIZ", cargo: "FULLSTACK DEV", imagem: Beatriz },
-    { nome: "DANIEL", cargo: "FULLSTACK DEV", imagem: Daniel },
-    { nome: "JULIANA", cargo: "FULLSTACK DEV", imagem: Juliana },
-    { nome: "LORENA", cargo: "FULLSTACK DEV", imagem: Lorena },
-    { nome: "LUANNA", cargo: "FULLSTACK DEV", imagem: Luanna },
-    { nome: "LUCAS", cargo: "FULLSTACK DEV", imagem: Lucas },
+    { nome: "BEATRIZ", cargo: "FULLSTACK DEV", imagem: Beatriz, linkedin: "https://www.linkedin.com/in/beatriz-braga-silva/" },
+    { nome: "DANIEL", cargo: "FULLSTACK DEV", imagem: Daniel, linkedin: "https://www.linkedin.com/in/daniel-macedo33/" },
+    { nome: "JULIANA", cargo: "FULLSTACK DEV", imagem: Juliana, linkedin: "https://www.linkedin.com/in/julianaborges014/" },
+    { nome: "LORENA", cargo: "FULLSTACK DEV", imagem: Lorena, linkedin: "https://www.linkedin.com/in/lorena-godoi-almeida/" },
+    { nome: "LUCAS", cargo: "FULLSTACK DEV", imagem: Lucas, linkedin: "https://www.linkedin.com/in/lucaaas-araujo/" },
+    { nome: "LUANNA", cargo: "FULLSTACK DEV", imagem: Luanna, linkedin: "https://www.linkedin.com/in/luanna-alc%C3%A2ntara/" },
   ];
 
   const [carroSelecionado, setCarroSelecionado] = useState(carros[0]);
   const [faqAberta, setFaqAberta] = useState(-1);
   const [simulacao, setSimulacao] = useState({
+    tipoVeiculo: "carros" as TipoVeiculoFipe,
     marca: "",
     modelo: "",
     ano: "",
@@ -226,12 +247,15 @@ function Home() {
   const [precoFipe, setPrecoFipe] = useState<PrecoFipe | null>(null);
   const [carregandoFipe, setCarregandoFipe] = useState(false);
   const [erroFipe, setErroFipe] = useState("");
+  const aboutSectionRef = useRef<HTMLElement | null>(null);
+  const aboutTitleVisibleRef = useRef(false);
+  const [aboutTitleCycle, setAboutTitleCycle] = useState(0);
   const carroAtual = carros.find((carro) => carro.id === carroSelecionado.id) ?? carros[0];
 
   const valorFipeNumerico = precoFipe ? obterValorNumericoFipe(precoFipe.Valor) : 0;
   const fatorCobertura = percentualCobertura / 100;
   const valorFranquia = valorFipeNumerico * 0.05 * fatorCobertura;
-  const mensalidadeSimulada = Math.max(49.9, valorFipeNumerico * 0.0042 * fatorCobertura);
+  const mensalidadeSimulada = Math.max(49.9, valorFipeNumerico * FATOR_MENSALIDADE_BASE * fatorCobertura);
   const veiculoComDescontoAntiguidade = precoFipe
     ? new Date().getFullYear() - precoFipe.AnoModelo > 10
     : false;
@@ -241,8 +265,8 @@ function Home() {
     label: normalizarNomeMarca(marca.nome),
   }));
   const opcoesModelo = modelosFipe.map((modelo) => ({
-    value: String(modelo.codigo),
-    label: modelo.nome,
+    value: String(modelo.codigoFipe ?? modelo.codigo ?? ""),
+    label: modelo.modelo ?? modelo.nome ?? "",
   }));
   const opcoesAno = anosFipe.map((ano) => ({
     value: ano.codigo,
@@ -253,7 +277,7 @@ function Home() {
     async function buscarFipePopular() {
       try {
         const resposta = await fetch(
-          `${FIPE_API_BASE}/marcas/${HONDA_CITY_HATCH_2024_FIPE.marca}/modelos/${HONDA_CITY_HATCH_2024_FIPE.modelo}/anos/${HONDA_CITY_HATCH_2024_FIPE.ano}`
+          `${obterFipeApiBase("carros")}/marcas/${HONDA_CITY_HATCH_2024_FIPE.marca}/modelos/${HONDA_CITY_HATCH_2024_FIPE.modelo}/anos/${HONDA_CITY_HATCH_2024_FIPE.ano}`
         );
         if (!resposta.ok) throw new Error("Erro ao buscar FIPE do destaque");
         const preco = (await resposta.json()) as PrecoFipe;
@@ -267,13 +291,85 @@ function Home() {
   }, []);
 
   useEffect(() => {
+    async function buscarFipeMoto() {
+      try {
+        const baseMotos = obterFipeApiBase("motos");
+        const respostaMarcas = await fetch(`${baseMotos}/marcas`);
+        if (!respostaMarcas.ok) throw new Error("Erro ao buscar marcas de motos");
+        const marcas = (await respostaMarcas.json()) as MarcaFipe[];
+        const marcaKawasaki = marcas.find(
+          (marca) => normalizarBusca(marca.nome) === normalizarBusca(KAWASAKI_NINJA_400_2024_BUSCA.marca)
+        );
+        if (!marcaKawasaki) throw new Error("Marca Kawasaki nao encontrada");
+
+        const respostaModelos = await fetch(`${baseMotos}/marcas/${marcaKawasaki.codigo}/modelos`);
+        if (!respostaModelos.ok) throw new Error("Erro ao buscar modelos Kawasaki");
+        const dadosModelos = (await respostaModelos.json()) as { modelos: ModeloFipe[] };
+        const modeloNinja = dadosModelos.modelos.find((modelo) =>
+          normalizarBusca(modelo.modelo ?? modelo.nome ?? "").includes(
+            normalizarBusca(KAWASAKI_NINJA_400_2024_BUSCA.modelo)
+          )
+        );
+        if (!modeloNinja?.codigo) throw new Error("Modelo Ninja 400 nao encontrado");
+
+        const respostaAnos = await fetch(`${baseMotos}/marcas/${marcaKawasaki.codigo}/modelos/${modeloNinja.codigo}/anos`);
+        if (!respostaAnos.ok) throw new Error("Erro ao buscar anos da Ninja 400");
+        const anos = (await respostaAnos.json()) as AnoFipe[];
+        const ano2024 = anos.find((ano) => ano.nome.includes(KAWASAKI_NINJA_400_2024_BUSCA.ano));
+        if (!ano2024) throw new Error("Ano 2024 da Ninja 400 nao encontrado");
+
+        const respostaPreco = await fetch(
+          `${baseMotos}/marcas/${marcaKawasaki.codigo}/modelos/${modeloNinja.codigo}/anos/${ano2024.codigo}`
+        );
+        if (!respostaPreco.ok) throw new Error("Erro ao buscar FIPE da Ninja 400");
+        const preco = (await respostaPreco.json()) as PrecoFipe;
+        setPrecoFipeMoto(preco);
+      } catch (error) {
+        console.error("Erro ao buscar FIPE da moto:", error);
+      }
+    }
+
+    buscarFipeMoto();
+  }, []);
+
+  useEffect(() => {
+    const aboutSection = aboutSectionRef.current;
+    if (!aboutSection) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !aboutTitleVisibleRef.current) {
+          aboutTitleVisibleRef.current = true;
+          setAboutTitleCycle((cycle) => cycle + 1);
+        }
+
+        if (!entry.isIntersecting) {
+          aboutTitleVisibleRef.current = false;
+        }
+      },
+      {
+        rootMargin: "-18% 0px -28% 0px",
+        threshold: 0.18,
+      }
+    );
+
+    observer.observe(aboutSection);
+
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
     async function buscarMarcas() {
       try {
         setErroFipe("");
-        const resposta = await fetch(`${FIPE_API_BASE}/marcas`);
+        const resposta = await fetch(`${obterFipeApiBase(simulacao.tipoVeiculo)}/marcas`);
         if (!resposta.ok) throw new Error("Erro ao buscar marcas");
         const marcas = (await resposta.json()) as MarcaFipe[];
         setMarcasFipe(marcas);
+        setModelosFipe([]);
+        setAnosFipe([]);
+        setPrecoFipe(null);
+        setSimulacaoEnviada(false);
       } catch (error) {
         console.error("Erro ao buscar marcas FIPE:", error);
         setErroFipe("Não foi possível carregar as marcas agora.");
@@ -281,7 +377,7 @@ function Home() {
     }
 
     buscarMarcas();
-  }, []);
+  }, [simulacao.tipoVeiculo]);
 
   useEffect(() => {
     async function buscarModelos() {
@@ -293,9 +389,9 @@ function Home() {
       try {
         setCarregandoFipe(true);
         setErroFipe("");
-        const resposta = await fetch(`${FIPE_API_BASE}/marcas/${simulacao.marca}/modelos`);
+        const resposta = await fetch(`${obterFipeApiBase(simulacao.tipoVeiculo)}/marcas/${simulacao.marca}/modelos`);
         if (!resposta.ok) throw new Error("Erro ao buscar modelos");
-        const dados = (await resposta.json()) as ModelosFipeResponse;
+        const dados = (await resposta.json()) as { modelos: ModeloFipe[] };
         setModelosFipe(dados.modelos);
       } catch (error) {
         console.error("Erro ao buscar modelos FIPE:", error);
@@ -306,7 +402,7 @@ function Home() {
     }
 
     buscarModelos();
-  }, [simulacao.marca]);
+  }, [simulacao.tipoVeiculo, simulacao.marca]);
 
   useEffect(() => {
     async function buscarAnos() {
@@ -318,9 +414,7 @@ function Home() {
       try {
         setCarregandoFipe(true);
         setErroFipe("");
-        const resposta = await fetch(
-          `${FIPE_API_BASE}/marcas/${simulacao.marca}/modelos/${simulacao.modelo}/anos`
-        );
+        const resposta = await fetch(`${obterFipeApiBase(simulacao.tipoVeiculo)}/marcas/${simulacao.marca}/modelos/${simulacao.modelo}/anos`);
         if (!resposta.ok) throw new Error("Erro ao buscar anos");
         const anos = (await resposta.json()) as AnoFipe[];
         setAnosFipe(anos);
@@ -333,7 +427,7 @@ function Home() {
     }
 
     buscarAnos();
-  }, [simulacao.marca, simulacao.modelo]);
+  }, [simulacao.tipoVeiculo, simulacao.marca, simulacao.modelo]);
 
   useEffect(() => {
     async function buscarPreco() {
@@ -346,9 +440,7 @@ function Home() {
       try {
         setCarregandoFipe(true);
         setErroFipe("");
-        const resposta = await fetch(
-          `${FIPE_API_BASE}/marcas/${simulacao.marca}/modelos/${simulacao.modelo}/anos/${simulacao.ano}`
-        );
+        const resposta = await fetch(`${obterFipeApiBase(simulacao.tipoVeiculo)}/marcas/${simulacao.marca}/modelos/${simulacao.modelo}/anos/${simulacao.ano}`);
         if (!resposta.ok) throw new Error("Erro ao buscar preço FIPE");
         const preco = (await resposta.json()) as PrecoFipe;
         setPrecoFipe(preco);
@@ -364,7 +456,7 @@ function Home() {
     }
 
     buscarPreco();
-  }, [simulacao.marca, simulacao.modelo, simulacao.ano]);
+  }, [simulacao.tipoVeiculo, simulacao.marca, simulacao.modelo, simulacao.ano]);
 
   const duvidasFrequentes = [
     {
@@ -425,7 +517,7 @@ function Home() {
     <main className="trustway-page min-h-screen overflow-x-hidden text-[#F0F2F4]">
       <section
         id="home"
-        className="hero-section relative isolate min-h-[clamp(680px,94svh,960px)] px-5 pb-8 pt-[clamp(6rem,18vh,16rem)] max-[760px]:min-h-0 max-[760px]:px-4 max-[760px]:pb-10 max-[760px]:pt-28"
+        className="hero-section relative isolate min-h-[100svh] px-5 pb-8 pt-[clamp(6rem,18vh,16rem)] max-[760px]:min-h-0 max-[760px]:px-4 max-[760px]:pb-10 max-[760px]:pt-28"
       >
         <div className="hero-noise absolute inset-0 -z-10 pointer-events-none opacity-30" aria-hidden="true" />
 
@@ -518,7 +610,7 @@ function Home() {
           className="relative z-[5] mx-auto mt-6 grid w-[min(760px,100%)] grid-cols-4 justify-center gap-x-[clamp(1.5rem,4vw,4rem)] gap-y-5 max-[760px]:mt-6 max-[760px]:w-[min(100%,30rem)] max-[760px]:grid-cols-2 max-[760px]:gap-x-5"
           aria-label="Selecionar categoria de veículo"
         >
-          {carros.map((carro) => {
+          {carros.map((carro, index) => {
             const isActive = carroSelecionado.id === carro.id;
 
             return (
@@ -526,9 +618,10 @@ function Home() {
                 type="button"
                 key={carro.id}
                 onClick={() => setCarroSelecionado(carro)}
-                className={`cursor-pointer border-0 bg-transparent text-center transition duration-200 hover:-translate-y-1 hover:text-[#F0F2F4] ${
+                className={`category-button cursor-pointer border-0 bg-transparent text-center transition duration-200 hover:-translate-y-1 hover:text-[#F0F2F4] ${
                   isActive ? "-translate-y-1 text-[#F0F2F4]" : "text-[#F0F2F4]/35"
                 }`}
+                style={{ animationDelay: `${620 + index * 110}ms` }}
               >
                 <p
                   className={`m-0 text-[0.74rem] font-black ${
@@ -555,6 +648,7 @@ function Home() {
 
       <section
         id="sobre"
+        ref={aboutSectionRef}
         className="flex min-h-[min(100svh,900px)] items-center justify-center gap-[clamp(3rem,7vw,6rem)] bg-black px-5 py-24 min-[981px]:pl-36 max-[1100px]:min-h-0 max-[1100px]:flex-col max-[1100px]:items-center max-[1100px]:pr-[clamp(1.25rem,8vw,5rem)] max-[760px]:items-start max-[760px]:px-5 max-[760px]:py-20"
       >
         <div className="w-[min(520px,100%)]">
@@ -568,6 +662,7 @@ function Home() {
 
           <svg
             className="about-outline-title mt-3"
+            key={`about-title-${aboutTitleCycle}`}
             viewBox="0 0 850 160"
             preserveAspectRatio="xMinYMid slice"
             aria-label="SEM LIMITES."
@@ -584,6 +679,7 @@ function Home() {
             </defs>
 
             <text
+              className="about-outline-title-text"
               x="10"
               y="85"
               dominantBaseline="middle"
@@ -598,10 +694,12 @@ function Home() {
           </svg>
 
           <p className="mt-9 max-w-[500px] text-[1rem] leading-[1.75] text-[#F0F2F4]/70">
-            A TrustWay redefine o mercado de seguros automotivos premium. Não
-            somos apenas uma seguradora; somos guardiões da sua paixão por
-            dirigir. Nossa tecnologia integra dados FIPE em tempo real para
-            coberturas dinâmicas e precisas.
+            A TrustWay redefine o mercado de seguros automotivos. Não
+            somos apenas uma seguradora, somos parceiros da sua jornada.
+            Com tecnologia avançada e integração em tempo real aos dados 
+            FIPE, entregamos coberturas inteligentes que acompanham as 
+            mudanças do mercado, garantindo proteção precisa, justa e 
+            personalizada para o seu veículo.
           </p>
 
           <div className="mt-11 flex flex-wrap gap-x-12 gap-y-6 max-[520px]:justify-between max-[520px]:gap-x-6">
@@ -617,7 +715,7 @@ function Home() {
 
             <div>
               <h3 className="font-impact m-0 text-[2.8rem] font-normal leading-[0.9]">
-                2.4s
+                2min
               </h3>
 
               <p className="mt-3 text-[0.7rem] font-black tracking-[0.12rem] text-[#F0F2F4]/35">
@@ -714,7 +812,7 @@ function Home() {
 
           <p className="mt-9 max-w-[610px] text-[clamp(1rem,1.5vw,1.35rem)] leading-[1.65] text-[#F0F2F4]/78">
             Simule seu seguro em poucos minutos e descubra a cobertura ideal para o
-            seu veículo. Na <span className="text-[#22D3EE]">Trust Way</span>, sua
+            seu veículo. Na <span className="text-[#22D3EE]">TrustWay</span>, sua
             segurança vem em primeiro lugar.
           </p>
         </div>
@@ -729,6 +827,25 @@ function Home() {
           <h3>Simule seu seguro</h3>
 
           <label>
+            <span>Tipo de veículo</span>
+            <select
+              value={simulacao.tipoVeiculo}
+              onChange={(event) => {
+                const tipoVeiculo = event.target.value as TipoVeiculoFipe;
+                setSimulacao({ tipoVeiculo, marca: "", modelo: "", ano: "" });
+                setBuscaSimulacao({ marca: "", modelo: "", ano: "" });
+                setMarcasFipe([]);
+                setModelosFipe([]);
+                setAnosFipe([]);
+                setPrecoFipe(null);
+              }}
+            >
+              <option value="carros">Carro</option>
+              <option value="motos">Moto</option>
+            </select>
+          </label>
+
+          <label>
             <span>Marca do veículo</span>
             <Combobox
               value={simulacao.marca}
@@ -737,14 +854,14 @@ function Home() {
               placeholder="Digite a marca"
               onInputChange={(value) => {
                 setBuscaSimulacao({ marca: value, modelo: "", ano: "" });
-                setSimulacao({ marca: "", modelo: "", ano: "" });
+                setSimulacao((atual) => ({ ...atual, marca: "", modelo: "", ano: "" }));
                 setModelosFipe([]);
                 setAnosFipe([]);
                 setPrecoFipe(null);
               }}
               onSelect={(option) => {
                 setBuscaSimulacao({ marca: option.label, modelo: "", ano: "" });
-                setSimulacao({ marca: option.value, modelo: "", ano: "" });
+                setSimulacao((atual) => ({ ...atual, marca: option.value, modelo: "", ano: "" }));
                 setModelosFipe([]);
                 setAnosFipe([]);
                 setPrecoFipe(null);
@@ -926,14 +1043,16 @@ function Home() {
           DESENVOLVEDORES POR TRÁS DA TRUSTWAY
         </p>
 
-        <div className="mx-auto grid w-[min(760px,100%)] grid-cols-3 justify-center gap-7 max-[760px]:w-[min(460px,100%)] max-[760px]:grid-cols-2 max-[520px]:gap-x-4 max-[520px]:gap-y-8 max-[380px]:grid-cols-1">
-          {equipe.map((pessoa, index) => (
-            <div key={index} className="team-member-card w-full">
-              <img
-                src={imageSrc(pessoa.imagem)}
-                alt={pessoa.nome}
-                className="relative z-[1] aspect-[7/9] w-full bg-[#181818] object-cover transition duration-300"
-              />
+	          <div className="mx-auto grid w-[min(760px,100%)] grid-cols-3 justify-center gap-7 max-[760px]:w-[min(460px,100%)] max-[760px]:grid-cols-2 max-[520px]:gap-x-4 max-[520px]:gap-y-8 max-[380px]:grid-cols-1">
+	          {equipe.map((pessoa, index) => (
+	            <div key={index} className="team-member-card w-full">
+	              <a href={pessoa.linkedin} target="_blank" rel="noreferrer" aria-label={`LinkedIn de ${pessoa.nome}`}>
+	                <img
+	                  src={imageSrc(pessoa.imagem)}
+	                  alt={pessoa.nome}
+	                  className="relative z-[1] aspect-[7/9] w-full bg-[#181818] object-cover transition duration-300"
+	                />
+	              </a>
 
               <h3 className="mb-1 mt-4 font-[var(--font-display)] text-[1.55rem] font-normal tracking-[0.05em]">
                 {pessoa.nome}
