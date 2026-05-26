@@ -178,7 +178,7 @@ function Home() {
       valorFipe: precoFipePopular?.Valor ?? "R$ 122.000",
       mediaSeguro: mediaSeguroPopular,
       descricao:
-        "Protecao inteligente para o Honda City Hatch 2024, com resposta rapida e cobertura sem surpresa.",
+        "Proteção inteligente para o Honda City Hatch 2024, com resposta rápida e cobertura sem surpresa.",
       imagem: popular,
       fundo: "POPULAR",
     },
