@@ -1,4 +1,4 @@
-# TrustWay Front
+# 🛡️ TrustWay Front
 
 <p align="center">
   <img src="./src/assets/trustway.png" alt="TrustWay" width="240" />
@@ -17,7 +17,7 @@
 
 ---
 
-## Sobre o projeto
+## 📌 Sobre o projeto
 
 O **TrustWay Front** é a interface web da TrustWay, uma plataforma de seguros automotivos com foco em simulação inteligente, experiência visual moderna e gestão de apólices.
 
@@ -36,7 +36,7 @@ A aplicação combina uma landing page imersiva com simulador baseado na Tabela 
 - **Relatórios e gestão de colaboradores** em áreas dedicadas.
 - **Feedback visual** com toasts, loaders e estados de erro.
 
-## Tecnologias
+## 🚀 Tecnologias
 
 | Camada | Ferramentas |
 | --- | --- |
@@ -104,7 +104,7 @@ src/
   main.tsx             # Entrada da aplicação
 ```
 
-## Como executar
+## ⚙️ Como executar
 
 ### Pré-requisitos
 
@@ -128,33 +128,6 @@ Depois, acesse a URL exibida no terminal. Normalmente:
 ```txt
 http://localhost:5173
 ```
-
-### Build de produção
-
-```bash
-npm run build
-```
-
-### Pré-visualização do build
-
-```bash
-npm run preview
-```
-
-### Verificação com ESLint
-
-```bash
-npm run lint
-```
-
-## Scripts disponíveis
-
-| Comando | Função |
-| --- | --- |
-| `npm run dev` | Inicia o servidor Vite |
-| `npm run build` | Gera o build de produção |
-| `npm run preview` | Executa uma prévia do build |
-| `npm run lint` | Analisa o código com ESLint |
 
 ## Fluxo de autenticação
 
