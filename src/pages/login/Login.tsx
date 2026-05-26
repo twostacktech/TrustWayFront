@@ -186,8 +186,7 @@ export default function Login() {
             </svg>
 
             <p className="text-[#FFFFFFFF]/80 text-sm sm:text-base lg:text-lg max-w-md pt-4 lg:pr-8">
-              Gerencie apólices, veículos e seu perfil em um só lugar. Tudo com
-              a segurança e velocidade que você merece.
+              Gerencie apólices, veículos e seu perfil em um só lugar. Tudo com a segurança e velocidade que você merece.
             </p>
           </div>
         </div>
