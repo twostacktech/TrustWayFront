@@ -1,7 +1,7 @@
 # TrustWay Front
 
 <p align="center">
-  <img src="./src/assets/trustway.png" alt="TrustWay" width="96" />
+  <img src="./src/assets/trustway.png" alt="TrustWay" width="240" />
 </p>
 
 <h3 align="center">
