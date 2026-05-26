@@ -166,18 +166,35 @@ npm run lint
    - Administrador: `/admcliente`
    - Cliente: `/minhas-apolices`
 
-## Equipe
+## 👩‍💻 Equipe
 
-Projeto desenvolvido por:
+<p align="center">
 
-| Nome | Atuação |
-| --- | --- |
-| Beatriz | Fullstack Dev |
-| Daniel | Fullstack Dev |
-| Juliana | Fullstack Dev |
-| Lorena | Fullstack Dev |
-| Luanna | Fullstack Dev |
-| Lucas | Fullstack Dev |
+<a href="https://github.com/BiiaBraga">
+<img src="https://github.com/BiiaBraga.png" width="120"/>
+</a>
+
+<a href="https://github.com/jbgx014">
+<img src="https://github.com/jbgx014.png" width="120"/>
+</a>
+
+<a href="https://github.com/macedoo15">
+<img src="https://github.com/macedoo15.png" width="120"/>
+</a>
+
+<a href="https://github.com/lou-godoi">
+<img src="https://github.com/lou-godoi.png" width="120"/>
+</a>
+
+<a href="https://github.com/luannaalcantara">
+<img src="https://github.com/luannaalcantara.png" width="120"/>
+</a>
+
+<a href="https://github.com/lucaaas-araujo">
+<img src="https://github.com/lucaaas-araujo.png" width="120"/>
+</a>
+
+</p>
 
 ## Status
 
