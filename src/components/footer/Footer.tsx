@@ -1,7 +1,7 @@
 import { FacebookLogo, InstagramLogo, WhatsappLogo } from "@phosphor-icons/react";
 
 const footerLinks = [
-  { href: "#showcase", label: "Início" },
+  { href: "#home", label: "Início" },
   { href: "#sobre", label: "Sobre nós" },
   { href: "#beneficios", label: "Benefícios" },
   { href: "#simulador", label: "Simule seu seguro" },
@@ -17,7 +17,7 @@ function Footer() {
             TRUSTWAY
           </h2>
           <p className="mt-4 max-w-[340px] text-sm leading-7 text-[#F0F2F4]/58">
-            Seguro veicular inteligente com cálculo FIPE, cobertura flexível e contratação digital.
+            Seguro automotivo inteligente e pensado para acompanhar você em cada trajeto.
           </p>
         </div>
 
@@ -44,7 +44,7 @@ function Footer() {
           </p>
           <div className="grid gap-3 text-sm font-bold text-[#F0F2F4]/62">
             <span>suporte@trustway.com</span>
-            <span>Segunda à sexta, 8h às 18h</span>
+            <span>Contratação 24hrs</span>
             <span>Contratação 100% online</span>
           </div>
         </div>
