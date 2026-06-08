@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 export const api = axios.create({
-  baseURL: 'https://trustway.onrender.com',
+  baseURL: 'https://trustway-mc0f.onrender.com/',
 })
 
 export const obterTokenSalvo = () =>
