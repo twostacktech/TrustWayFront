@@ -72,10 +72,6 @@ function Apolices() {
   }
 
   async function excluirApolice(id: number) {
-    if (!window.confirm("Deseja realmente excluir esta apólice?")) {
-      return
-    }
-
     try {
       await deletar(`/apolices/${id}`, obterHeaderAutenticado())
       setApolices((apolicesAtuais) =>
@@ -86,6 +82,42 @@ function Apolices() {
       console.error(error)
       toast.error("Erro ao excluir apólice.")
     }
+  }
+
+  function confirmarExclusao(id: number) {
+    toast(
+      ({ closeToast }: { closeToast?: () => void }) => (
+        <div>
+          <p className="mb-3 font-medium text-white">
+            Deseja realmente excluir esta apólice?
+          </p>
+          <div className="flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => closeToast?.()}
+              className="rounded border border-white/10 px-3 py-1 text-sm font-bold text-[#FAFAFA] transition hover:border-white/30"
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                closeToast?.()
+                excluirApolice(id)
+              }}
+              className="rounded bg-[#FF4FD8] px-3 py-1 text-sm font-bold text-white transition hover:bg-[#D946EF]"
+            >
+              Excluir
+            </button>
+          </div>
+        </div>
+      ),
+      {
+        autoClose: false,
+        closeOnClick: false,
+        draggable: false,
+      },
+    )
   }
 
   function abrirCadastro() {
@@ -305,7 +337,7 @@ function Apolices() {
                           {/* Botão Excluir */}
                           <button
                             type="button"
-                            onClick={() => excluirApolice(apolice.id)}
+                            onClick={() => confirmarExclusao(apolice.id)}
                             className="cursor-pointer rounded p-1 text-[#A1A1AA] transition-all duration-300 hover:bg-white/[0.05] hover:text-[#FF4FD8] hover:shadow-[0_0_10px_rgba(255,79,216,0.3)]"
                             title="Excluir apólice"
                           >
